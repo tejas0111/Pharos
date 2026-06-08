@@ -21,3 +21,27 @@ export interface NetworkConfig {
   rpcUrlEnvVar: string;
   explorerBaseUrl: string;
 }
+
+export interface WalletTokenBalance {
+  symbol: string;
+  balance: string;
+}
+
+export interface WalletContextEntry {
+  address: `0x${string}`;
+  nativeBalance: string;
+  tokens: WalletTokenBalance[];
+  recentActivity: string[];
+  topContracts: string[];
+}
+
+export interface WalletContextResult {
+  wallets: WalletContextEntry[];
+  sharedContracts: string[];
+}
+
+export interface Insight {
+  type: string;
+  severity: "low" | "medium" | "high";
+  message: string;
+}
