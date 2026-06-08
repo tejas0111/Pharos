@@ -1,11 +1,19 @@
 ---
 name: pharos-deployment-and-verification
-description: Prepare deploy scripts, env variables, explorer verification, and post-deploy release checks. Use when the user says: deploy, verification, explorer, release, publish contract.
+description: "Prepare deploy scripts, env variables, explorer verification, and post-deploy checks. Use when the user says: deploy, verification, explorer, release, publish contract, deployment prep, deploy script, verification flow. Do NOT use for: actually broadcasting a transaction (hand off to pharos-agent-deploy-suite), or planning deployment across networks (use deployment-for-testnet-and-mainnet). See also: deployment-for-testnet-and-mainnet (network planning), pharos-agent-deploy-suite (broadcast execution)."
 ---
 
 # Deployment and Verification
 
-Use when the user needs release or deploy preparation.
+Prepare deploy scripts, env variables, explorer verification, and post-deploy checks.
+
+## When to Use
+
+deploy, verification, explorer, release, publish contract, deployment prep, deploy script, verification flow
+
+## When NOT to Use
+
+actually broadcasting a transaction (hand off to pharos-agent-deploy-suite), or planning deployment across networks (use deployment-for-testnet-and-mainnet)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs release or deploy preparation.
 - env var list
 - post-deploy checks
 
-## Gate
+## Examples
 
-High risk. Do not touch deployment behavior before approval.
+- "Prepare the deploy and verification flow for this contract"
+- "Write the release checklist for a Pharos contract rollout"
+- "Set up the deploy scripts and env variables for testnet deployment"
+
+## Verification
+
+Dry run or script syntax check. Not a real broadcast.
+
+## Related
+
+deployment-for-testnet-and-mainnet (network planning), pharos-agent-deploy-suite (broadcast execution)

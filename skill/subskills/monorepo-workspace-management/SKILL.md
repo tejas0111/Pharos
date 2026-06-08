@@ -1,11 +1,19 @@
 ---
 name: pharos-monorepo-workspace-management
-description: Handle monorepo workspace boundaries, shared packages, Turborepo, pnpm workspaces, and package scripts. Use when the user says: monorepo, workspace, Turborepo, pnpm workspace, shared package.
+description: "Handle workspace boundaries, package scripts, and shared tooling in monorepos. Use when the user says: monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace boundaries, package scripts, multi-package. Do NOT use for: working within a single package (use the relevant feature subskill), or adding a single dependency (use dependency-upgrade-management). See also: dependency-upgrade-management (package version changes), repo-automation-and-tooling (workspace scripts)."
 ---
 
 # Monorepo and Workspace Management
 
-Use when the user needs workspace or monorepo changes.
+Handle workspace boundaries, package scripts, and shared tooling in monorepos.
+
+## When to Use
+
+monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace boundaries, package scripts, multi-package
+
+## When NOT to Use
+
+working within a single package (use the relevant feature subskill), or adding a single dependency (use dependency-upgrade-management)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs workspace or monorepo changes.
 - script changes
 - verification result
 
-## Gate
+## Examples
 
-Medium risk. Show the workspace plan before changing boundaries.
+- "Organize this repo as a monorepo with shared packages"
+- "Fix the workspace scripts so the app and contracts build together"
+- "Set up Turborepo caching for this monorepo's build and test pipeline"
+
+## Verification
+
+npm run build across all packages or turbo run build.
+
+## Related
+
+dependency-upgrade-management (package version changes), repo-automation-and-tooling (workspace scripts)

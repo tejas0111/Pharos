@@ -1,11 +1,19 @@
 ---
 name: pharos-code-scaffolding-and-generation
-description: Generate starter files, project scaffolds, boilerplate, and template structures for new developer workflows. Use when the user says: scaffold, starter, boilerplate, generate files, template.
+description: "Generate starter files, boilerplate, or project scaffolds for a new developer workflow. Use when the user says: scaffold, starter, boilerplate, generate files, template, create a new, initialize, project setup, file generation. Do NOT use for: editing existing code (use the relevant subskill for that code), or writing documentation (use docs-and-example-generation). See also: docs-and-example-generation (content, not structure), framework-integration (configuration setup)."
 ---
 
 # Code Scaffolding and Generation
 
-Use when the user needs a starter structure or boilerplate generated.
+Generate starter files, boilerplate, or project scaffolds for a new developer workflow.
+
+## When to Use
+
+scaffold, starter, boilerplate, generate files, template, create a new, initialize, project setup, file generation
+
+## When NOT to Use
+
+editing existing code (use the relevant subskill for that code), or writing documentation (use docs-and-example-generation)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs a starter structure or boilerplate generated.
 - generation notes
 - follow-up suggestions
 
-## Gate
+## Examples
 
-Low risk. Still show the plan before generating files.
+- "Scaffold a contract test folder and helper layout"
+- "Generate a starter Next.js integration structure for this dapp"
+- "Create a boilerplate Hardhat project with deploy scripts and test helpers"
+
+## Verification
+
+File structure check. npm run build or forge build on the generated scaffold.
+
+## Related
+
+docs-and-example-generation (content, not structure), framework-integration (configuration setup)

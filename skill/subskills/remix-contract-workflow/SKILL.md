@@ -1,11 +1,19 @@
 ---
 name: pharos-remix-contract-workflow
-description: Set up browser-based Solidity development and quick iteration using Remix IDE. Use when the user says: Remix, browser Solidity, quick contract iteration.
+description: "Set up Remix-based contract development, testing, and quick iteration flows. Use when the user says: Remix, browser Solidity, quick contract iteration, Remix workflow, Remix IDE, online Solidity. Do NOT use for: local development environment (use foundry-hardhat-contract-workflow), or production deployment (use deployment-and-verification). See also: foundry-hardhat-contract-workflow (local alternative), framework-integration (config setup)."
 ---
 
 # Remix Contract Workflow
 
-Use when the user wants browser-based Solidity iteration in Remix.
+Set up Remix-based contract development, testing, and quick iteration flows.
+
+## When to Use
+
+Remix, browser Solidity, quick contract iteration, Remix workflow, Remix IDE, online Solidity
+
+## When NOT to Use
+
+local development environment (use foundry-hardhat-contract-workflow), or production deployment (use deployment-and-verification)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants browser-based Solidity iteration in Remix.
 - workflow steps
 - verification suggestion
 
-## Gate
+## Examples
 
-Low risk. Present the plan first, then proceed once it looks right.
+- "Set up a Remix workflow for rapid Solidity iteration"
+- "Plan a contract test flow using Remix in the browser"
+- "Configure Remix to work with Pharos networks for quick deploys"
+
+## Verification
+
+Manual check in Remix IDE.
+
+## Related
+
+foundry-hardhat-contract-workflow (local alternative), framework-integration (config setup)

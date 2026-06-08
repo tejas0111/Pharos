@@ -1,11 +1,19 @@
 ---
 name: pharos-bug-finding-and-debugging
-description: Trace failures in compile, runtime, test, or UI behavior and propose focused fixes with root-cause analysis. Use when the user says: bug, debug, error, failing build, failing test, runtime issue.
+description: "Trace failures in compile, runtime, test, or UI behavior and propose focused fixes. Use when the user says: bug, debug, error, failing build, failing test, runtime issue, something is broken, not working, trace failure, root cause. Do NOT use for: reviewing code without a specific failure (use contract-review), or fixing CI pipelines (use ci-and-build-troubleshooting). See also: contract-review (review before fixing), ci-and-build-troubleshooting (pipeline failures)."
 ---
 
 # Bug Finding and Debugging
 
-Use when the user needs a root-cause analysis or a narrow fix.
+Trace failures in compile, runtime, test, or UI behavior and propose focused fixes.
+
+## When to Use
+
+bug, debug, error, failing build, failing test, runtime issue, something is broken, not working, trace failure, root cause
+
+## When NOT to Use
+
+reviewing code without a specific failure (use contract-review), or fixing CI pipelines (use ci-and-build-troubleshooting)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs a root-cause analysis or a narrow fix.
 - patch notes
 - verification result
 
-## Gate
+## Examples
 
-High risk. Do not edit files before approval.
+- "Debug this failing contract test and explain the root cause"
+- "Find why the frontend transaction state never updates"
+- "Investigate why forge script is reverting with out-of-gas"
+
+## Verification
+
+The specific failing test/command passes. Re-run the original failing command.
+
+## Related
+
+contract-review (review before fixing), ci-and-build-troubleshooting (pipeline failures)

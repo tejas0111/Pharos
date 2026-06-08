@@ -1,11 +1,19 @@
 ---
 name: pharos-framework-integration
-description: Wire Pharos dev patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix. Use when the user says: Next.js, wagmi, viem, ethers, Foundry, Hardhat, Remix, framework setup.
+description: "Wire Pharos development patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix. Use when the user says: Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Pharos to, configure, integration setup. Do NOT use for: working within an already-configured framework (use the workflow-specific subskill, e.g., wagmi-viem-dapp-workflow). See also: wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, nextjs-app-router-and-server-actions, remix-contract-workflow, tailwind-shadcn-ui-workflow."
 ---
 
 # Framework Integration
 
-Use when the user wants setup or wiring for a development framework.
+Wire Pharos development patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix.
+
+## When to Use
+
+Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Pharos to, configure, integration setup
+
+## When NOT to Use
+
+working within an already-configured framework (use the workflow-specific subskill, e.g., wagmi-viem-dapp-workflow)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants setup or wiring for a development framework.
 - setup steps
 - verification command
 
-## Gate
+## Examples
 
-Plan-first, but low risk. Proceed after the user agrees.
+- "Add Wagmi and Viem wiring to this Next.js app"
+- "Prepare a Foundry project for contract development on Pharos"
+- "Configure Hardhat with Pharos network definitions"
+
+## Verification
+
+npm run build or framework-specific config check.
+
+## Related
+
+wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, nextjs-app-router-and-server-actions, remix-contract-workflow, tailwind-shadcn-ui-workflow

@@ -1,11 +1,19 @@
 ---
 name: pharos-performance-optimization
-description: Find and reduce runtime, render, bundle size, and gas-adjacent inefficiencies in code paths. Use when the user says: performance, optimize, slow, bottleneck, bundle size, latency.
+description: "Find and reduce runtime, render, bundle, or gas-adjacent inefficiencies in code paths. Use when the user says: performance, optimize, slow, bottleneck, bundle size, latency, gas optimization, too slow, speed up, reduce gas. Do NOT use for: readability or structural improvements (use refactoring-and-code-health), or bug fixes (use bug-finding-and-debugging). See also: refactoring-and-code-health (non-performance structure changes), solidity-authoring (contract gas optimization)."
 ---
 
 # Performance Optimization
 
-Use when the user wants a bottleneck reduced or a slow path improved.
+Find and reduce runtime, render, bundle, or gas-adjacent inefficiencies in code paths.
+
+## When to Use
+
+performance, optimize, slow, bottleneck, bundle size, latency, gas optimization, too slow, speed up, reduce gas
+
+## When NOT to Use
+
+readability or structural improvements (use refactoring-and-code-health), or bug fixes (use bug-finding-and-debugging)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants a bottleneck reduced or a slow path improved.
 - metric target
 - verification result
 
-## Gate
+## Examples
 
-Medium risk. Optimize only after the plan is approved.
+- "Optimize this React rendering path"
+- "Reduce the build size and startup cost of this dapp"
+- "Find gas optimization opportunities in this Solidity contract's hot loops"
+
+## Verification
+
+Before/after metric comparison (render time, bundle size, gas estimate).
+
+## Related
+
+refactoring-and-code-health (non-performance structure changes), solidity-authoring (contract gas optimization)

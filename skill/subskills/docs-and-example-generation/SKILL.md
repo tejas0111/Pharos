@@ -1,11 +1,19 @@
 ---
 name: pharos-docs-and-example-generation
-description: Write developer docs, README files, usage examples, and agent prompt guidance. Use when the user says: docs, README, examples, usage instructions, agent prompt, guides.
+description: "Write clear docs, usage instructions, and examples for developers and agents. Use when the user says: docs, README, examples, usage instructions, agent prompt, guides, documentation, how-to, API docs. Do NOT use for: generating file structure (use code-scaffolding-and-generation), or writing release notes (use release-notes-and-changelog). See also: code-scaffolding-and-generation (generating file structure), release-notes-and-changelog (release docs)."
 ---
 
 # Docs and Example Generation
 
-Use when the user wants docs or examples written.
+Write clear docs, usage instructions, and examples for developers and agents.
+
+## When to Use
+
+docs, README, examples, usage instructions, agent prompt, guides, documentation, how-to, API docs
+
+## When NOT to Use
+
+generating file structure (use code-scaffolding-and-generation), or writing release notes (use release-notes-and-changelog)
 
 ## Workflow
 
@@ -19,8 +27,18 @@ Use when the user wants docs or examples written.
 - docs draft
 - examples
 - usage steps
-- maintainer notes
+- notes for maintainers
 
-## Gate
+## Examples
 
-Low risk. Present the plan first, then proceed once the user agrees.
+- "Write developer docs for this contract helper"
+- "Generate example prompts for the Pharos skill suite"
+- "Document the deployment flow with env vars and script usage"
+
+## Verification
+
+Visual review of the documentation.
+
+## Related
+
+code-scaffolding-and-generation (generating file structure), release-notes-and-changelog (release docs)

@@ -1,11 +1,19 @@
 ---
 name: pharos-release-notes-and-changelog
-description: Turn code changes into release notes, changelog entries, or PR summaries in clear developer language. Use when the user says: release notes, changelog, release summary, PR summary, shipping notes.
+description: "Turn a set of code changes into clear release notes, changelog entries, or PR summaries. Use when the user says: release notes, changelog, release summary, PR summary, shipping notes, what changed, changelog entry, version notes. Do NOT use for: writing technical documentation (use docs-and-example-generation), or preparing deployment (use deployment-and-verification). See also: code-scaffolding-and-generation (file generation variant), docs-and-example-generation (developer docs)."
 ---
 
 # Release Notes and Changelog
 
-Use when the user needs a polished release summary.
+Turn a set of code changes into clear release notes, changelog entries, or PR summaries.
+
+## When to Use
+
+release notes, changelog, release summary, PR summary, shipping notes, what changed, changelog entry, version notes
+
+## When NOT to Use
+
+writing technical documentation (use docs-and-example-generation), or preparing deployment (use deployment-and-verification)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs a polished release summary.
 - risk notes
 - summary bullets
 
-## Gate
+## Examples
 
-Low risk. Present the outline first, then proceed once it looks right.
+- "Write the changelog entry for this dapp release"
+- "Summarize the key changes for a Pharos package update"
+- "Draft the release notes for v2.0.0 upgrade"
+
+## Verification
+
+Visual review of the formatted entry.
+
+## Related
+
+code-scaffolding-and-generation (file generation variant), docs-and-example-generation (developer docs)

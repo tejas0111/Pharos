@@ -1,11 +1,19 @@
 ---
 name: pharos-contract-review
-description: Review Solidity code for security, access control, reentrancy, gas optimization, and design correctness. Use when the user says: review contract, audit, security review, Solidity review, gas review.
+description: "Review Solidity code for correctness, security, gas, and design issues. Use when the user says: review contract, audit, security review, Solidity review, gas review, check this contract, look for bugs, security audit. Do NOT use for: fixing specific bugs (use bug-finding-and-debugging), writing new code (use solidity-authoring), or automated analysis (use forge test or slither directly). See also: bug-finding-and-debugging (fixing issues), solidity-authoring (patching)."
 ---
 
 # Contract Review
 
-Use when the user wants a code review or security pass on Solidity.
+Review Solidity code for correctness, security, gas, and design issues.
+
+## When to Use
+
+review contract, audit, security review, Solidity review, gas review, check this contract, look for bugs, security audit
+
+## When NOT to Use
+
+fixing specific bugs (use bug-finding-and-debugging), writing new code (use solidity-authoring), or automated analysis (use forge test or slither directly)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants a code review or security pass on Solidity.
 - evidence notes
 - patch priorities
 
-## Gate
+## Examples
 
-High risk. Do not patch findings before the user confirms the direction.
+- "Review this vault contract for access-control mistakes"
+- "Audit this mint function for reentrancy and supply bugs"
+- "Check this upgradeable proxy pattern for storage collision risks"
+
+## Verification
+
+Manual review only. Optionally recommend slither or forge inspect for automated checks.
+
+## Related
+
+bug-finding-and-debugging (fixing issues), solidity-authoring (patching)
