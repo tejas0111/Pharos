@@ -1,0 +1,443 @@
+---
+name: pharos-agent-deploy-suite
+description: "Use ONLY when the user needs to deploy, broadcast, or verify Pharos contracts on testnet or mainnet. This skill handles: contract deployment (Foundry/Hardhat), transaction broadcast, explorer verification, RPC configuration, signer setup, post-deploy checks, deployment simulation/dry-run, and explorer interactions. Do NOT use for: contract coding, testing, debugging, architecture, frontend work, or any non-deploy development. Trigger keywords: deploy, broadcast, verify, testnet, mainnet, RPC, explorer, forge script, hardhat deploy, PHAROS_TESTNET_RPC_URL, PHAROS_MAINNET_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, simulate, dry-run, gas estimation, signer, nonce, release, go live, production. Hand off to pharos-agent-dev-suite for all development work before deployment."
+slash: true
+---
+
+# Pharos Agent Deploy Suite
+
+High-risk deployment skill for broadcasting and verifying Pharos contracts on testnet and mainnet. **Every broadcast requires explicit approval.** No exceptions.
+
+## Quick Reference
+
+| Rule | Detail |
+|---|---|
+| Simulate before broadcast | Run simulation/dry-run first on every deployment |
+| Testnet before mainnet | Default to testnet unless user explicitly requests mainnet |
+| Explicit approval required | Every broadcast, mainnet or testnet, must be approved |
+| No invented config | Never guess RPC URLs, chain IDs, private keys, or API endpoints |
+| Use existing scripts | Prefer repo's deploy scripts or bundled templates over new flows |
+| Pre-flight checklist | Run before every broadcast (see Pre-Flight section) |
+
+## When to Use
+
+Trigger when the user says any of:
+
+```
+deploy • broadcast • forge script • forge create • hardhat deploy
+verify • explorer • testnet • mainnet • RPC URL • private key • signer
+deployment • release to mainnet • testnet rehearsal • go live • production
+simulate • dry-run • gas estimation • nonce • deploy and verify
+claim • faucet • get testnet tokens
+```
+
+Do NOT trigger for: writing contracts, testing, debugging, frontend work, architecture review, or any development task — route those to `pharos-agent-dev-suite`.
+
+## Script Selection Decision Tree
+
+Choose the correct script by answering these questions in order:
+
+```
+1. Which toolchain does the repo use?
+   ├── foundry.toml exists, or user mentions "forge"     → Foundry scripts
+   ├── hardhat.config.* exists, or user mentions "hardhat" → Hardhat scripts
+   └── Neither or unknown → Ask the user: "Are you using Foundry or Hardhat?"
+
+2. Which network?
+   ├── User says "testnet", "test", "dry-run", or nothing → testnet
+   └── User says "mainnet", "production", "release"       → mainnet
+
+3. Is this a simulation or a real broadcast?
+   ├── First deploy, or user says "simulate", "dry-run", "check"  → SIMULATE_ONLY=1
+   ├── User says "deploy", "broadcast", "send"                     → broadcast
+   └── User says "verify only"                                     → verify script
+
+4. Does the user want verification?
+   ├── User says "verify", "explorer", or nothing after deploy     → set VERIFY=1
+   └── User says "skip verify", "no explorer"                      → VERIFY=0
+```
+
+### Script Table
+
+| Situation | Script |
+|---|---|
+| Foundry + testnet + simulate | `SIMULATE_ONLY=1 ./scripts/deploy-testnet.sh` |
+| Foundry + testnet + broadcast | `./scripts/deploy-testnet.sh` |
+| Foundry + testnet + broadcast + verify | `VERIFY=1 ./scripts/deploy-testnet.sh` |
+| Foundry + mainnet + simulate | `SIMULATE_ONLY=1 ./scripts/deploy-mainnet.sh` |
+| Foundry + mainnet + broadcast | `./scripts/deploy-mainnet.sh` |
+| Foundry + mainnet + broadcast + verify | `VERIFY=1 ./scripts/deploy-mainnet.sh` |
+| Hardhat + testnet + deploy | `./scripts/deploy-testnet-hardhat.sh` |
+| Hardhat + mainnet + deploy | `./scripts/deploy-mainnet-hardhat.sh` |
+| Hardhat + testnet + verify | `DEPLOYED_ADDRESS=0x... ./scripts/verify-testnet-hardhat.sh` |
+| Hardhat + mainnet + verify | `DEPLOYED_ADDRESS=0x... ./scripts/verify-mainnet-hardhat.sh` |
+
+## Pre-Flight Checklist
+
+Before any broadcast, confirm with the user (or via repo config) that these conditions are met:
+
+| # | Check | How to verify |
+|---|---|---|
+| 1 | RPC URL is correct for the target network | Read from env var; confirm with user |
+| 2 | Signer private key is set | Confirm `PRIVATE_KEY` is exported; never display its value |
+| 3 | Deployer has enough gas | Run a balance check JSON-RPC call on the target network |
+| 4 | Correct deploy script selected | Check `SCRIPT_TARGET` or contract path |
+| 5 | Contract compiles cleanly | Run `forge build` or `npx hardhat compile` |
+| 6 | Solc version matches the network | Check compiler overrides in `foundry.toml` or `hardhat.config.ts` |
+| 7 | Nonce is correct | Check nonce of the deployer address if prior txs are pending |
+| 8 | Constructor args are correct | Review the deploy script/args for the correct initial values |
+| 9 | Verification API key is set | If `VERIFY=1`, confirm `ETHERSCAN_API_KEY` is exported |
+| 10 | Simulation passes | Run `SIMULATE_ONLY=1` and confirm no revert or error |
+
+**Mainnet-only pre-flight checks** (additional):
+
+| # | Check | Why |
+|---|---|---|
+| 11 | Confirm chain ID matches mainnet | `cast chain-id` against known Pharos mainnet ID |
+| 12 | Balance check: deployer has sufficient funds | Mainnet gas costs are real; check balance is 2x estimated gas |
+| 13 | Contract bytecode is final | Confirm no pending changes to the source after compilation |
+| 14 | Timelock/multi-sig is ready | If the contract uses upgradeable proxy or admin role, confirm ownership transfer plan |
+
+## Environment Variables
+
+These are required by the bundled scripts. The user must set them before deployment:
+
+| Variable | Required for | Notes |
+|---|---|---|
+| `PHAROS_TESTNET_RPC_URL` | Testnet deploy | Testnet JSON-RPC endpoint |
+| `PHAROS_MAINNET_RPC_URL` | Mainnet deploy | Mainnet JSON-RPC endpoint |
+| `PRIVATE_KEY` | All deploys | Signer private key (hex with or without 0x prefix) |
+| `ETHERSCAN_API_KEY` | Verification (Foundry) | Only needed when `VERIFY=1` |
+| `DEPLOYED_ADDRESS` | Hardhat verification | Contract address after deployment |
+| `HARDHAT_NETWORK` | Hardhat commands | Defaults to `pharosTestnet` / `pharosMainnet` |
+
+Never hardcode these in config files or scripts. Use env vars at runtime.
+
+## Deploy Subskills
+
+Route to the network-specific variant:
+
+| Subskill | Use when |
+|---|---|
+| `testnet-deployment` | "Deploy this contract to Pharos testnet" / testnet rehearsal |
+| `mainnet-deployment` | "Deploy this contract to Pharos mainnet" / mainnet release |
+
+## Bundled Scripts
+
+All scripts live in `scripts/` and are parameterized via environment variables.
+
+### Foundry
+
+| Script | Purpose | Env vars |
+|---|---|---|
+| `scripts/deploy-testnet.sh` | Deploy contract via Foundry to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` |
+| `scripts/deploy-mainnet.sh` | Deploy contract via Foundry to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` |
+
+Foundry script usage:
+
+```bash
+# Simulate only (no broadcast)
+SIMULATE_ONLY=1 ./scripts/deploy-testnet.sh
+
+# Deploy + verify on testnet
+VERIFY=1 ./scripts/deploy-testnet.sh
+
+# Custom deploy script
+SCRIPT_TARGET=script/MyDeploy.s.sol:MyDeploy ./scripts/deploy-mainnet.sh
+```
+
+### Hardhat
+
+| Script | Purpose | Env vars |
+|---|---|---|
+| `scripts/deploy-testnet-hardhat.sh` | Deploy via Hardhat to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` |
+| `scripts/deploy-mainnet-hardhat.sh` | Deploy via Hardhat to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` |
+| `scripts/verify-testnet-hardhat.sh` | Verify contract on testnet explorer | `PHAROS_TESTNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` |
+| `scripts/verify-mainnet-hardhat.sh` | Verify contract on mainnet explorer | `PHAROS_MAINNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` |
+
+Hardhat script usage:
+
+```bash
+# Default deploy (uses "deploy" tag)
+./scripts/deploy-testnet-hardhat.sh
+
+# Deploy with specific tags
+DEPLOY_TAGS=upgrade ./scripts/deploy-mainnet-hardhat.sh
+
+# Verify after deployment
+DEPLOYED_ADDRESS=0x123... ./scripts/verify-testnet-hardhat.sh
+```
+
+## Core Behavior
+
+1. **Confirm** the target network, contract artifact, toolchain, RPC config, signer config, and verification target.
+2. **Check** if the repo already has deploy scripts or config — use those instead of inventing new flows.
+3. **Run pre-flight** checklist (see above) — present results to the user.
+4. **Draft** the smallest safe deployment plan including simulation steps.
+5. **Present** the plan and ask for explicit approval before any broadcast.
+6. **Execute** the chosen deploy command only after approval.
+7. **Capture** the deployed address, tx hash, explorer link, and verification result.
+8. **Run post-deploy verification** (see below).
+9. **If verification fails**, report the exact failure and stop. Do not retry with a different approach without user approval.
+
+## Post-Deploy Verification Protocol
+
+After a successful broadcast, confirm:
+
+| Step | Action | Expected result |
+|---|---|---|
+| 1 | Capture deployed address from script output | Address logged to console |
+| 2 | Fetch tx receipt | Transaction exists on the target network |
+| 3 | Query contract code | `getCode` returns non-empty bytecode |
+| 4 | Verification (if requested) | Explorer shows ✅ Verified or equivalent |
+| 5 | Check contract state (owner, totalSupply, etc.) | State matches constructor args |
+| 6 | Log explorer URL | `https://{network}-explorer.pharos.network/address/{addr}` |
+| 7 | Save deploy artifact | Address, tx hash, block number, timestamp to a deploy log |
+
+Report the final state:
+
+```json
+{
+  "status": "deployed",
+  "network": "pharos-testnet",
+  "contract": "Token.sol",
+  "address": "0x...",
+  "deployer": "0x...",
+  "txHash": "0x...",
+  "blockNumber": 1234567,
+  "explorerUrl": "https://testnet-explorer.pharos.network/address/0x...",
+  "verified": true
+}
+```
+
+## Emergency Rollback Guidance
+
+If a deployment goes wrong (wrong contract, wrong network, unexpected behavior):
+
+| Scenario | Action | User must do |
+|---|---|---|
+| Deployed to testnet instead of mainnet | Safe — testnet is non-production. Log the address and move on. | Nothing |
+| Deployed wrong contract version | Deploy the correct version with a fresh script. The old contract can be abandoned. | Nothing |
+| Deployed to mainnet with wrong args | If the contract is upgradeable: deploy a proxy upgrade. If not: the contract is immutable — inform the user immediately. | Decide if they need a new deployment or a migration |
+| Deployed to mainnet with a bug | If the contract has an `upgradeTo` function: deploy an upgrade. If no upgrade path: the bug is frozen — inform the user. | Bug-fix deploy or accept the bug |
+| Deployer key was compromised | Inform user. They must transfer ownership, deploy from a new key, or migrate. | Rotate key immediately |
+| Verification failure after successful deploy | The contract exists but isn't verified. Re-run verify with the correct args. | Confirm the source matches the deployed bytecode |
+
+**Rule**: Never propose a migration, selfdestruct, or ownership transfer without explicit user approval. These are high-risk operations that can cause irreversible loss.
+
+## Communication Templates
+
+**Pre-deployment plan for approval:**
+
+```
+## Deployment Plan: {contract} to {network}
+
+**Toolchain**: Foundry
+**Target network**: pharos-testnet
+**Script**: `VERIFY=1 ./scripts/deploy-testnet.sh`
+**Contract**: `src/{file}.sol:{contract}`
+
+**Pre-flight check results**:
+- ✅ RPC URL: set
+- ✅ Private key: set
+- ✅ Balance check: {balance} native token
+- ✅ Compilation: clean
+- ✅ Simulation: passed
+- ✅ Constructor args: {args}
+
+**Assumptions**:
+- {assumption 1}
+- {assumption 2}
+
+Do you approve this deployment?
+```
+
+**Post-deployment summary:**
+
+```
+## Deployment Complete
+
+{contract} deployed to {network}
+
+**Address**: `0x...`
+**Tx hash**: `0x...`
+**Block**: #1234567
+**Explorer**: https://testnet-explorer.pharos.network/address/0x...
+**Verified**: ✅
+
+**Next steps**:
+- {suggestion 1}
+- {suggestion 2}
+```
+
+**Deploy failure report:**
+
+```
+## Deployment Failed
+
+**Network**: pharos-testnet
+**Contract**: Token.sol
+**Error**: {exact error message from forge/hardhat}
+
+**Likely cause**: {explanation}
+
+**Recommended fix**: {action to resolve}
+
+**Suggested command to retry**:
+```bash
+{corrected command}
+```
+
+Do you want to fix and retry, or abort?
+```
+
+**Verification failure after successful deploy:**
+
+```
+## Verification Failed
+
+**Contract**: `0x...` was deployed successfully but verification failed.
+
+**Error**: {exact error}
+
+**Likely cause**: {explanation — e.g., wrong API key, mismatch between deployed bytecode and source, wrong compiler version}
+
+**Options**:
+1. Fix the issue and re-run verification with corrected params
+2. Skip verification (contract exists on-chain but won't show source on explorer)
+
+Which option do you prefer?
+```
+
+**Rollback/abort communication:**
+
+```
+## Deployment Aborted
+
+**Network**: pharos-mainnet
+**Stage**: Pre-flight check failed
+
+**Issue**: {issue description}
+
+**No transactions were broadcast.** The network state is unchanged.
+
+**To proceed later**: {what the user needs to resolve}
+```
+
+## Output Contract
+
+Always return all 6 fields:
+
+1. **Summary** — network, contract, tx hash, explorer link
+2. **Deployment plan** — the exact commands and config
+3. **Required config** — env vars the user must set
+4. **Assumptions** — RPC endpoints, chain IDs, signer assumptions
+5. **Verification steps** — how to confirm the deployment
+6. **Approval question** — gate before every broadcast or mainnet execution
+
+### Output Variants
+
+**Simulation only (pre-broadcast):**
+```json
+{
+  "stage": "simulation",
+  "network": "pharos-testnet",
+  "contract": "Token.sol",
+  "simulationResult": "Simulation passed — no revert, gas estimated: 245000",
+  "deployCommand": "VERIFY=1 ./scripts/deploy-testnet.sh",
+  "requiredEnv": ["PHAROS_TESTNET_RPC_URL", "PRIVATE_KEY"],
+  "assumptions": ["Testnet RPC is publicly available"],
+  "preFlightChecks": ["✅ RPC set", "✅ Key set", "✅ Balance sufficient", "✅ Compilation clean", "✅ Simulation passed"],
+  "approvalQuestion": "Simulation passed. Proceed with testnet broadcast?"
+}
+```
+
+**Successful broadcast + verification:**
+```json
+{
+  "stage": "broadcast",
+  "status": "success",
+  "network": "pharos-testnet",
+  "contract": "Token.sol",
+  "address": "0x...",
+  "txHash": "0x...",
+  "blockNumber": 1234567,
+  "explorerUrl": "https://testnet-explorer.pharos.network/address/0x...",
+  "verified": true,
+  "deployCommand": "VERIFY=1 ./scripts/deploy-testnet.sh",
+  "nextSteps": ["Update the frontend with the new address", "Tag the release commit"]
+}
+```
+
+**Verification failure after successful deploy:**
+```json
+{
+  "stage": "post-deploy-verification",
+  "status": "partial",
+  "network": "pharos-testnet",
+  "contract": "Token.sol",
+  "address": "0x...",
+  "txHash": "0x...",
+  "verificationFailed": "Contract source code does not match deployed bytecode",
+  "likelyCause": "Compiler version mismatch: source uses 0.8.20, deployed with 0.8.19",
+  "recommendedFix": "Set solc version to 0.8.19 in foundry.toml, rebuild, and re-run verify",
+  "approvalQuestion": "Fix the solc version and re-run verification?"
+}
+```
+
+## Operating Rules
+
+- **Do not invent** RPC URLs, private keys, chain IDs, or verification endpoints.
+- **Testnet first** — always default to testnet unless the user explicitly asks for mainnet.
+- **Use existing** — if the repo already has a deploy script, Hardhat task, or Foundry script, use that instead of the bundled templates.
+- **Ask for missing** — if required inputs (RPC URL, signer, artifact) are not provided, ask before proceeding.
+- **One deploy at a time** — deploy the requested contract, capture the result, then ask about next steps.
+- **Never reuse a mainnet key on testnet** or vice versa unless the user explicitly confirms.
+- **Simulate before broadcast** — run `SIMULATE_ONLY=1` before every real broadcast, even for testnet.
+- **Never broadcast on mainnet** without running the full pre-flight checklist first.
+- **Abort on failure** — if simulation fails, do not broadcast. Report the failure and ask for direction.
+- **No mnemonic derivation** — only accept hex private keys or keystore files. Never derive from a mnemonic.
+
+## Self-Verification Checklist
+
+Before presenting a plan, verify:
+
+- [ ] Did I confirm the target network with the user?
+- [ ] Did I check for existing deploy scripts in the repo?
+- [ ] Did I run the pre-flight checklist?
+- [ ] Did I include a simulation step in the plan?
+- [ ] Did I present the plan before any broadcast?
+- [ ] Did I ask for explicit approval?
+- [ ] Did I avoid hardcoding any sensitive values?
+- [ ] Did I capture the post-deploy state?
+- [ ] Did I check if verification should be included?
+
+## Troubleshooting
+
+| Problem | Likely cause | Fix |
+|---|---|---|
+| `PHAROS_TESTNET_RPC_URL: unset` | Env var not set | Ask user to export the variable |
+| `forge: command not found` | Foundry not installed | Ask user to install Foundry (`foundryup`) |
+| `npx hardhat: command not found` | Hardhat not installed | Ask user to install Hardhat or check `package.json` |
+| Script target not found | `SCRIPT_TARGET` points to wrong file | Check the deploy script path in the repo |
+| Verification fails | API key missing, wrong explorer URL, or contract mismatch | Check `ETHERSCAN_API_KEY`, network config, and compiled bytecode |
+| Nonce too low | Previous pending tx on same key | Ask user to wait or use a different key |
+| `--broadcast` failing | Insufficient gas, wrong chain, or bad RPC | Simulate first with `SIMULATE_ONLY=1`, then check RPC and balance |
+| Simulation passes but broadcast fails | State change between simulation and broadcast (nonce, balance) | Re-simulate, check for other pending txs |
+| Contract already verified | Same bytecode already verified on explorer | Inform user — no action needed |
+| Explorer shows "Invalid address" | Wrong network or address format | Confirm the address and network match |
+| Transaction reverted during broadcast | Constructor reverted or preconditions not met | Check constructor args, deployer permissions |
+
+## Best Practices
+
+- **Simulate first** — run `SIMULATE_ONLY=1` before any real broadcast.
+- **Verify after deploy** — always run verification to confirm the deployed bytecode matches.
+- **One network at a time** — never deploy to testnet and mainnet in the same session without separate approvals.
+- **Capture everything** — deployed address, tx hash, block number, and explorer links are the minimum record.
+- **Use repo scripts** — prefer existing deploy scripts over creating new ones, unless the user asks for a new setup.
+- **Check the deployer balance** — before a mainnet deploy, confirm the signer has enough native currency for gas.
+- **Tag releases** — encourage the user to tag the commit with the deployed version for traceability.
+- **Keep mainnet safe** — double-check the RPC URL, chain ID, and contract artifact before every mainnet broadcast.
+- **Never log private keys** — never echo, print, or log the `PRIVATE_KEY` value. Mask it in all output.
+- **Abort on unexpected** — if simulation results differ from what you expect, abort and ask the user before continuing.
+- **One contract per broadcast** — deploy a single contract per broadcast unless the user explicitly asks for batch deployment.
