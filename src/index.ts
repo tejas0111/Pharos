@@ -1,3 +1,5 @@
+import { parseIntent } from "./intent/parse-intent";
+
 export { parseIntent } from "./intent/parse-intent";
 
 export function createSkillMetadata() {
@@ -6,4 +8,8 @@ export function createSkillMetadata() {
     version: "0.1.0",
     lanes: ["investor", "developer", "defi"] as const,
   };
+}
+
+export async function runSkill(prompt: string) {
+  return parseIntent(prompt);
 }
