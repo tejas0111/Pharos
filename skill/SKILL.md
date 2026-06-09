@@ -366,6 +366,71 @@ When presenting a plan for low-risk work:
 Does this approach look right? If so, I'll proceed.
 ```
 
+## Pharos Network Reference
+
+Official Pharos network endpoints for configuration and deployment:
+
+| Network | Chain ID | RPC URL | Explorer | Symbol |
+|---|---|---|---|---|
+| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS |
+| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
+
+Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup:
+
+```toml
+# foundry.toml
+[rpc_endpoints]
+pharos-mainnet = "https://rpc.pharos.xyz"
+pharos-testnet = "https://atlantic.dplabs-internal.com"
+```
+
+```typescript
+// wagmi config
+import { defineChain } from 'viem';
+
+export const pharosTestnet = defineChain({
+  id: 688689,
+  name: 'Pharos Atlantic Testnet',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' } },
+});
+
+export const pharosMainnet = defineChain({
+  id: 1672,
+  name: 'Pharos Pacific Mainnet',
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
+});
+```
+
+Always use these canonical values. Never guess or invent Pharos RPC URLs, chain IDs, or explorer endpoints.
+
+## Pharos-Specific Development Tips
+
+### Solidity on Pharos
+
+- Pharos is EVM-compatible — standard Solidity patterns work out of the box
+- Block time is <1 second — time-based logic (`block.timestamp`, `block.number`) needs adjustment compared to Ethereum
+- Gas limits on Pharos are higher than Ethereum — large contract deployments are feasible
+- Native token is PROS (mainnet) / PHRS (testnet) — use these in `msg.value` checks and ERC-20 wrappers
+- Pharos supports both EVM and WASM — contracts written for EVM run natively
+
+### Testing on Pharos
+
+- Use Foundry's `--fork-url` with the testnet RPC for integration tests against real state
+- Testnet PHRS can be obtained from the Pharos faucet or bridge
+- Gas estimates may differ between testnet and mainnet — always re-estimate before mainnet deploy
+
+### Common Pharos Patterns
+
+- **Token contracts**: Standard ERC-20/721/1155 with PROS/PHRS as native currency
+- **DeFi patterns**: Pharos supports all standard DeFi primitives (AMMs, lending, staking)
+- **Upgradeability**: UUPS and transparent proxies work identically to Ethereum
+- **Cross-chain**: Pharos supports LayerZero, CCTP, and standard bridge patterns
+- **SPNs**: Special Processing Networks for app-specific scaling (advanced)
+
 ## References
 
 These files live in `skill/references/` and should be read when the task requires deeper guidance:
