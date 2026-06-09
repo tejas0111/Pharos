@@ -316,6 +316,34 @@ After classifying and before presenting the plan, verify:
 - **Never guess the stack** — read `package.json` and config files.
 - **One subskill at a time** — handle chaining sequentially, not in parallel.
 
+## Handoff to Deploy Suite
+
+When the user needs to actually broadcast a deployment, follow this handoff protocol:
+
+1. **Prepare**: Use `deployment-and-verification` or `deployment-for-testnet-and-mainnet` to prepare deploy scripts, env var documentation, and verification config.
+2. **Plan**: Draft the complete deployment command with env vars set.
+3. **Hand off**: Tell the user to use `pharos-agent-deploy-suite` for the actual broadcast.
+4. **Provide context**: Include the contract artifact, target network, deploy script path, and required env vars in the handoff message.
+
+Handoff message template:
+
+```
+## Handoff to Pharos Agent Deploy Suite
+
+**Contract**: {contract name}
+**Network**: pharos-testnet (chain ID: 688689) or pharos-mainnet (chain ID: 1672)
+**Script**: `{path/to/deploy/script}`
+**Required env vars**:
+- `PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC_URL`
+- `PRIVATE_KEY`
+- `ETHERSCAN_API_KEY` (if verification is needed)
+
+Run this command via `pharos-agent-deploy-suite`:
+```bash
+{exact deploy command}
+```
+```
+
 ## Communication Templates
 
 When you need to ask the user for clarification:
@@ -408,6 +436,97 @@ export const pharosMainnet = defineChain({
 Always use these canonical values. Never guess or invent Pharos RPC URLs, chain IDs, or explorer endpoints.
 
 ## Pharos-Specific Development Tips
+
+### Foundry Config Template
+
+```toml
+# foundry.toml
+[profile.default]
+src = "contracts"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+
+[rpc_endpoints]
+pharos-mainnet = "https://rpc.pharos.xyz"
+pharos-testnet = "https://atlantic.dplabs-internal.com"
+
+[etherscan]
+pharos-mainnet = { key = "${ETHERSCAN_API_KEY}" }
+pharos-testnet = { key = "${ETHERSCAN_API_KEY}" }
+```
+
+### Hardhat Config Template
+
+```typescript
+// hardhat.config.ts
+import { HardhatUserConfig } from 'hardhat/config';
+
+const PHAROS_TESTNET_RPC = process.env.PHAROS_TESTNET_RPC_URL || 'https://atlantic.dplabs-internal.com';
+const PHAROS_MAINNET_RPC = process.env.PHAROS_MAINNET_RPC_URL || 'https://rpc.pharos.xyz';
+const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
+
+const config: HardhatUserConfig = {
+  networks: {
+    pharosTestnet: {
+      url: PHAROS_TESTNET_RPC,
+      chainId: 688689,
+      accounts: [PRIVATE_KEY],
+    },
+    pharosMainnet: {
+      url: PHAROS_MAINNET_RPC,
+      chainId: 1672,
+      accounts: [PRIVATE_KEY],
+    },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+};
+
+export default config;
+```
+
+### Wagmi/Viem Config Template
+
+```typescript
+// config/wagmi.ts
+import { http, createConfig } from 'wagmi';
+import { defineChain } from 'viem';
+
+export const pharosTestnet = defineChain({
+  id: 688_689,
+  name: 'Pharos Atlantic Testnet',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://atlantic.dplabs-internal.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' },
+  },
+});
+
+export const pharosMainnet = defineChain({
+  id: 1_672,
+  name: 'Pharos Pacific Mainnet',
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.pharos.xyz'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
+  },
+});
+
+export const config = createConfig({
+  chains: [pharosTestnet, pharosMainnet],
+  transports: {
+    [pharosTestnet.id]: http(),
+    [pharosMainnet.id]: http(),
+  },
+});
+```
 
 ### Solidity on Pharos
 
