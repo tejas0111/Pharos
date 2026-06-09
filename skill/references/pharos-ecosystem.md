@@ -5,10 +5,10 @@ Comprehensive reference for the Pharos blockchain ecosystem: networks, RPC provi
 ## Network Table
 
 | Network | Chain ID | RPC URL | Explorer | Symbol | Status |
-|---|---|---|---|---|---|
-| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS | Live |
-| Atlantic Testnet v2 | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | Testnet |
-| Atlantic Testnet v1 | 688688 | Deprecated | N/A | PHRS | Sunset |
+|---|---|---|---|---|---|---|
+| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PHRS | Live |
+| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | Active |
+| Atlantic Testnet (deprecated) | 688689 | N/A | N/A | PHRS | Sunset |
 | Devnet | Variable | Ask team | N/A | PHRS | Internal |
 
 ### Chain ID Quick Reference
@@ -19,13 +19,14 @@ cast chain-id --rpc-url $RPC_URL
 
 # Expected values
 # Mainnet: 1672 (0x688)
-# Testnet v2: 688689 (0xa8231)
+# Atlantic Testnet: 688689 (0xa8230)
+# Old Atlantic (deprecated): 688689 (0xa8231)
 ```
 
 ## RPC Providers
 
 | Provider | Type | URL | Notes |
-|---|---|---|---|
+|---|---|---|---|---|
 | Default | Public | `https://rpc.pharos.xyz` (mainnet) / `https://atlantic.dplabs-internal.com` (testnet) | Rate-limited |
 | ZAN | Partner | Ask team for endpoint | Higher rate limits |
 | Alchemy | Partner | Ask team for endpoint | WebSocket support |
@@ -35,14 +36,17 @@ cast chain-id --rpc-url $RPC_URL
 
 | Network | Explorer | Verification API |
 |---|---|---|
-| Mainnet | https://www.pharosscan.xyz | `https://www.pharosscan.xyz/api/contract/verify` |
-| Testnet | https://atlantic.pharosscan.xyz | `https://atlantic.pharosscan.xyz/api/contract/verify` |
+| Mainnet | https://www.pharosscan.xyz | `https://www.pharosscan.xyz/api` |
+| Atlantic Testnet | https://atlantic.pharosscan.xyz | `https://atlantic.pharosscan.xyz/api` |
 
 ## Verification API Endpoints
 
 ### Foundry Verification
 ```bash
-forge script script/Deploy.s.sol --rpc-url pharos-testnet --broadcast --verify --etherscan-api-key $ETHERSCAN_API_KEY
+forge verify-contract --chain-id 1672 --verifier-url https://www.pharosscan.xyz/api --etherscan-api-key $PHAROSSCAN_API_KEY <addr> <contract>
+
+# Or via forge script broadcast (auto-verify):
+forge script script/Deploy.s.sol --rpc-url pharos_testnet --broadcast --verify --verifier-url https://atlantic.pharosscan.xyz/api --etherscan-api-key $PHAROSSCAN_API_KEY
 ```
 
 ### Hardhat Verification

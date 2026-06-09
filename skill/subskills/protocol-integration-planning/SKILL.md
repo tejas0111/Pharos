@@ -1,16 +1,75 @@
 ---
 name: pharos-protocol-integration-planning
-description: "Plan Pharos protocol read/write flows, approvals, and call order for integrating contract surfaces. Use when planning integration, protocol flow, call sequences, approval flows, or transaction plans for Pharos DeFi/RealFi protocols, staking, AMM, or lending systems. Keywords: integration, protocol flow, call sequence, approval flow, contract interaction, read/write flow, Pharos, DeFi, RealFi, staking, AMM, lending, PROS, PHRS, transaction planning."
+description: "Plan Pharos protocol read/write flows, approvals, and call order for integrating contract surfaces. Use when planning integration, protocol flow, call sequences, approval flows, or transaction plans for Pharos DeFi/RealFi protocols, staking, AMM, or lending systems. Keywords: integration, protocol flow, call sequence, approval flow, contract interaction, read/write flow, Pharos, DeFi, RealFi, staking, AMM, lending, PHRS, transaction planning."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: contract
 slash: true
 ---
 
 # Protocol Integration Planning
 
-Plan read/write flows, approvals, and call order for integrating a protocol or contract surface.
+Plan read/write flows, approvals, and call order for integrating a protocol or contract surface on Pharos mainnet (chain 1672).
+
+## Pharos Integration Patterns
+
+### Price Oracle Integration (Supra DORA / Chainlink)
+
+```solidity
+// Interface for Pharos oracle feed
+interface IPharosPriceFeed {
+    function latestAnswer() external view returns (int256);
+    function latestTimestamp() external view returns (uint256);
+    function decimals() external view returns (uint8);
+}
+
+// Staleness check given Pharos ~2s block time
+function getPrice(IPharosPriceFeed feed) internal view returns (uint256) {
+    (uint80 roundId, int256 answer, , uint256 updatedAt, ) = feed.latestRoundData();
+    require(block.timestamp - updatedAt < 30 seconds, "Stale price on Pharos");
+    require(answer > 0, "Invalid price");
+    return uint256(answer);
+}
+```
+
+### PHRS Staking Integration Flow
+
+```
+1. Check user PHRS balance (useBalance / getBalance)
+2. Approve spending if ERC-20 (skip for native PHRS)
+3. Estimate gas: cast gas-estimate --rpc-url https://rpc.pharos.xyz
+4. Execute stake() with msg.value in PHRS
+5. Wait for receipt (Pharos ~2s block time → poll every 1s)
+6. Confirm state: call stakes(user) to verify
+7. Emit/display PharosScan link: https://pharosscan.xyz/tx/{hash}
+```
+
+### Call Order for DeFi Integration on Pharos
+
+```solidity
+// 1. Approve (ERC-20) — if not native PHRS
+IERC20(token).approve(spender, amount);
+// 2. Check allowance
+require(IERC20(token).allowance(msg.sender, spender) >= amount);
+// 3. Estimate total gas
+uint256 gasEstimate = gasleft();
+// 4. Execute swap/deposit
+pool.deposit(amount);
+// 5. Verify state change
+require(pool.balanceOf(msg.sender) > 0);
+// 6. Extract events from receipt
+// 7. Link to PharosScan
+```
+
+### Error Paths on Pharos
+
+| Error | Cause | Recovery |
+|-------|-------|----------|
+| "PhrsTransferFailed" | PHRS .call without gas cap | Retry with capped gas (10,000) |
+| "WrongChain" | Wallet on wrong network | Switch MetaMask to 1672 |
+| "gas required exceeds allowance" | Gas estimate too low | Increase gas limit |
+| "Nonce too low" | Stuck pending tx | Reset MetaMask activity
 
 ## When to Use
 
@@ -20,12 +79,24 @@ integration, protocol flow, call sequence, approval flow, contract interaction p
 
 writing the actual integration code (use frontend-dapp-integration or solidity-authoring), or reviewing existing integrations (use contract-review)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
+- **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
+
 ## Workflow
 
 1. Identify the integration target, wallet flow, and data dependencies.
-2. Sequence the reads, approvals, writes, and fallback paths.
-3. Call out error handling, retries, and user-facing states.
-4. Present the full integration plan before implementation.
+2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+3. Sequence the reads, approvals, writes, and fallback paths.
+4. Call out error handling, retries, and user-facing states.
+5. Present the full integration plan before implementation.
 
 ## Output
 
@@ -36,14 +107,28 @@ writing the actual integration code (use frontend-dapp-integration or solidity-a
 
 ## Examples
 
-- "Plan the integration flow for a staking dashboard"
-- "Map the call sequence for a lending protocol deposit flow"
-- "Design the approval and read flow for a token swap UI"
+- "Plan the PHRS staking integration flow for a Pharos dashboard — approve, estimate gas, stake, confirm tx on PharosScan"
+- "Map the call sequence for a Pharos lending protocol deposit with oracle price check"
+- "Design the approval and read flow for a Pharos DEX swap with Supra DORA oracle"
+- "Plan a multi-step DeFi integration on Pharos mainnet 1672 with error recovery paths"
+- "Sequence the read/write calls for integrating a Pharos staking contract into a frontend"
 
 ## Verification
 
-Manual review of the call sequence. No code changes.
+Manual review of the call sequence. Dry-run against testnet 688689: `cast estimate` then `cast send` on testnet first.
 
 ## Related
 
 frontend-dapp-integration (UI wiring), solidity-authoring (contract changes), wallet-and-transaction-ui (user-facing states)
+
+## Gate
+
+High risk — two-phase execution required:
+
+**Phase 1 — Plan (present freely):**
+- Draft the complete integration plan with smart contract call sequence, approval flow, tx preview steps, and error handling — show everything
+- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+
+**Phase 2 — Execute (wait for approval):**
+- Do NOT Implement protocol wiring, approve token defaults, create transaction batching, or write integration code
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions

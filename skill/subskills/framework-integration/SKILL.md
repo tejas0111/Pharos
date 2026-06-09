@@ -3,7 +3,7 @@ name: pharos-framework-integration
 description: "Wire Pharos development patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix. Use when setting up framework integration, adding Pharos to existing projects, configuring toolchains, or initializing development environments for Pharos dapps. Keywords: Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Pharos, configure, integration setup, Pharos, 688689, 1672, Atlantic, Pacific, RPC, toolchain."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: tooling
 slash: true
 ---
@@ -20,12 +20,24 @@ Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Phar
 
 working within an already-configured framework (use the workflow-specific subskill, e.g., wagmi-viem-dapp-workflow)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Node.js**: >=18. Run `node --version` to verify.
+- **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
+- **Dependencies**: Run `pnpm install` (or `npm install`) before proceeding.
+- **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
+- **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
+- **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
+
 ## Workflow
 
 1. Detect the framework and current app shape.
-2. Map the minimal integration changes and config updates.
-3. Show the plan and proceed once it looks right.
-4. Verify the integration with the smallest useful build or config check.
+2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+3. Map the minimal integration changes and config updates.
+4. Present the plan and ask for approval before implementation.
+5. Verify the integration with the smallest useful build or config check.
 
 ## Output
 
@@ -36,9 +48,210 @@ working within an already-configured framework (use the workflow-specific subski
 
 ## Examples
 
-- "Add Wagmi and Viem wiring to this Next.js app"
-- "Prepare a Foundry project for contract development on Pharos"
-- "Configure Hardhat with Pharos network definitions"
+- "Add Wagmi and Viem wiring to this Next.js app with RainbowKit provider"
+- "Prepare a Foundry project for contract development on Pharos using foundry.toml"
+- "Configure Hardhat with Pharos network definitions for chain ID 1672 and 688689"
+- "Set up RainbowKit, wagmi, and viem in a new Next.js 14 App Router project targeting Pharos mainnet"
+- "Add Pharos chain config to an existing RainbowKit dapp"
+
+## Pharos Chain Reference
+
+Mainnet and Testnet chain configuration shared across all frameworks:
+
+```typescript
+const pharosMainnet = {
+  chainId: 1672,
+  name: 'Pharos Mainnet',
+  rpcUrl: 'https://rpc.pharos.xyz',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  explorer: 'https://pharosscan.xyz',
+}
+
+const pharosTestnet = {
+  chainId: 688689,
+  name: 'Pharos Testnet',
+  rpcUrl: 'https://atlantic.dplabs-internal.com',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  explorer: 'https://pharosscan.xyz',
+}
+```
+
+## ethers.js Setup
+
+```typescript
+import { ethers } from 'ethers'
+
+const provider = new ethers.JsonRpcProvider('https://rpc.pharos.xyz', {
+  chainId: 1672,
+  name: 'pharos-mainnet',
+})
+
+const signer = new ethers.Wallet('PRIVATE_KEY', provider)
+
+const contract = new ethers.Contract(
+  '0xYourPharosContractAddress',
+  ['function balanceOf(address owner) view returns (uint256)'],
+  provider
+)
+
+const balance = await contract.balanceOf('0xUserAddress')
+```
+
+## Viem Client
+
+```typescript
+import { createPublicClient, http } from 'viem'
+import { defineChain } from 'viem'
+
+const pharosMainnet = defineChain({
+  id: 1672,
+  name: 'Pharos Mainnet',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+})
+
+const publicClient = createPublicClient({
+  chain: pharosMainnet,
+  transport: http('https://rpc.pharos.xyz'),
+})
+
+const blockNumber = await publicClient.getBlockNumber()
+```
+
+## Wagmi Config
+
+See the full wagmi-viem-dapp-workflow subskill for complete `createConfig` with connectors and hooks. Minimal integration:
+
+```typescript
+import { createConfig, http } from 'wagmi'
+import { pharosMainnet, pharosTestnet } from './pharosChain'
+
+export const config = createConfig({
+  chains: [pharosMainnet, pharosTestnet],
+  transports: {
+    [pharosMainnet.id]: http('https://rpc.pharos.xyz'),
+    [pharosTestnet.id]: http('https://atlantic.dplabs-internal.com'),
+  },
+})
+```
+
+## RainbowKit + Wagmi Setup (Next.js App Router)
+
+```bash
+npm i @rainbow-me/rainbowkit wagmi viem @tanstack/react-query
+```
+
+### Provider (app/providers.tsx)
+
+```tsx
+'use client'
+
+import { WagmiProvider, http } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { defineChain } from 'viem'
+import '@rainbow-me/rainbowkit/styles.css'
+
+const pharosMainnet = defineChain({
+  id: 1672,
+  name: 'Pharos Mainnet',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+})
+
+const config = getDefaultConfig({
+  appName: 'Pharos Dapp',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+  chains: [pharosMainnet],
+  transports: { [pharosMainnet.id]: http('https://rpc.pharos.xyz') },
+  ssr: true,
+})
+
+const queryClient = new QueryClient()
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+### Root Layout
+
+```tsx
+// app/layout.tsx
+import { Providers } from './providers'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  )
+}
+```
+
+### Connect Wallet Button
+
+```tsx
+// app/page.tsx
+'use client'
+
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+
+export default function Home() {
+  return <ConnectButton />
+}
+```
+
+### SSR Compatibility (next.config.js)
+
+```js
+// next.config.js
+const nextConfig = {
+  serverExternalPackages: ['viem'],
+}
+```
+
+```typescript
+// hardhat.config.ts
+import '@nomicfoundation/hardhat-toolbox'
+
+module.exports = {
+  networks: {
+    pharosMainnet: {
+      url: 'https://rpc.pharos.xyz',
+      chainId: 1672,
+      accounts: [process.env.PRIVATE_KEY],
+    },
+    pharosTestnet: {
+      url: 'https://atlantic.dplabs-internal.com',
+      chainId: 688689,
+      accounts: [process.env.PRIVATE_KEY],
+    },
+  },
+}
+```
+
+## Foundry Config
+
+```toml
+# foundry.toml
+[rpc_endpoints]
+pharos-mainnet = "https://rpc.pharos.xyz"
+pharos-testnet = "https://atlantic.dplabs-internal.com"
+
+[etherscan]
+pharos-mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://www.pharosscan.xyz/api" }
+```
 
 ## Verification
 
@@ -47,3 +260,16 @@ npm run build or framework-specific config check.
 ## Related
 
 wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, nextjs-app-router-and-server-actions, remix-contract-workflow, tailwind-shadcn-ui-workflow
+
+## Gate
+
+
+Low risk. Present the plan and proceed once the user agrees.
+
+### Anti-Generic Rules (framework-integration)
+- Every chain config step MUST name the specific file path (e.g., `src/config/wagmi.ts`, `foundry.toml`, `hardhat.config.ts`).
+- Every `defineChain` block MUST include chain IDs 688689 (testnet) or 1672 (mainnet) from pharos-context.md.
+- Every install command MUST be exact (e.g., `npm install wagmi viem@2`, not generic "install deps").
+- Verification MUST include both build check AND manual chain ID validation with `cast` or wallet switch.
+- Do NOT suggest deprecated Atlantic (688689) unless the repo already targets it.
+- Do NOT copy-paste RPC URLs from memory — always reference pharos-context.md canonical values.

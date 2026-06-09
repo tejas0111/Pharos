@@ -1,16 +1,104 @@
 ---
 name: pharos-contract-architecture
-description: "Design Pharos contract modules, storage layout, access control, and upgrade boundaries before code is written. Use when planning system design, module boundaries, storage layout, access control, upgradeability patterns (UUPS/transparent proxies), or contract architecture for Pharos (Atlantic 688689 / Pacific 1672). Keywords: contract architecture, system design, module boundaries, storage layout, access control, upgradeability, UUPS, transparent proxy, Solidity, Pharos, PROS, PHRS, DeFi, RealFi, staking, vault, AMM, lending, tokenomics."
+description: "Design Pharos contract modules, storage layout, access control, and upgrade boundaries before code is written. Use when planning system design, module boundaries, storage layout, access control, upgradeability patterns (UUPS/transparent proxies), or contract architecture for Pharos (mainnet 1672 / testnet 688689). Keywords: contract architecture, system design, module boundaries, storage layout, access control, upgradeability, UUPS, transparent proxy, Solidity, Pharos, PHRS, DeFi, RealFi, staking, vault, AMM, lending, tokenomics."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: contract
 slash: true
 ---
 
 # Contract Architecture
 
-Design contract modules, storage layout, access control, and upgrade boundaries before code is written.
+Design contract modules, storage layout, access control, and upgrade boundaries before code is written, targeting Pharos mainnet (chain ID 1672, RPC https://rpc.pharos.xyz) with PHRS native currency (18 decimals).
+
+## Pharos-Specific Architecture Patterns
+
+### Mermaid Architecture Diagram — Staking + Rewards + Token
+
+```mermaid
+graph TD
+    subgraph User
+        A[EOA / Pharos Safe]
+    end
+    subgraph Pharos Mainnet (1672)
+        B[PHRS Staking Pool]
+        C[Reward Distributor]
+        D[Governance Token]
+        E[Timelock Controller]
+        F[UUPS Proxy Admin]
+    end
+    A -- stake/unstake PHRS --> B
+    B -- reward accounting --> C
+    C -- distribute --> D
+    A -- propose/execute --> E
+    E -- upgrade --> F
+    F -- delegatecall --> B
+    F -- delegatecall --> C
+    F -- delegatecall --> D
+```
+
+### UUPS Upgrade Storage Layout
+
+```solidity
+// v1 — Pharos Staking Pool
+contract StakingPoolV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+    /// @custom:storage-location erc7201:pharos.staking.v1
+    struct StakingStorageV1 {
+        mapping(address => uint256) stakes;
+        uint256 totalStaked;
+        uint256 rewardRate; // PHRS per second
+    }
+    // ... v1 implementation
+}
+
+// v2 — add lock period
+contract StakingPoolV2 is StakingPoolV1 {
+    /// @custom:storage-location erc7201:pharos.staking.v2
+    struct StakingStorageV2 {
+        mapping(address => uint256) lockEnd;
+    }
+    // ... v2 implementation
+}
+```
+
+Verify storage layout with Foundry:
+```bash
+forge inspect StakingPoolV1 storage-layout
+forge inspect StakingPoolV2 storage-layout --via-ir
+```
+
+### Access Control Matrix (Pharos Safe Integration)
+
+| Role | Contract | Action | Threshold |
+|------|----------|--------|-----------|
+| User | StakingPool | stake, unstake | single EOA |
+| Owner | TimelockController | upgrade proxy | 2/3 Safe signers |
+| Owner | TimelockController | set reward rate | 2/3 Safe signers |
+| Pauser | StakingPool | pause, unpause | 1/2 Safe signers |
+
+Pharos Safe master copy: `0x41675C099F32341bf84BFc5382aF534df5C7461a`
+Pharos Proxy Factory: `0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67`
+
+### Concrete Architecture Flow — PHRS DeFi Protocol
+
+```
+Pharos Mainnet (1672)
+├── StakingPool (UUPS)
+│   ├── stake() — receive PHRS
+│   ├── unstake() — pull-over-push with gas cap
+│   └── getReward() — claim PHRS rewards
+├── RewardDistributor (UUPS)
+│   ├── notifyRewardAmount() — owner only
+│   └── earned(address) — view
+├── GovernanceToken (ERC-20)
+│   ├── mint() — timelock only
+│   └── delegate() — voting
+├── TimelockController
+│   └── minDelay = 2 days
+└── PharosSafe (2/3 multi-sig)
+    └── owner of TimelockController
+```
 
 ## When to Use
 
@@ -20,12 +108,25 @@ system design, module boundaries, storage layout, access control, upgradeability
 
 writing concrete Solidity (use solidity-authoring), reviewing existing code (use contract-review), or deploying (use deployment-and-verification)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
+- **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
+
 ## Workflow
 
 1. Clarify the product goal, trust model, and onchain constraints.
-2. Split the system into modules, interfaces, and storage responsibilities.
-3. Identify upgrade, ownership, and permission decisions explicitly.
-4. Present the architecture and ask for approval before implementation.
+2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+3. Split the system into modules, interfaces, and storage responsibilities.
+4. Identify upgrade, ownership, and permission decisions explicitly.
+5. Present the architecture and ask for approval before implementation.
+6. Include Pharos-specific address references (Safe, ProxyFactory) and PHRS gas stipend warnings.
 
 ## Output
 
@@ -37,14 +138,27 @@ writing concrete Solidity (use solidity-authoring), reviewing existing code (use
 
 ## Examples
 
-- "Design the architecture for a multi-role marketplace contract"
-- "Propose the storage and access model for a staking protocol"
-- "Plan the upgrade path for a new vault contract"
+- "Design the architecture for a PHRS staking protocol on Pharos mainnet (1672) with UUPS and Safe multi-sig"
+- "Propose the storage and access model for a Pharos DeFi vault with reward distribution"
+- "Plan the upgrade path from StakingPoolV1 to V2 with ERC-7201 storage layout"
+- "Design the module boundaries for a governance token with timelock on Pharos"
 
 ## Verification
 
-Review the architecture against requirements. No code to compile yet.
+Review the architecture against requirements. Run `forge inspect` to verify storage layout compatibility. No code to compile yet at architecture stage.
 
 ## Related
 
 solidity-authoring (implementation), interface-abi-design (surface), migration-and-backward-compatibility (upgrade path)
+
+## Gate
+
+High risk — two-phase execution required:
+
+**Phase 1 — Plan (present freely):**
+- Draft the module map, storage layout, access-control plan, and upgrade path — show the full architecture diagram and storage schemas
+- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+
+**Phase 2 — Execute (wait for approval):**
+- Do NOT Write contract code, modify files, or generate implementation
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions

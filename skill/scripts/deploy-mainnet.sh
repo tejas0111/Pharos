@@ -25,7 +25,7 @@ done
 
 # === Required Env Vars ===
 PHAROS_MAINNET_RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
-: "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex with or without 0x)}"
+: "${PRIVATE_KEY:?              Set PRIVATE_KEY in .env (deployer private key, hex with or without 0x)}"
 
 # === Optional Env Vars ===
 SCRIPT_TARGET="${SCRIPT_TARGET:-script/Deploy.s.sol:Deploy}"

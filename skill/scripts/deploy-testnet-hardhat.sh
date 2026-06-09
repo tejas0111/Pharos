@@ -14,7 +14,7 @@ if [ -f .env ]; then
   set -a; source .env; set +a
 fi
 PHAROS_TESTNET_RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
-: "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex)}"
+: "${PRIVATE_KEY:?              Set PRIVATE_KEY in .env (deployer private key, hex)}"
 
 # === Optional Env Vars ===
 DEPLOY_TAGS="${DEPLOY_TAGS:-deploy}"

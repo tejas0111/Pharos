@@ -14,7 +14,7 @@ if [ -f .env ]; then
   set -a; source .env; set +a
 fi
 PHAROS_MAINNET_RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
-: "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex)}"
+: "${PRIVATE_KEY:?              Set PRIVATE_KEY in .env (deployer private key, hex)}"
 
 # === Optional Env Vars ===
 DEPLOY_TAGS="${DEPLOY_TAGS:-deploy}"

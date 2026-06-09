@@ -3,7 +3,7 @@ name: pharos-repo-onboarding
 description: "Map Pharos codebase entrypoints, scripts, and conventions so future work starts from the right place. Use when onboarding, mapping repo structure, finding entrypoints, understanding project layout, or getting a codebase tour before Pharos development. Keywords: onboard, map repo, entrypoints, project layout, codebase tour, repo structure, Pharos, Solidity, Foundry, monorepo, smart contract, dapp."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: workflow
 slash: true
 ---
@@ -12,38 +12,108 @@ slash: true
 
 Map the codebase, entrypoints, scripts, and conventions so future work starts from the right place.
 
-## When to Use
+## Typical Pharos Monorepo Layout
 
-onboard, map repo, entrypoints, project layout, where is the code, how is this repo structured, what's here, codebase tour
+```
+pharos-dapp/
+├── contracts/                  # Foundry project
+│   ├── foundry.toml            # solc, optimizer, [rpc_endpoints]
+│   ├── src/                    # Solidity contracts
+│   │   └── PharosStaking.sol
+│   ├── script/                 # Deploy scripts
+│   │   └── Deploy.s.sol
+│   ├── test/                   # Forge tests
+│   │   └── PharosStaking.t.sol
+│   └── out/                    # Build artifacts (gitignored)
+├── frontend/                   # Next.js App Router
+│   ├── app/
+│   ├── components/
+│   ├── package.json            # wagmi + viem + RainbowKit
+│   └── next.config.js          # transpilePackages of shared
+├── packages/
+│   └── shared/                 # Shared types, ABIs, chain config
+│       └── src/
+│           └── pharosChain.ts  # defineChain for 1672 / 688689
+├── pnpm-workspace.yaml
+├── turbo.json
+└── .env                        # PRIVATE_KEY, PHAROSSCAN_API_KEY, RPC URLs
+```
+
+## Key Commands
+
+```bash
+# Build
+forge build --sizes
+pnpm build                      # monorepo build
+
+# Test (fork from testnet 688689)
+forge test --fork-url pharos_testnet
+forge test --fork-url pharos_testnet --match-path test/PharosStaking.t.sol
+
+# Gas
+forge snapshot --fork-url pharos_testnet
+
+# Deploy
+forge script script/Deploy.s.sol --rpc-url pharos_testnet --broadcast
+forge script script/Deploy.s.sol --rpc-url pharos_mainnet --broadcast --verify
+
+# Verify
+forge verify-contract --chain-id 688689 --verifier-url https://atlantic.pharosscan.xyz/api \
+  --etherscan-api-key $PHAROSSCAN_API_KEY <addr> src/Contract.sol:Contract
+
+# Frontend
+pnpm --filter frontend dev
+pnpm --filter frontend build
+```
+
+## Network Quick Reference
+
+| Network | Chain ID | RPC | Explorer |
+|---------|----------|-----|----------|
+| Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz |
+| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz |
+
+## Env Template
+
+```bash
+PRIVATE_KEY=0x...
+PHAROSSCAN_API_KEY=...
+PHAROS_MAINNET_RPC=https://rpc.pharos.xyz
+PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com
+```
 
 ## When NOT to Use
 
-making changes to the codebase (use the relevant feature subskill after onboarding)
+- **Making changes** — For modifying code or config, use the relevant feature subskill after onboarding is complete.
+- **Scaffolding** — For generating boilerplate files, use `code-scaffolding-and-generation`.
+
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Git repository**: `git status` must succeed (run from repo root).
+- **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
+- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
+- **Foundry** (if workflows include forge commands): `forge build` must succeed.
 
 ## Workflow
 
-1. Identify the app entrypoints, scripts, and top-level modules.
-2. Summarize the relevant folders and conventions.
-3. Return a concise map that helps the next task start quickly.
-4. Note any unknowns or missing context explicitly.
-
-## Output
-
-- repo map
-- entrypoint list
-- script list
-- open questions
+0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+1. Map the codebase entrypoints, scripts, and conventions.
+2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+3. Present the repo map to the user and confirm understanding.
+4. Show the plan and ask for approval before proceeding.
 
 ## Examples
 
-- "Map this repo so I can start the dapp integration work"
-- "Show the important files and commands in this project"
-- "What's the structure of this Pharos project?"
+- "Map this Pharos monorepo so I can start dapp integration work — show contracts/, frontend/, shared/ layout"
+- "Show the important files and commands for this Pharos Foundry + Next.js project"
+- "What's the structure of this Pharos project? Show foundry.toml, chain configs, and deploy scripts"
 
 ## Verification
 
 N/A — read-only exploration. Optionally ask the user if the map matches expectations.
+## Gate
 
-## Related
 
-All other subskills (this is a prelude to any development work)
+Low risk. Present the repo map and open questions first; proceed to implementation only after the user confirms the map is accurate.

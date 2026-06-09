@@ -1,8 +1,8 @@
 interface:
   display_name: "Pharos Agent Dev Suite"
   short_description: "Developer-only Pharos agent skill suite for Claude Code — contract coding (Solidity), dapp frontend integration (wagmi/viem/Next.js), framework setup (Foundry/Hardhat/Remix), testing/review/debugging, CI troubleshooting, repo onboarding, refactoring, dependency upgrades, monorepo management, accessibility, release notes, code scaffolding, docs generation."
-  long_description: "Handles all Pharos development work via 35 specialized subskills with plan-first execution and risk-gated approvals. Routes to narrowest matching subskill, gathers minimal context, presents concrete plans, and waits for explicit confirmation before high/medium risk changes."
-  default_prompt: "Use $pharos-agent-dev-suite to plan, build, review, debug, or document Pharos developer work. Route to pharos-agent-deploy-suite for broadcast/verification."
+  long_description: "Handles all Pharos development work via 43 specialized subskills with plan-first execution and risk-gated approvals. Routes to narrowest matching subskill, gathers minimal context, presents concrete plans, and waits for explicit confirmation before high/medium risk changes."
+  default_prompt: "Use $pharos-agent-dev-suite to plan, build, review, debug, or document Pharos developer work. Deploy broadcast/verification is handled directly after user approval."
   capabilities:
     - "Solidity contract authoring and architecture"
     - "Frontend dapp integration with wagmi/viem/Next.js"

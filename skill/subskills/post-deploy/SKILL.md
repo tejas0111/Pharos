@@ -1,9 +1,9 @@
 ---
 name: pharos-post-deploy
-description: "Post-deployment operations: verify contract on explorer, transfer ownership to multi-sig, update frontend config, run integration tests against deployed contract, set up monitoring alerts, announce deployment. Use when. Keywords: post-deploy, post-deployment, verify contract, transfer ownership, multi-sig transfer, update frontend config, integration tests on deployed, monitoring setup, deployment announcement, tagging release, after deploy, deployment follow-up, deployment complete. Do NOT use for: actual broadcast or deployment simulation (use testnet-deployment or mainnet-deployment), deployment prep (use pharos-agent-dev-suite/deployment-and-verification), or production ops planning (use pharos-agent-dev-suite/production-ops). See also: testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)."
+description: "Post-deployment operations: verify contract on explorer, transfer ownership to multi-sig, update frontend config, run integration tests against deployed contract, set up monitoring alerts, announce deployment. Use when completing a deployment on Pharos mainnet or testnet. Keywords: post-deploy, post-deployment, verify contract, transfer ownership, multi-sig transfer, update frontend config, integration tests on deployed, monitoring setup, deployment announcement, tagging release, after deploy, deployment follow-up, deployment complete."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: deployment
 slash: true
 ---
@@ -26,12 +26,54 @@ post-deploy, post-deployment, verify contract, transfer ownership, multi-sig tra
 
 ## Workflow
 
-1. Verify contract on explorer: run source code verification on PharosScan with matching compiler version, optimization settings, and constructor args.
+1. Verify contract on PharosScan:
+   - Search for the deployed address on `https://pharosscan.xyz`
+   - Click "Verify & Publish"
+   - Select the matching compiler version, EVM version, and optimization settings
+   - Paste the flattened source code (use `forge flatten` or `hardhat flatten`)
+   - Submit and confirm the status shows Verified (green checkmark)
+
 2. Transfer ownership to multi-sig: prepare Safe transaction (Pharos Safe master copy: 0x41675C099F32341bf84BFc5382aF534df5C7461a) to transfer proxy admin or contract ownership.
-3. Update frontend config: write the deployed address, ABI, and block number to the frontend config file. Regenerate TypeChain/abitype bindings if the ABI changed.
+
+   ```
+   cast send --rpc-url https://rpc.pharos.xyz $CONTRACT "transferOwnership(address)" $MULTISIG
+   ```
+
+3. Update frontend config: set environment variables for the deployed contract.
+
+   ```
+   NEXT_PUBLIC_CONTRACT_ADDRESS=<deployed-address>
+   NEXT_PUBLIC_PHAROS_CHAIN_ID=1672
+   ```
+
+   Regenerate TypeChain/abitype bindings if the ABI changed.
+
 4. Run integration tests against the deployed contract: use fork tests pointing at the real deployment or direct RPC calls to verify state.
-5. Set up monitoring alerts: configure Tenderly or Forta alerts for the deployed contract (ownership changes, large transfers, pausing).
-6. Announce deployment: tag the release commit (`git tag v1.0.0`), update README with deployed address and explorer link, notify team.
+
+   ```
+   forge test --fork-url https://rpc.pharos.xyz --match-contract IntegrationTest -vvv
+   ```
+
+5. Set up monitoring alerts:
+   - **Forta bot:** deploy or enable a detection bot for the deployed contract monitoring ownership changes, large transfers, and pausing events
+   - **Tenderly webhook:** create a Tenderly Web3 Action that watches the contract address and sends notifications on key events
+
+6. Announce deployment: tag the release commit and notify the team.
+
+   ```
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+   Announcement template:
+   ```
+   Deployed <ContractName> to Pharos Mainnet
+   Address: <deployed-address>
+   Explorer: https://pharosscan.xyz/address/<deployed-address>
+   Tx: <tx-hash>
+   ```
+
+   Update README with deployed address, PharosScan link, and block number.
 
 ## Output
 
