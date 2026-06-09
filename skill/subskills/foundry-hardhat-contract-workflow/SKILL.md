@@ -1,6 +1,11 @@
 ---
 name: pharos-foundry-hardhat-contract-workflow
-description: "Set up Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs. Use when the user says: Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init, hardhat init, forge test, hardhat test. Do NOT use for: writing individual contracts (use solidity-authoring), or debugging build failures (use ci-and-build-troubleshooting). See also: framework-integration (initial setup), solidity-authoring (writing contracts)."
+description: "Set up Pharos Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs with anvil. Use when configuring Foundry (forge/anvil/cast), Hardhat, forge test, hardhat test, forge script, or contract development workflows for Pharos blockchain. Keywords: Foundry, Hardhat, forge, anvil, cast, Solidity workflow, forge init, hardhat init, forge test, hardhat test, forge script, Pharos, 688689, 1672, Atlantic, Pacific, contract development."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # Foundry and Hardhat Contract Workflow

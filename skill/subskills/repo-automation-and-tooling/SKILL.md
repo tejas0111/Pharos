@@ -1,6 +1,11 @@
 ---
 name: pharos-repo-automation-and-tooling
-description: "Design scripts, automation flows, task runners, and local developer tooling. Use when the user says: automation, scripts, task runner, Makefile, precommit, tooling, set up linting, Husky, CI script, dev tooling. Do NOT use for: modifying application code (use the relevant subskill), or setting up CI pipelines (use ci-and-build-troubleshooting). See also: code-review-templates-and-checklists (process automation), ci-and-build-troubleshooting (CI pipelines)."
+description: "Design scripts, automation flows, task runners, and local developer tooling for Pharos projects. Use when setting up automation, scripts, Makefiles, precommit hooks, Husky, linting config, or dev tooling for Pharos Solidity and TypeScript repos. Keywords: automation, scripts, task runner, Makefile, precommit, tooling, linting, Husky, CI script, dev tooling, Pharos, Solidity, TypeScript, Foundry, Hardhat, monorepo."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # Repo Automation and Tooling

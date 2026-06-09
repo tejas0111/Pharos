@@ -1,6 +1,11 @@
 ---
 name: pharos-wallet-and-transaction-ui
-description: "Design wallet connection, transaction preview, status, and history screens that feel reliable. Use when the user says: wallet UI, transaction UI, preview, status screen, history, connection flow, wallet connect button, tx modal, transaction status. Do NOT use for: wiring contract reads/writes (use frontend-dapp-integration), or designing general UI patterns (use react-ui-patterns-and-hooks). See also: frontend-dapp-integration (data wiring), react-ui-patterns-and-hooks (component patterns), wagmi-viem-dapp-workflow (wallet connection)."
+description: "Design Pharos dapp wallet connection, transaction preview, status, and history screens that feel reliable. Use when building wallet connect UI, transaction modals, tx status screens, transaction history, or connection flows for Pharos web3 dapps. Keywords: wallet UI, transaction UI, preview, status screen, history, wallet connect, tx modal, transaction status, wagmi, viem, ethers, Next.js, React, TypeScript, Pharos, web3, dapp."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Wallet and Transaction UI

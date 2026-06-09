@@ -1,6 +1,11 @@
 ---
 name: pharos-dependency-upgrade-management
-description: "Upgrade packages or toolchains with version-aware compatibility checks and rollback planning. Use when the user says: dependency upgrade, package update, toolchain update, version bump, upgrade dependencies, update packages, npm update, upgrade contract. Do NOT use for: adding a new dependency (use framework-integration), or refactoring code to work with a new version (use refactoring-and-code-health). See also: monorepo-workspace-management (workspace-wide upgrades), framework-integration (adding new dependencies)."
+description: "Upgrade Pharos project packages or toolchains with version-aware compatibility checks and rollback planning. Use when upgrading dependencies, bumping package versions, updating toolchains (Foundry, Hardhat, Node), or managing npm/forge dependency updates for Pharos dapps. Keywords: dependency upgrade, package update, toolchain update, version bump, upgrade dependencies, npm update, Foundry, Hardhat, Pharos, Solidity, monorepo, compatiblity, rollback."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # Dependency Upgrade Management

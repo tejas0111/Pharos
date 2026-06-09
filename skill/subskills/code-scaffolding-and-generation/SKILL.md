@@ -1,6 +1,11 @@
 ---
 name: pharos-code-scaffolding-and-generation
-description: "Generate starter files, boilerplate, or project scaffolds for a new developer workflow. Use when the user says: scaffold, starter, boilerplate, generate files, template, create a new, initialize, project setup, file generation. Do NOT use for: editing existing code (use the relevant subskill for that code), or writing documentation (use docs-and-example-generation). See also: docs-and-example-generation (content, not structure), framework-integration (configuration setup)."
+description: "Generate starter files, boilerplate, or project scaffolds for Pharos developer workflows. Use when scaffolding new projects, creating starter files, generating boilerplate, initializing project setup, or creating file templates for Pharos dapps. Keywords: scaffold, starter, boilerplate, generate files, template, create, initialize, project setup, file generation, Pharos, Solidity, Foundry, Hardhat, Next.js, React, TypeScript, dapp."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
+slash: true
 ---
 
 # Code Scaffolding and Generation

@@ -1,6 +1,11 @@
 ---
 name: pharos-frontend-dapp-integration
-description: "Connect UI components to contract actions, state, and transaction previews. Use when the user says: frontend, dapp, UI integration, wallet connect, view state, transaction preview, wire up the contract, connect UI to contract, dapp frontend. Do NOT use for: designing pure UI without contract interaction (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or planning the integration (use protocol-integration-planning). See also: wagmi-viem-dapp-workflow (integration helpers), wallet-and-transaction-ui (wallet states), interface-abi-design (consuming ABI)."
+description: "Connect Pharos dapp UI components to contract actions, onchain state, and transaction previews using wagmi/viem/ethers. Use when wiring up frontend to Pharos contracts, integrating wallet connect, displaying contract state, or building transaction flows for dapps. Keywords: frontend, dapp, UI integration, wallet connect, contract read, contract write, transaction preview, wagmi, viem, ethers, Next.js, React, TypeScript, Pharos, PROS, PHRS, web3."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Frontend Dapp Integration

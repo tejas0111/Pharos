@@ -1,6 +1,11 @@
 ---
 name: pharos-migration-and-backward-compatibility
-description: "Plan safe migrations, data moves, and compatibility guardrails for upgrades or rewrites. Use when the user says: migration, backward compatibility, upgrade path, data move, breaking change, version upgrade, migrate data, safe upgrade. Do NOT use for: writing new code without migration concerns (use solidity-authoring), or deploying the migration (use deployment-and-verification). See also: contract-architecture (designing for upgradeability), deployment-and-verification (deploying the migration)."
+description: "Plan safe Pharos contract migrations, data moves, and compatibility guardrails for upgrades or rewrites. Use when planning migration paths, backward compatibility, contract upgrade strategies, data migration, breaking changes, or version upgrades for Pharos dapps. Keywords: migration, backward compatibility, upgrade path, data move, breaking change, version upgrade, migrate data, safe upgrade, Pharos, Solidity, proxy, UUPS, transparent, contract upgrade, DeFi, RealFi."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Migration and Backward Compatibility

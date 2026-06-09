@@ -1,6 +1,11 @@
 ---
 name: pharos-contract-architecture
-description: "Design contract modules, storage layout, access control, and upgrade boundaries before code is written. Use when the user says: system design, module boundaries, storage layout, access control, upgradeability, contract architecture, how should I structure, design the architecture. Do NOT use for: writing concrete Solidity (use solidity-authoring), reviewing existing code (use contract-review), or deploying (use deployment-and-verification). See also: solidity-authoring (implementation), interface-abi-design (surface), migration-and-backward-compatibility (upgrade path)."
+description: "Design Pharos contract modules, storage layout, access control, and upgrade boundaries before code is written. Use when planning system design, module boundaries, storage layout, access control, upgradeability patterns (UUPS/transparent proxies), or contract architecture for Pharos (Atlantic 688689 / Pacific 1672). Keywords: contract architecture, system design, module boundaries, storage layout, access control, upgradeability, UUPS, transparent proxy, Solidity, Pharos, PROS, PHRS, DeFi, RealFi, staking, vault, AMM, lending, tokenomics."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Contract Architecture

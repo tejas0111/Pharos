@@ -1,6 +1,11 @@
 ---
 name: pharos-nextjs-app-router-and-server-actions
-description: "Handle Next.js App Router, route handlers, server actions, and RSC patterns. Use when the user says: Next.js App Router, server actions, route handlers, RSC, Next.js, layout, loading.tsx, error.tsx, not-found.tsx, Next.js 14. Do NOT use for: Pages Router projects (this subskill is App Router only), or general React patterns (use react-ui-patterns-and-hooks). See also: react-ui-patterns-and-hooks (client components), wagmi-viem-dapp-workflow (contract integration)."
+description: "Handle Next.js App Router, route handlers, server actions, and RSC patterns for Pharos dapps. Use when building Next.js App Router layouts, loading/error/not-found states, server actions, route handlers, or RSC patterns for Pharos web3 frontends. Keywords: Next.js App Router, server actions, route handlers, RSC, layout, loading, error, not-found, Next.js, Pharos, dapp, React, TypeScript, wagmi, viem."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Next.js App Router and Server Actions

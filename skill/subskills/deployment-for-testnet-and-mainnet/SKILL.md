@@ -1,6 +1,11 @@
 ---
 name: pharos-deployment-for-testnet-and-mainnet
-description: Plan and validate contract deployments across testnet and mainnet with environment-aware safeguards and release checklists. Use when the user says: testnet, mainnet, deployment, release, deploy flow.
+description: "Plan and validate Pharos contract deployments across testnet (Atlantic 688689) and mainnet (Pacific 1672) with environment-aware safeguards and release checklists. Use when planning testnet vs mainnet deployment strategy, release checklists, environment safeguards, or network-specific deployment flows for Pharos. Keywords: testnet, mainnet, deployment, release, deploy flow, Pharos, Atlantic, Pacific, 688689, 1672, Foundry, Hardhat, forge script, hardhat deploy, environment-aware, safeguards, checklist."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: deployment
+slash: true
 ---
 
 # Deployment for Testnet and Mainnet

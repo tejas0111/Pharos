@@ -1,6 +1,11 @@
 ---
 name: pharos-tailwind-shadcn-ui-workflow
-description: "Design and implement polished UI flows using Tailwind and shadcn/ui patterns. Use when the user says: Tailwind, shadcn, UI workflow, design system, component styles, Tailwind CSS, shadcn/ui, DaisyUI, utility CSS. Do NOT use for: logic or state wiring (use react-ui-patterns-and-hooks or frontend-dapp-integration), or contract code (use solidity-authoring). See also: react-ui-patterns-and-hooks (logic), frontend-dapp-integration (contract wiring)."
+description: "Design and implement polished UI flows for Pharos dapps using Tailwind and shadcn/ui patterns. Use when building Tailwind CSS layouts, shadcn/ui components, design systems, DaisyUI, or utility-first CSS workflows for Pharos web3 frontends. Keywords: Tailwind, shadcn, UI workflow, design system, component styles, Tailwind CSS, shadcn/ui, DaisyUI, utility CSS, Pharos, dapp, Next.js, React, TypeScript."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Tailwind and shadcn/ui Workflow

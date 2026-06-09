@@ -1,6 +1,11 @@
 ---
 name: pharos-accessibility-review
-description: "Review UI behavior for keyboard support, semantics, contrast, and screen-reader friendliness. Use when the user says: accessibility, a11y, keyboard, screen reader, contrast, semantics, ARIA, tab order, focus management, accessible. Do NOT use for: general UI component design (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or dapp-specific UI (use frontend-dapp-integration). See also: react-ui-patterns-and-hooks (component patterns), tailwind-shadcn-ui-workflow (styling)."
+description: "Review Pharos dapp UI behavior for keyboard support, semantics, contrast, and screen-reader friendliness. Use when auditing accessibility, a11y, keyboard navigation, screen reader support, ARIA semantics, tab order, or focus management in Pharos web3 dapps. Keywords: accessibility, a11y, keyboard, screen reader, contrast, semantics, ARIA, tab order, focus management, accessible, Pharos, dapp, React, Next.js, Tailwind, shadcn."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Accessibility Review

@@ -1,6 +1,11 @@
 ---
 name: pharos-contract-review
-description: "Review Solidity code for correctness, security, gas, and design issues. Use when the user says: review contract, audit, security review, Solidity review, gas review, check this contract, look for bugs, security audit. Do NOT use for: fixing specific bugs (use bug-finding-and-debugging), writing new code (use solidity-authoring), or automated analysis (use forge test or slither directly). See also: bug-finding-and-debugging (fixing issues), solidity-authoring (patching)."
+description: "Review Pharos Solidity contracts for correctness, security, gas efficiency, and design issues. Use when auditing, reviewing, or checking Pharos smart contracts for vulnerabilities, gas optimization opportunities, or design flaws before deployment. Keywords: review contract, audit, security review, Solidity review, gas review, check contract, security audit, slither, solhint, Pharos, PROS, PHRS, DeFi, RealFi, ERC-20, ERC-721, ERC-1155, staking, vault, AMM, lending."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Contract Review

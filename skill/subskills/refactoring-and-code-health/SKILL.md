@@ -1,6 +1,11 @@
 ---
 name: pharos-refactoring-and-code-health
-description: "Improve structure, readability, naming, and separation of concerns without changing behavior. Use when the user says: refactor, code health, cleanup, simplify, remove duplication, technical debt, restructure, improve structure, readability. Do NOT use for: adding new features (use the relevant authoring subskill), or fixing bugs (use bug-finding-and-debugging). See also: performance-optimization (performance-driven changes), solidity-authoring (contract refactors)."
+description: "Improve Pharos code structure, readability, naming, and separation of concerns without changing behavior. Use when refactoring, cleaning up, simplifying, removing duplication, paying down technical debt, or restructuring Pharos Solidity contracts and TypeScript dapps. Keywords: refactor, code health, cleanup, simplify, remove duplication, technical debt, restructure, readability, Pharos, Solidity, TypeScript, Next.js, React, Foundry, Hardhat."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Refactoring and Code Health

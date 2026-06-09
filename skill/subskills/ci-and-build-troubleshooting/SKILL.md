@@ -1,6 +1,11 @@
 ---
 name: pharos-ci-and-build-troubleshooting
-description: "Diagnose failing builds, type errors, lint jobs, and CI regressions with a narrow fix path. Use when the user says: CI, build failure, lint failure, type error, pipeline, broken test job, build is failing, CI is red, compilation error. Do NOT use for: runtime bugs (use bug-finding-and-debugging), or performance improvements (use performance-optimization). See also: bug-finding-and-debugging (runtime bugs, not build failures)."
+description: "Diagnose failing builds, type errors, lint jobs, and CI regressions in Pharos projects with a narrow fix path. Use when fixing CI pipeline failures, compilation errors, type errors, lint issues, or broken test jobs in Pharos Solidity or TypeScript projects. Keywords: CI, build failure, lint failure, type error, pipeline, broken build, compilation error, CI red, Foundry, Hardhat, forge test, hardhat test, TypeScript, Next.js, Pharos, GitHub Actions, workflow, troubleshooting."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # CI and Build Troubleshooting

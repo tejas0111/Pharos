@@ -1,6 +1,11 @@
 ---
 name: pharos-wagmi-viem-dapp-workflow
-description: "Handle wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when the user says: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient. Do NOT use for: general React patterns (use react-ui-patterns-and-hooks), or full frontend layout (use tailwind-shadcn-ui-workflow). See also: frontend-dapp-integration (UI wiring), nextjs-app-router-and-server-actions (routing)."
+description: "Handle Pharos wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when implementing wallet connect, contract read/write, useContractRead, useContractWrite, useAccount, useWalletClient, or dapp workflows for Pharos web3 frontends. Keywords: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient, Pharos, 688689, 1672, Atlantic, Pacific, Next.js, React, TypeScript."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Wagmi and Viem Dapp Workflow
