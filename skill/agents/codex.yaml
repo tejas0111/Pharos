@@ -1,8 +1,17 @@
 interface:
   display_name: "Pharos Agent Dev Suite"
-  short_description: "Developer-only Pharos agent skill suite for Codex"
-  default_prompt: "Use $pharos-agent-dev-suite to plan, build, review, debug, or document Pharos developer work."
+  short_description: "Developer-only Pharos agent skill suite for Codex — Solidity contract development, dapp frontend integration, testing, security review, and deployment prep for Pharos blockchain."
+  long_description: "Routes to 35 specialized subskills covering contract architecture, Solidity authoring, dapp frontend integration, testing/review, framework setup, CI troubleshooting, refactoring, migration planning, and docs generation. Plan-first, risk-gated execution."
+  default_prompt: "Use $pharos-agent-dev-suite for all Pharos development tasks. Hand off deploy broadcast/verification to pharos-agent-deploy-suite."
+  capabilities:
+    - "Contract architecture and Solidity authoring"
+    - "Dapp frontend integration and UI patterns"
+    - "Testing strategy and test generation"
+    - "Security review and debugging"
+    - "CI/CD and build troubleshooting"
+    - "Deployment preparation and verification"
 
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
+  plan_before_execution: true

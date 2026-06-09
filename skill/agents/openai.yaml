@@ -1,8 +1,17 @@
 interface:
   display_name: "Pharos Agent Dev Suite"
-  short_description: "Developer-only Pharos agent skill suite for contract, UI, framework, testing, and review workflows"
-  default_prompt: "Use $pharos-agent-dev-suite to plan, build, review, debug, or document Pharos developer work."
+  short_description: "Developer-only Pharos agent skill suite for ChatGPT/OpenAI agents — contract, UI, framework, testing, and review workflows for Pharos blockchain development."
+  long_description: "Covers the full Pharos development lifecycle: contract design (Solidity, Foundry, Hardhat), frontend wiring (wagmi, viem, Next.js), testing (strategy, generation, network-aware), review (security, gas, design), tooling (CI, deps, monorepo), and shipping (deploy prep, migration, docs, changelog). 35 subskills with plan-first, risk-gated execution."
+  default_prompt: "Use $pharos-agent-dev-suite to plan and execute Pharos development work. For deploy broadcast/verification, use pharos-agent-deploy-suite."
+  capabilities:
+    - "Solidity contract development and architecture"
+    - "Frontend dapp integration with wagmi/viem/Next.js"
+    - "Testing, review, and security audit"
+    - "Framework setup and CI troubleshooting"
+    - "Refactoring, migration, and dependency management"
+    - "Docs, release notes, and code generation"
 
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
+  plan_before_execution: true
