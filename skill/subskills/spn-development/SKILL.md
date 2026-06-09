@@ -1,6 +1,10 @@
 ---
 name: pharos-spn-development
 description: "Develop Special Processing Networks (SPNs) on Pharos: custom execution environments, validator restaking, cross-SPN Mailbox communication, escape hatches, SLA monitoring. Reference contracts: SPN Manager, SPN Adapter, Mailbox, Bridge. Use when the user says: SPN, Special Processing Network, custom execution, validator restaking, Mailbox, SPN Manager, SPN Adapter, escape hatch, SLA, cross-SPN, app-specific subnet, execution environment, custom VM, sovereign chain, Pharos SPN. Do NOT use for: standard EVM contract development (use solidity-authoring), general cross-chain messaging (use cross-chain-bridge), or deployment (use deployment-and-verification). See also: cross-chain-bridge (Mailbox-based messaging), upgrade-patterns (SPN adapter upgrades), contract-architecture (system design)."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: spn
 ---
 
 # SPN Development
@@ -13,7 +17,11 @@ SPN, Special Processing Network, custom execution, validator restaking, Mailbox,
 
 ## When NOT to Use
 
-standard EVM contract development (use solidity-authoring), general cross-chain messaging (use cross-chain-bridge), or deployment (use deployment-and-verification)
+- **Standard EVM contract development** — If the user is writing a regular Solidity contract without SPN-specific features, use `solidity-authoring`.
+- **General cross-chain messaging** — If the user needs token bridging or message passing between standard EVM chains (not SPNs), use `cross-chain-bridge`.
+- **Deployment** — If the user is ready to broadcast an SPN or supporting contract, use `deployment-and-verification`.
+- **Validator setup/infrastructure** — If the user needs to configure validator nodes, staking UI, or infrastructure for running an SPN, this subskill covers smart contracts only — route infrastructure requests to `production-ops`.
+- **Simple subnet / sidechain** — If the user just wants a standard sidechain without SPN-specific features (Mailbox, escape hatches, SLA), use `contract-architecture` for a simpler design.
 
 ## Workflow
 
@@ -35,10 +43,10 @@ standard EVM contract development (use solidity-authoring), general cross-chain 
 
 ## Examples
 
-- "Design an SPN for a high-frequency trading application on Pharos"
-- "Set up cross-SPN Mailbox communication between two app-specific subnets"
-- "Implement an escape hatch for users to withdraw from the SPN"
-- "Configure validator restaking for a new SPN deployment"
+- **Query:** "Design an SPN for a high-frequency trading application on Pharos" → **Action:** Architect SPN Manager (deploys SPN instances), Adapter (bridges main chain ↔ SPN), custom WASM execution environment with low-latency gas schedule, configure validator restaking with PROS stake requirements.
+- **Query:** "Set up cross-SPN Mailbox communication between two app-specific subnets" → **Action:** Deploy Mailbox contracts on both SPNs, configure message envelope format (source SPN ID, nonce, payload hash), implement ordered nonce tracking and replay protection.
+- **Query:** "Implement an escape hatch for users to withdraw from the SPN" → **Action:** Build escape hatch contract on main chain, define exit window and proof submission mechanism (Merkle proof of SPN state), test with simulated SPN unavailability.
+- **Query:** "Configure validator restaking for a new SPN deployment" → **Action:** Set up staking contract on main chain, define minimum stake, slashing conditions for SLA violations, configure reward distribution and validator set management.
 
 ## Verification
 

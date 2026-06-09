@@ -1,6 +1,10 @@
 ---
 name: pharos-post-deploy
 description: "Post-deployment operations: verify contract on explorer, transfer ownership to multi-sig, update frontend config, run integration tests against deployed contract, set up monitoring alerts, announce deployment. Use when the user says: post-deploy, post-deployment, verify contract, transfer ownership, multi-sig transfer, update frontend config, integration tests on deployed, monitoring setup, deployment announcement, tagging release, after deploy, deployment follow-up, deployment complete. Do NOT use for: actual broadcast or deployment simulation (use testnet-deployment or mainnet-deployment), deployment prep (use pharos-agent-dev-suite/deployment-and-verification), or production ops planning (use pharos-agent-dev-suite/production-ops). See also: testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: deployment
 ---
 
 # Post-Deployment
@@ -13,7 +17,11 @@ post-deploy, post-deployment, verify contract, transfer ownership, multi-sig tra
 
 ## When NOT to Use
 
-actual broadcast or deployment simulation (use testnet-deployment or mainnet-deployment), deployment prep (use pharos-agent-dev-suite/deployment-and-verification), or production ops planning (use pharos-agent-dev-suite/production-ops)
+- **Actual broadcast or deployment simulation** — If the user needs to send a deploy transaction or simulate one, use `testnet-deployment` or `mainnet-deployment`.
+- **Deployment preparation** — If the user is still writing contracts and preparing for deployment, use `pharos-agent-dev-suite/deployment-and-verification`.
+- **Production ops planning** — If the user needs ongoing monitoring, alerting, or incident response (not just post-deploy one-time tasks), use `pharos-agent-dev-suite/production-ops`.
+- **Contract authoring** — If the user is writing or modifying contract code, use `solidity-authoring`. Post-deploy assumes contracts are already deployed.
+- **Frontend development** — If the user wants to build or update a dapp frontend (not just update config with new addresses), use `frontend-dapp-integration`.
 
 ## Workflow
 
@@ -35,12 +43,12 @@ actual broadcast or deployment simulation (use testnet-deployment or mainnet-dep
 
 ## Examples
 
-- "Verify the deployed token contract on PharosScan"
-- "Transfer proxy ownership to Pharos Safe multi-sig"
-- "Update the frontend with the new contract address and ABI"
-- "Run integration tests against the live testnet deployment"
-- "Set up Tenderly alerts for the newly deployed vault"
-- "Tag the release and announce the mainnet deployment"
+- **Query:** "Verify the deployed token contract on PharosScan" → **Action:** Run source code verification on PharosScan with matching compiler version, optimization settings, and constructor args; confirm ✅ Verified status.
+- **Query:** "Transfer proxy ownership to Pharos Safe multi-sig" → **Action:** Prepare Safe transaction to `0x41675C099F32341bf84BFc5382aF534df5C7461a` with `transferOwnership` calldata, submit to Safe queue, test on testnet first.
+- **Query:** "Update the frontend with the new contract address and ABI" → **Action:** Write deployed address, ABI, and block number to frontend config file; regenerate TypeChain/abitype bindings if ABI changed; verify frontend compiles.
+- **Query:** "Run integration tests against the live testnet deployment" → **Action:** Configure fork tests pointing at deployed contract address, run full test suite against real RPC endpoint, verify all tests pass with live state.
+- **Query:** "Set up Tenderly alerts for the newly deployed vault" → **Action:** Create Tenderly Web3 Action monitoring vault events (large withdrawals, ownership changes, pause), configure notification channels, test with simulated event.
+- **Query:** "Tag the release and announce the mainnet deployment" → **Action:** Create git tag (`git tag v1.0.0`), push to remote, update README with deployed address and explorer link, notify team with deployment summary.
 
 ## Verification
 
