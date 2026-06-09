@@ -431,7 +431,9 @@ Official Pharos network endpoints for configuration and deployment:
 | Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS |
 | Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
 
-Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup:
+Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup.
+
+> Ready-to-use config files are in the `config/` directory: `pharos.json` (machine-readable chain data), `chains.ts` (wagmi/viem chain definitions), `foundry.toml`, and `hardhat.config.ts`. Copy them into your project and adjust as needed.
 
 ```toml
 # foundry.toml
@@ -648,6 +650,29 @@ These files live in `skill/references/` and should be read when the task require
 - Scaffold a starter workspace layout for a new dapp package.
 - Plan the deployment flow for testnet and mainnet with release checks.
 - Build a Tailwind and shadcn/ui flow for a wallet preview modal.
+
+## Common Developer Questions
+
+**Q: How do I configure my wallet for Pharos?**
+A: Add a custom network with the Pharos chain config from the Network Reference table above. Use chain ID 1672 for mainnet (symbol: PROS) or 688689 for testnet (symbol: PHRS).
+
+**Q: How do I get testnet PHRS?**
+A: Use the Pharos testnet faucet at https://testnet.pharosnetwork.xyz or request in the Pharos Discord.
+
+**Q: What's different about Pharos vs Ethereum for Solidity developers?**
+A: Block time is <1 second (vs ~12s on Ethereum), gas limits are higher (2 gigagas/s), and the native currency is PROS/PHRS instead of ETH. EVM compatibility means most Solidity code works unchanged. Time-based logic should account for faster blocks.
+
+**Q: How do I migrate an existing Ethereum dapp to Pharos?**
+A: Contracts: Solidity code compiles as-is. Frontend: update chain config (chain ID, RPC) and native currency symbol. Testing: update fork URLs. Deploy: use the same scripts with Pharos RPC endpoints.
+
+**Q: Does Pharos support The Graph, Ethers.js, Web3.js, or Hardhat?**
+A: Yes — Pharos is fully EVM-compatible. All standard Ethereum tooling works.
+
+**Q: How do I verify a contract on PharosScan?**
+A: For Foundry: add `--verify --etherscan-api-key $ETHERSCAN_API_KEY` to `forge script`. For Hardhat: use `npx hardhat verify --network pharosTestnet <address>`. The explorer URL is https://atlantic.pharosscan.xyz (testnet) or https://www.pharosscan.xyz (mainnet).
+
+**Q: What's the recommended Foundry version for Pharos?**
+A: Latest stable Foundry. Pharos uses EVM version `cancun` — ensure your `foundry.toml` sets `evm_version = "cancun"` and `solc_version = "0.8.26"`.
 
 ## Troubleshooting
 
