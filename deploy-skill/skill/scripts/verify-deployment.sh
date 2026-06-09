@@ -12,6 +12,12 @@ if [ -f .env ]; then
   set -a; source .env; set +a
 fi
 
+# === Dependency checks ===
+if ! command -v cast &> /dev/null; then
+  echo "ERROR: 'cast' not found. Install Foundry: curl -L https://foundry.paradigm.xyz | bash"
+  exit 1
+fi
+
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <testnet|mainnet> <contract-address> [expected-owner-address]"
   echo ""

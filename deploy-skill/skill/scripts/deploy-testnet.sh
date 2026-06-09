@@ -15,6 +15,14 @@ fi
 # === Pharos Testnet Config ===
 PHAROS_TESTNET_CHAIN_ID=688689
 
+# === Dependency checks ===
+for cmd in cast forge; do
+  if ! command -v "$cmd" &> /dev/null; then
+    echo "ERROR: '$cmd' not found. Install Foundry: curl -L https://foundry.paradigm.xyz | bash"
+    exit 1
+  fi
+done
+
 # === Required Env Vars ===
 PHAROS_TESTNET_RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
 : "${PRIVATE_KEY:?             Set PRIVATE_KEY (deployer private key, hex with or without 0x)}"
