@@ -86,13 +86,12 @@ Do NOT read: unrelated modules, third-party libraries (unless you need their typ
 
 Derived from `src/registry/subskills.ts`. The registry is authoritative; this list mirrors it for quick reference.
 
-### High Risk (approvalRequired: true) — 9 subskills
+### High Risk (approvalRequired: true) — 8 subskills
 
 | Subskill | Why |
 |---|---|
 | contract-architecture | System design decisions affect all downstream code |
 | solidity-authoring | Writes/refactors deployed contract code |
-| protocol-integration-planning | Defines call sequences and approval flows |
 | contract-review | Security and correctness findings |
 | bug-finding-and-debugging | Modifies contract or critical UI logic |
 | deployment-and-verification | Prepares deploy scripts and release flows |
@@ -100,13 +99,14 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | deployment-for-testnet-and-mainnet | Network-aware deployment planning |
 | ci-and-build-troubleshooting | Changes build config, CI pipelines, or type settings |
 
-### Medium Risk (approvalRequired: true) — 12 subskills
+### Medium Risk (approvalRequired: true) — 13 subskills
 
 | Subskill | Why |
 |---|---|
 | interface-abi-design | Contract surface changes affect consumers |
 | frontend-dapp-integration | Wires UI to contract state |
 | wallet-and-transaction-ui | Handles wallet states and tx previews |
+| protocol-integration-planning | Defines call sequences and approval flows (planning-only) |
 | testing-strategy | Defines test coverage and fixtures |
 | test-generation | Writes concrete tests |
 | contract-testing-for-testnet-and-mainnet | Network-specific test design |

@@ -1,12 +1,16 @@
 ---
 name: pharos-agent-dev-suite
-description: "Use ONLY when the user wants Pharos blockchain developer work: contract coding (Solidity), dapp frontend integration (wagmi/viem/Next.js), framework setup (Foundry/Hardhat/Remix), testing/review/debugging, deployment prep, CI troubleshooting, repo onboarding, refactoring, dependency upgrades, monorepo management, accessibility review, release notes, code scaffolding, or docs generation. Do NOT use for: RPC reads, balance checks, transaction sending, onchain execution, wallet operations, or any non-Pharos development. Trigger keywords: Pharos, Solidity, contract, dapp, deploy, test, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, accessibility, a11y, release notes, changelog, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, anvil, cast, slither, solhint, prettier, TypeScript, Next.js, React, hooks, server actions, App Router, Tailwind, shadcn, ethers, web3, gas optimization, upgrade, proxy, UUPS, transparent, ERC-20, ERC-721, ERC-1155, staking, vault, AMM, lending, DeFi, RealFi, tokenomics, multichain, cross-chain, LayerZero, CCTP."
+description: "Pharos blockchain developer skill suite for contract coding, dapp frontend integration, testing, and deployment prep on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or deploying Pharos Solidity dapps with Foundry/Hardhat/wagmi/viem/Next.js, or when onboarding repos, refactoring, upgrading deps, managing monorepos, fixing CI, or generating docs/release notes. Keywords: Pharos, Solidity, contract, dapp, deploy, test, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, changelog, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, anvil, cast, slither, solhint, TypeScript, Next.js, React, ethers, gas optimization, upgrade, proxy, UUPS, ERC-20, ERC-721, ERC-1155, staking, vault, AMM, lending, DeFi, RealFi, tokenomics, multichain, cross-chain, LayerZero, CCTP."
 slash: true
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
 ---
 
 # Pharos Agent Dev Suite
 
-Developer skill suite for Pharos blockchain projects. Routes to 35 specialized subskills with plan-first execution and risk-gated approvals.
+Developer skill suite for Pharos blockchain projects. Routes to 35 developer subskills + 2 deployment subskills with plan-first execution and risk-gated approvals.
 
 ## Quick Start
 
@@ -40,7 +44,7 @@ You: "Review this contract for security issues"
 
 | Action | Rule |
 |---|---|
-| Always show a plan first | All 35 subskills |
+| Always show a plan first | All 35 developer subskills + 2 deployment subskills |
 | Wait for explicit confirmation before edits | High & medium risk subskills (21 total) |
 | Proceed after user agrees | Low risk subskills (14 total) |
 | No RPC, balances, or onchain execution | This suite is developer-only |
@@ -155,7 +159,7 @@ Detect the stack from these signals:
 
 ## Subskill Reference
 
-All 35 subskills, organized by category with risk level and approval gate:
+All 35 developer subskills, organized by category with risk level and approval gate:
 
 ### Contract Work
 
@@ -164,7 +168,7 @@ All 35 subskills, organized by category with risk level and approval gate:
 | `contract-architecture` | high | confirm | module boundaries, storage, permissions, upgrade stance |
 | `solidity-authoring` | high | confirm | write or refactor Solidity code |
 | `interface-abi-design` | medium | confirm | interfaces, events, errors, typed bindings |
-| `protocol-integration-planning` | high | confirm | read/write call sequences, approval flow |
+| `protocol-integration-planning` | medium | confirm | read/write call sequences, approval flow |
 
 ### UI Work
 
@@ -477,7 +481,21 @@ Official Pharos network endpoints for configuration and deployment:
 | Network | Chain ID | RPC URL | Explorer | Symbol |
 |---|---|---|---|---|
 | Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS |
-| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
+| Atlantic Testnet (deprecated) | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
+| Testnet v2 | 688688 | `https://testnet.dplabs-internal.com` | https://testnet.pharosscan.xyz | PHRS |
+| Devnet | 50002 | `https://devnet.dplabs-internal.com` | https://pharosscan.xyz | PHRS |
+
+### Alternative RPC Providers
+
+| Provider | Testnet | Mainnet |
+|---|---|---|
+| ZAN | `https://api.zan.top/node/v1/pharos/testnet/{apikey}` | `https://api.zan.top/node/v1/pharos/mainnet/{apikey}` |
+
+### Verification APIs
+
+| Service | URL |
+|---|---|
+| SocialScan (Testnet) | `https://api.socialscan.io/pharos-testnet/v1/explorer/command_api/contract` |
 
 Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup.
 
@@ -529,10 +547,13 @@ evm_version = "cancun"
 [rpc_endpoints]
 pharos-mainnet = "https://rpc.pharos.xyz"
 pharos-testnet = "https://atlantic.dplabs-internal.com"
+pharos-testnet-v2 = "https://testnet.dplabs-internal.com"
+pharos-devnet = "https://devnet.dplabs-internal.com"
 
 [etherscan]
 pharos-mainnet = { key = "${ETHERSCAN_API_KEY}" }
 pharos-testnet = { key = "${ETHERSCAN_API_KEY}" }
+pharos-testnet-v2 = { key = "${ETHERSCAN_API_KEY}" }
 ```
 
 ### Hardhat Config Template
@@ -557,9 +578,48 @@ const config: HardhatUserConfig = {
       chainId: 1672,
       accounts: [PRIVATE_KEY],
     },
+    pharosTestnetV2: {
+      url: process.env.PHAROS_TESTNET_V2_RPC_URL || 'https://testnet.dplabs-internal.com',
+      chainId: 688688,
+      accounts: [PRIVATE_KEY],
+    },
+    pharosDevnet: {
+      url: process.env.PHAROS_DEVNET_RPC_URL || 'https://devnet.dplabs-internal.com',
+      chainId: 50002,
+      accounts: [PRIVATE_KEY],
+    },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      pharosTestnet: process.env.ETHERSCAN_API_KEY,
+      pharosMainnet: process.env.ETHERSCAN_API_KEY,
+    },
+    customChains: [
+      {
+        network: 'pharosTestnetV2',
+        chainId: 688688,
+        urls: {
+          apiURL: 'https://api.socialscan.io/pharos-testnet/v1/explorer/command_api/contract',
+          browserURL: 'https://testnet.pharosscan.xyz',
+        },
+      },
+      {
+        network: 'pharosTestnet',
+        chainId: 688689,
+        urls: {
+          apiURL: 'https://atlantic.pharosscan.xyz/api',
+          browserURL: 'https://atlantic.pharosscan.xyz',
+        },
+      },
+      {
+        network: 'pharosMainnet',
+        chainId: 1672,
+        urls: {
+          apiURL: 'https://www.pharosscan.xyz/api',
+          browserURL: 'https://www.pharosscan.xyz',
+        },
+      },
+    ],
   },
 };
 
@@ -585,6 +645,30 @@ export const pharosTestnet = defineChain({
   },
 });
 
+export const pharosTestnetV2 = defineChain({
+  id: 688_688,
+  name: 'Pharos Testnet v2',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://testnet.dplabs-internal.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://testnet.pharosscan.xyz' },
+  },
+});
+
+export const pharosDevnet = defineChain({
+  id: 50_002,
+  name: 'Pharos Devnet',
+  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://devnet.dplabs-internal.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+  },
+});
+
 export const pharosMainnet = defineChain({
   id: 1_672,
   name: 'Pharos Pacific Mainnet',
@@ -598,9 +682,11 @@ export const pharosMainnet = defineChain({
 });
 
 export const config = createConfig({
-  chains: [pharosTestnet, pharosMainnet],
+  chains: [pharosTestnet, pharosTestnetV2, pharosDevnet, pharosMainnet],
   transports: {
     [pharosTestnet.id]: http(),
+    [pharosTestnetV2.id]: http(),
+    [pharosDevnet.id]: http(),
     [pharosMainnet.id]: http(),
   },
 });

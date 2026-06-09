@@ -41,6 +41,8 @@ Extended descriptions of all 35 developer subskills. Each entry includes: trigge
 
 **Plan read/write flows, approvals, and call order for integrating a protocol or contract surface.**
 
+- **Risk**: medium (planning-only, no code changes)
+
 - **Triggers**: "integration", "protocol flow", "call sequence", "approval flow", "contract interaction plan", "how to call", "what transactions"
 - **Use when**: The user needs to plan the sequence of contract calls (reads, approvals, writes) for a specific feature.
 - **Do NOT use when**: The user is writing the actual integration code — use `frontend-dapp-integration` or `solidity-authoring`.

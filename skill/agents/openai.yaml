@@ -10,8 +10,17 @@ interface:
     - "Framework setup and CI troubleshooting"
     - "Refactoring, migration, and dependency management"
     - "Docs, release notes, and code generation"
+    - "Monorepo and workspace management"
+    - "Accessibility review and a11y fixes"
+    - "Performance optimization and gas analysis"
+    - "Code refactoring and health improvement"
 
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
   plan_before_execution: true
+  context_minimization: true
