@@ -7,11 +7,16 @@
 #   SCRIPT_TARGET=script/MyDeploy.s.sol:MyDeploy ./scripts/deploy-testnet.sh
 set -euo pipefail
 
+# === Source .env if present ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+
 # === Pharos Testnet Config ===
 PHAROS_TESTNET_CHAIN_ID=688689
 
 # === Required Env Vars ===
-: "${PHAROS_TESTNET_RPC_URL:?  Set PHAROS_TESTNET_RPC_URL (default: https://atlantic.dplabs-internal.com)}"
+PHAROS_TESTNET_RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
 : "${PRIVATE_KEY:?             Set PRIVATE_KEY (deployer private key, hex with or without 0x)}"
 
 # === Optional Env Vars ===

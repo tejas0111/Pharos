@@ -7,11 +7,16 @@
 #   SCRIPT_TARGET=script/MyDeploy.s.sol:MyDeploy ./scripts/deploy-mainnet.sh
 set -euo pipefail
 
+# === Source .env if present ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+
 # === Pharos Mainnet Config ===
 PHAROS_MAINNET_CHAIN_ID=1672
 
 # === Required Env Vars ===
-: "${PHAROS_MAINNET_RPC_URL:?  Set PHAROS_MAINNET_RPC_URL (default: https://rpc.pharos.xyz)}"
+PHAROS_MAINNET_RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
 : "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex with or without 0x)}"
 
 # === Optional Env Vars ===

@@ -372,6 +372,54 @@ Run this command via `pharos-agent-deploy-suite`:
 ```
 ```
 
+## End-to-End Decision Flow
+
+```
+User request arrives
+       │
+       ▼
+  ┌──────────┐
+  │ Classify  │──→ Is this deployment? ──Yes──→ Handoff to deploy suite
+  │ (1-2 sec) │
+  └────┬─────┘
+       │ No
+       ▼
+  ┌──────────┐
+  │ Gather    │──→ Read package.json, existing contracts, test files
+  │ context   │     (minimum context to change the plan)
+  └────┬─────┘
+       │
+       ▼
+  ┌──────────┐
+  │ Plan      │──→ Present structured plan: what, why, how, files, risks
+  │ (review)  │
+  └────┬─────┘
+       │
+       ▼
+  ┌──────────┐
+  │ Gate      │──→ high risk?  ──Yes──→ Get user confirm
+  │ (risk)    │     medium risk? ──Yes──→ Get user confirm
+  └────┬─────┘     low risk?   ──Yes──→ Execute directly
+       │
+       ▼
+  ┌──────────┐
+  │ Execute   │──→ One change at a time, smallest viable scope
+  └────┬─────┘
+       │
+       ▼
+  ┌──────────┐
+  │ Verify    │──→ Narrowest check: compile, test, lint
+  └────┬─────┘
+       │
+       ▼
+  ┌──────────┐
+  │ Report    │──→ Standard payload with diff, files touched, next steps
+  └──────────┘
+       │
+       ▼
+  Await next request
+```
+
 ## Communication Templates
 
 When you need to ask the user for clarification:
