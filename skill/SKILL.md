@@ -8,6 +8,34 @@ slash: true
 
 Developer skill suite for Pharos blockchain projects. Routes to 35 specialized subskills with plan-first execution and risk-gated approvals.
 
+## Quick Start
+
+```
+You: "Map this repo so I can start building"
+ → Routes to repo-onboarding (low risk, proceeds on agreement)
+ → Returns repo structure, entrypoints, scripts, stack
+
+You: "Design the architecture for a staking contract"
+ → Routes to contract-architecture (high risk, requires approval)
+ → Returns module map, storage plan, access-control plan
+
+You: "Write the staking contract"
+ → Routes to solidity-authoring (high risk, requires approval)
+ → Writes contract after plan approval
+
+You: "Write tests for the staking contract"
+ → Routes to test-generation (medium risk, requires approval)
+ → Generates tests after plan approval
+
+You: "Deploy this to testnet"
+ → Routes to deployment-and-verification for prep
+ → Hand off to pharos-agent-deploy-suite for broadcast
+
+You: "Review this contract for security issues"
+ → Routes to contract-review (high risk, requires approval)
+ → Returns findings list with severity and evidence
+```
+
 ## Quick Reference
 
 | Action | Rule |

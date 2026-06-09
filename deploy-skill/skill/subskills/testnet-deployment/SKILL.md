@@ -1,6 +1,6 @@
 ---
 name: pharos-testnet-deployment
-description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on testnet. Use when the user says: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release. Do NOT use for: mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite). See also: mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)."
+description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Atlantic Testnet (chain ID: 688689). Use when the user says: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release, Atlantic testnet. Do NOT use for: mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite). See also: mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)."
 ---
 
 # Testnet Deployment
