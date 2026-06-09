@@ -266,6 +266,7 @@ Route to the network-specific variant:
 |---|---|
 | `testnet-deployment` | "Deploy this contract to Pharos testnet" / testnet rehearsal |
 | `mainnet-deployment` | "Deploy this contract to Pharos mainnet" / mainnet release |
+| `post-deploy` | Post-deployment verification, artifact capture, and frontend config update |
 
 ## Bundled Scripts
 
@@ -400,6 +401,8 @@ Report the final state:
   "verified": true
 }
 ```
+
+For a structured post-deploy workflow covering these steps in a single subskill flow, route to the `post-deploy` subskill.
 
 ## Emergency Rollback Guidance
 

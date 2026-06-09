@@ -234,3 +234,12 @@ A: Official docs at https://docs.pharos.xyz. GitHub at https://github.com/Pharos
 - GitHub: https://github.com/PharosNetwork
 - Discord: https://discord.com/invite/pharos
 - RPC Providers: https://docs.pharos.xyz/tooling-and-infrastructure/rpc
+
+## Related Subskills
+
+| Subskill | Relevance |
+|---|---|
+| `cross-chain-bridge` | Cross-chain messaging and bridge protocols using Pharos network endpoints |
+| `production-ops` | Monitoring and alerting using Pharos RPC and WebSocket endpoints |
+| `spn-development` | SPN development referencing Pharos SPN contract addresses |
+| `rwa-compliance` | RWA tokenization using Pharos network and tokenomics parameters |

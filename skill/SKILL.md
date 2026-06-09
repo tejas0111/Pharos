@@ -10,7 +10,7 @@ metadata:
 
 # Pharos Agent Dev Suite
 
-Developer skill suite for Pharos blockchain projects. Routes to 35 developer subskills + 2 deployment subskills with plan-first execution and risk-gated approvals.
+Developer skill suite for Pharos blockchain projects. Routes to 43 developer subskills + 3 deployment subskills with plan-first execution and risk-gated approvals.
 
 ## Quick Start
 
@@ -44,7 +44,7 @@ You: "Review this contract for security issues"
 
 | Action | Rule |
 |---|---|
-| Always show a plan first | All 35 developer subskills + 2 deployment subskills |
+| Always show a plan first | All 43 developer subskills + 3 deployment subskills |
 | Wait for explicit confirmation before edits | High & medium risk subskills (21 total) |
 | Proceed after user agrees | Low risk subskills (14 total) |
 | No RPC, balances, or onchain execution | This suite is developer-only |
@@ -159,7 +159,7 @@ Detect the stack from these signals:
 
 ## Subskill Reference
 
-All 35 developer subskills, organized by category with risk level and approval gate:
+All 43 developer subskills, organized by category with risk level and approval gate:
 
 ### Contract Work
 
@@ -169,6 +169,8 @@ All 35 developer subskills, organized by category with risk level and approval g
 | `solidity-authoring` | high | confirm | write or refactor Solidity code |
 | `interface-abi-design` | medium | confirm | interfaces, events, errors, typed bindings |
 | `protocol-integration-planning` | medium | confirm | read/write call sequences, approval flow |
+| `upgrade-patterns` | high | confirm | UUPS, Transparent proxy, beacon proxy patterns |
+| `rwa-compliance` | high | confirm | RWA compliance patterns and tokenization |
 
 ### UI Work
 
@@ -206,6 +208,13 @@ All 35 developer subskills, organized by category with risk level and approval g
 | `remix-contract-workflow` | low | proceed | browser Solidity, quick iteration |
 | `tailwind-shadcn-ui-workflow` | low | proceed | Tailwind, shadcn/ui, design systems |
 
+### Integration
+
+| Subskill | Risk | Gate | When |
+|---|---|---|---|---|
+| `cross-chain-bridge` | high | confirm | cross-chain messaging, SPN Mailbox, LayerZero, CCTP |
+| `spn-development` | high | confirm | SPN development and integration |
+
 ### Quality & Performance
 
 | Subskill | Risk | Gate | When |
@@ -214,6 +223,8 @@ All 35 developer subskills, organized by category with risk level and approval g
 | `performance-optimization` | medium | confirm | runtime, render, bundle, gas-adjacent improvements |
 | `accessibility-review` | medium | confirm | keyboard, semantics, contrast, screen-reader |
 | `state-management-integration` | medium | confirm | query, store, cache, client-state wiring |
+| `gas-optimization` | medium | confirm | SALI patterns, gas optimization techniques |
+| `security-audit` | high | confirm | security audit prep and review |
 
 ### Shipping & Docs
 
@@ -225,6 +236,18 @@ All 35 developer subskills, organized by category with risk level and approval g
 | `code-scaffolding-and-generation` | low | proceed | boilerplate, starter files, project scaffolds |
 | `docs-and-example-generation` | low | proceed | docs, examples, usage instructions, agent prompts |
 | `localization-and-copy` | low | proceed | copy, strings, tone, i18n structure |
+
+### Operations
+
+| Subskill | Risk | Gate | When |
+|---|---|---|---|---|
+| `production-ops` | high | confirm | monitoring, alerting, incident response |
+
+### Workflow
+
+| Subskill | Risk | Gate | When |
+|---|---|---|---|---|
+| `workflow-orchestrator` | low | proceed | orchestration meta-subskill for multi-step workflows |
 
 ### Subskill Chaining
 
@@ -766,6 +789,8 @@ These files live in `skill/references/` and should be read when the task require
 | `references/harness.md` | Full decision tree, risk levels, verification order, what counts as context, success standard |
 | `references/output-contract.md` | Detailed response structure with example JSON payload |
 | `references/subskills.md` | Extended descriptions of each subskill with more use-when context |
+| `references/pharos-ecosystem.md` | Comprehensive Pharos ecosystem reference |
+| `references/deployment-patterns.md` | Deployment workflow patterns and CI/CD |
 
 ## Example Prompts
 
