@@ -1,10 +1,11 @@
 ---
 name: pharos-security-audit
-description: "Audit Pharos smart contracts for common vulnerability classes: Oracle manipulation, access control drift, cross-chain message replay, flash loan composability, MEV exposure. Reference Pharos audit partners: ExVul, OpenZeppelin, Zellic. Critical bug density benchmark: 0.4-0.7 per 1k LOC Solidity. Use when the user says: security audit, security review, vulnerability assessment, penetration test, audit preparation, audit readiness, smart contract audit, secure coding, threat model, attack surface, oracle manipulation, access control, replay attack, flash loan, MEV, ExVul, OpenZeppelin, Zellic. Do NOT use for: general code review without security focus (use contract-review), bug finding with a specific failure (use bug-finding-and-debugging), or automated analysis setup (use ci-and-build-troubleshooting for CI security tools). See also: contract-review (code correctness), bug-finding-and-debugging (specific failures), upgrade-patterns (proxy security)."
+description: "Audit Pharos smart contracts for common vulnerability classes: Oracle manipulation, access control drift, cross-chain message replay, flash loan composability, MEV exposure. Reference Pharos audit partners: ExVul, OpenZeppelin, Zellic. Critical bug density benchmark: 0.4-0.7 per 1k LOC Solidity. Use when. Keywords: security audit, security review, vulnerability assessment, penetration test, audit preparation, audit readiness, smart contract audit, secure coding, threat model, attack surface, oracle manipulation, access control, replay attack, flash loan, MEV, ExVul, OpenZeppelin, Zellic. Do NOT use for: general code review without security focus (use contract-review), bug finding with a specific failure (use bug-finding-and-debugging), or automated analysis setup (use ci-and-build-troubleshooting for CI security tools)."
 metadata:
   audience: developer
   version: 1.0.0
   category: security
+slash: true
 ---
 
 # Security Audit

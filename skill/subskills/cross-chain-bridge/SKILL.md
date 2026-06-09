@@ -1,10 +1,11 @@
 ---
 name: pharos-cross-chain-bridge
-description: "Plan and implement cross-chain bridge integrations on Pharos using LayerZero, CCTP, native bridge patterns, and SPN Mailbox-based messaging. Use when the user says: cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstraction, multichain, omnichain, interchain, bridging tokens, cross-chain messaging, bridge integration. Do NOT use for: single-chain contract authoring (use solidity-authoring), general architecture design (use contract-architecture), or deployment (use deployment-and-verification). See also: spn-development (SPN Mailbox patterns), upgrade-patterns (bridge proxy upgrades), contract-architecture (system design)."
+description: "Plan and implement cross-chain bridge integrations on Pharos using LayerZero, CCTP, native bridge patterns, and SPN Mailbox-based messaging. Use when. Keywords: cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstraction, multichain, omnichain, interchain, bridging tokens, cross-chain messaging, bridge integration. Do NOT use for: single-chain contract authoring (use solidity-authoring), general architecture design (use contract-architecture), or deployment (use deployment-and-verification). See also: spn-development (SPN Mailbox patterns), upgrade-patterns (bridge proxy upgrades), contract-architecture (system design)."
 metadata:
   audience: developer
   version: 1.0.0
   category: cross-chain
+slash: true
 ---
 
 # Cross-Chain Bridge

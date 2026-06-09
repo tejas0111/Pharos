@@ -1,10 +1,11 @@
 ---
 name: pharos-rwa-compliance
-description: "Implement Real-World Asset (RWA) patterns on Pharos: whitelist-based transfer control, stablecoin depeg protection (oracle-triggered circuit breaker), redemption queues, liquidity reserves (5-10% buffer), NAV-based pricing, legal isolation (SPV), Supra DORA + Chainlink oracles. Use when the user says: RWA, real-world asset, tokenized asset, stablecoin, depeg protection, circuit breaker, whitelist transfer, redemption queue, liquidity reserve, NAV pricing, SPV, legal isolation, Supra DORA, compliance, transfer restriction, KYC, accredited investor, security token, regulated token, MiCA, SEC. Do NOT use for: standard ERC-20/721 development (use solidity-authoring), DeFi protocol design (use contract-architecture), or security review (use security-audit). See also: contract-architecture (system design), security-audit (compliance security review), upgrade-patterns (RWA contract upgrades)."
+description: "Implement Real-World Asset (RWA) patterns on Pharos: whitelist-based transfer control, stablecoin depeg protection (oracle-triggered circuit breaker), redemption queues, liquidity reserves (5-10% buffer), NAV-based pricing, legal isolation (SPV), Supra DORA + Chainlink oracles. Use when. Keywords: RWA, real-world asset, tokenized asset, stablecoin, depeg protection, circuit breaker, whitelist transfer, redemption queue, liquidity reserve, NAV pricing, SPV, legal isolation, Supra DORA, compliance, transfer restriction, KYC, accredited investor, security token, regulated token, MiCA, SEC. Do NOT use for: standard ERC-20/721 development (use solidity-authoring), DeFi protocol design (use contract-architecture), or security review (use security-audit)."
 metadata:
   audience: developer
   version: 1.0.0
   category: rwa
+slash: true
 ---
 
 # RWA Compliance
