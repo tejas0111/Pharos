@@ -37,13 +37,11 @@ case "$NETWORK" in
     RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
     EXPLORER="https://atlantic.pharosscan.xyz"
     CHAIN_ID=688689
-    SYMBOL="PHRS"
     ;;
   mainnet|pacific)
     RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
     EXPLORER="https://www.pharosscan.xyz"
     CHAIN_ID=1672
-    SYMBOL="PROS"
     ;;
   *)
     echo "ERROR: Unknown network '$NETWORK'. Use 'testnet' or 'mainnet'."

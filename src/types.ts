@@ -103,7 +103,15 @@ export type DeveloperSubskillId =
   | "remix-contract-workflow"
   | "tailwind-shadcn-ui-workflow"
   | "deployment-for-testnet-and-mainnet"
-  | "contract-testing-for-testnet-and-mainnet";
+  | "contract-testing-for-testnet-and-mainnet"
+  | "cross-chain-bridge"
+  | "upgrade-patterns"
+  | "gas-optimization"
+  | "security-audit"
+  | "production-ops"
+  | "spn-development"
+  | "rwa-compliance"
+  | "workflow-orchestrator";
 
 export type DeveloperRisk = "low" | "medium" | "high";
 

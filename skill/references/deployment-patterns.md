@@ -368,7 +368,7 @@ Deployment receipts are saved as build artifacts:
 | `deployment-and-verification` | Dev suite deployment prep that feeds into deploy workflows |
 | `upgrade-patterns` | UUPS, Transparent proxy, and Beacon proxy deployment flows |
 | `cross-chain-bridge` | Cross-chain deployment flows (LayerZero, CCTP) |
-| `ci-cd-and-test-automation` | CI/CD pipeline deployment automation |
+| `ci-and-build-troubleshooting` | CI/CD pipeline deployment automation |
 | `testnet-deployment` | Testnet broadcast workflow (deploy suite) |
 | `mainnet-deployment` | Mainnet broadcast workflow (deploy suite) |
 | `post-deploy` | Post-deployment verification and artifact capture |
