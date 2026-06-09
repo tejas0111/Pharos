@@ -1,3 +1,5 @@
+export { parseIntent } from "./intent/parse-intent";
+
 export function createSkillMetadata() {
   return {
     name: "Pharos Power Skill",
