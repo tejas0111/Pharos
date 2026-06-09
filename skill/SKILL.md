@@ -1,6 +1,6 @@
 ---
 name: pharos-agent-dev-suite
-description: "Use ONLY when the user wants Pharos blockchain developer work: contract coding (Solidity), dapp frontend integration (wagmi/viem/Next.js), framework setup (Foundry/Hardhat/Remix), testing/review/debugging, deployment prep, CI troubleshooting, repo onboarding, refactoring, dependency upgrades, monorepo management, accessibility review, release notes, code scaffolding, or docs generation. Do NOT use for: RPC reads, balance checks, transaction sending, onchain execution, wallet operations, or any non-Pharos development. Trigger keywords: Pharos, Solidity, contract, dapp, deploy, test, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, accessibility, a11y, release notes, changelog."
+description: "Use ONLY when the user wants Pharos blockchain developer work: contract coding (Solidity), dapp frontend integration (wagmi/viem/Next.js), framework setup (Foundry/Hardhat/Remix), testing/review/debugging, deployment prep, CI troubleshooting, repo onboarding, refactoring, dependency upgrades, monorepo management, accessibility review, release notes, code scaffolding, or docs generation. Do NOT use for: RPC reads, balance checks, transaction sending, onchain execution, wallet operations, or any non-Pharos development. Trigger keywords: Pharos, Solidity, contract, dapp, deploy, test, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, accessibility, a11y, release notes, changelog, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, anvil, cast, slither, solhint, prettier, TypeScript, Next.js, React, hooks, server actions, App Router, Tailwind, shadcn, ethers, web3, gas optimization, upgrade, proxy, UUPS, transparent, ERC-20, ERC-721, ERC-1155, staking, vault, AMM, lending, DeFi, RealFi, tokenomics, multichain, cross-chain, LayerZero, CCTP."
 slash: true
 ---
 
@@ -559,10 +559,41 @@ export const config = createConfig({
 ### Solidity on Pharos
 
 - Pharos is EVM-compatible — standard Solidity patterns work out of the box
-- Block time is <1 second — time-based logic (`block.timestamp`, `block.number`) needs adjustment compared to Ethereum
-- Gas limits on Pharos are higher than Ethereum — large contract deployments are feasible
-- Native token is PROS (mainnet) / PHRS (testnet) — use these in `msg.value` checks and ERC-20 wrappers
-- Pharos supports both EVM and WASM — contracts written for EVM run natively
+- Block time is <1 second — time-based logic (`block.timestamp`, `block.number`) needs adjustment compared to Ethereum. Use `block.timestamp` for absolute time checks, but be aware that multiple blocks can be mined within a second
+- Gas limits on Pharos are higher (2 gigagas/second) — large contract deployments (10MB+ bytecode) are feasible
+- Native currency is PROS (mainnet, 18 decimals) / PHRS (testnet, 18 decimals) — use in `msg.value` checks
+- Pharos supports both EVM and WASM — contracts written for Solidity/EVMs run natively
+- Recommended EVM version: `cancun` (supports transient storage, MCOPY, etc.)
+- Recommended Solidity version: 0.8.20+ (0.8.26 preferred for latest features)
+- Gas estimation: Pharos gas pricing may differ from Ethereum. Always re-estimate gas before mainnet deployment. Use `forge script --gas-estimate` or Hardhat's gas reporter
+
+### Common Pharos Contract Patterns
+
+```solidity
+// PROS/PHRS native currency transfer
+contract Payment {
+    function pay() external payable {
+        // msg.value is in PROS (mainnet) or PHRS (testnet)
+        require(msg.value > 0, "Send native currency");
+        // ... handle payment
+    }
+}
+
+// Time-based logic (block time < 1 second)
+contract TimeLock {
+    uint256 public constant LOCK_DURATION = 86400; // 24 hours in seconds
+    mapping(address => uint256) public locks;
+    
+    function lock() external {
+        locks[msg.sender] = block.timestamp + LOCK_DURATION;
+    }
+    
+    function release() external {
+        require(block.timestamp >= locks[msg.sender], "Still locked");
+        // block.timestamp is reliable, but don't assume minimum time between blocks
+    }
+}
+```
 
 ### Testing on Pharos
 

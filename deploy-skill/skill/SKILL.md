@@ -1,6 +1,6 @@
 ---
 name: pharos-agent-deploy-suite
-description: "Use ONLY when the user needs to deploy, broadcast, or verify Pharos contracts on testnet or mainnet. This skill handles: contract deployment (Foundry/Hardhat), transaction broadcast, explorer verification, RPC configuration, signer setup, post-deploy checks, deployment simulation/dry-run, and explorer interactions. Do NOT use for: contract coding, testing, debugging, architecture, frontend work, or any non-deploy development. Trigger keywords: deploy, broadcast, verify, testnet, mainnet, RPC, explorer, forge script, hardhat deploy, PHAROS_TESTNET_RPC_URL, PHAROS_MAINNET_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, simulate, dry-run, gas estimation, signer, nonce, release, go live, production. Hand off to pharos-agent-dev-suite for all development work before deployment."
+description: "Use ONLY when the user needs to deploy, broadcast, or verify Pharos contracts on testnet (Atlantic, chain ID: 688689) or mainnet (Pacific, chain ID: 1672). This skill handles: contract deployment (Foundry/Hardhat), transaction broadcast, explorer verification, RPC configuration, signer setup, post-deploy checks, deployment simulation/dry-run, and explorer interactions. Do NOT use for: contract coding, testing, debugging, architecture, frontend work, or any non-deploy development. Trigger keywords: deploy, broadcast, verify, testnet, mainnet, RPC, explorer, forge script, hardhat deploy, PHAROS_TESTNET_RPC_URL, PHAROS_MAINNET_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, simulate, dry-run, gas estimation, signer, nonce, release, go live, production, Atlantic, Pacific, 688689, 1672, PROS, PHRS, fund, faucet, get testnet tokens, claim, explorer verification, contract verification, deployment, broadcast transaction, forge create, forge script --broadcast. Hand off to pharos-agent-dev-suite for all development work before deployment."
 slash: true
 ---
 
@@ -272,6 +272,36 @@ DEPLOYED_ADDRESS=0x123... ./scripts/verify-testnet-hardhat.sh
 7. **Capture** the deployed address, tx hash, explorer link, and verification result.
 8. **Run post-deploy verification** (see below).
 9. **If verification fails**, report the exact failure and stop. Do not retry with a different approach without user approval.
+
+## Post-Deploy: Frontend Config Update
+
+After a successful deployment, the dapp frontend needs the new contract address and ABI. Prompt the user to update:
+
+```typescript
+// config/contracts.ts — update with deployed address
+export const CONTRACTS = {
+  token: {
+    address: "0x...", // ← replace with deployed address
+    abi: tokenABI,
+    deployedAt: 1234567, // block number
+  },
+};
+```
+
+If the ABI changed, regenerate TypeChain/abitype bindings:
+
+```bash
+# Foundry
+forge inspect Token abi > abi/Token.json
+
+# Hardhat
+npx hardhat run scripts/extract-abi.ts
+```
+
+Suggest these follow-up steps:
+1. Update the frontend `.env` or config with the new address
+2. Tag the release commit: `git tag v1.0.0-deployed -m "Contract deployed to mainnet"`
+3. Update the README with the deployed address and explorer link
 
 ## Post-Deploy Verification Protocol
 
