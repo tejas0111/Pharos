@@ -661,6 +661,28 @@ These files live in `skill/references/` and should be read when the task require
 | User says plan is wrong direction | Misclassification or missing context | Apologize, re-classify, gather more context, present revised plan |
 | Framework not detected | `package.json` not read or unconventional setup | Read `package.json` explicitly, or ask the user which framework |
 
+## End-to-End Workflow Example
+
+A complete flow from idea to deployed contract on Pharos:
+
+```
+1. "Map this repo"                                → repo-onboarding (low)
+2. "Design the token contract architecture"       → contract-architecture (high)
+3. "Write the token contract"                     → solidity-authoring (high)
+4. "Plan the tests"                               → testing-strategy (medium)
+5. "Write the tests"                              → test-generation (medium)
+6. "Run tests and fix failures"                   → bug-finding-and-debugging (high)
+7. "Review the contract for security"             → contract-review (high)
+8. "Prepare deployment scripts and config"        → deployment-and-verification (high)
+   └──→ Hand off to pharos-agent-deploy-suite
+9. "Deploy to testnet"                            → testnet-deployment (deploy suite)
+10. "Verify the deployment"                       → verify-deployment.sh (deploy suite)
+11. "Update frontend with new address"            → frontend-dapp-integration (medium)
+12. "Deploy to mainnet"                           → mainnet-deployment (deploy suite)
+```
+
+Each step follows the same pattern: classify → gather context → plan → gate (if high/medium) → execute → verify → report.
+
 ## Best Practices
 
 - **Route narrowly** — always pick the most specific subskill. Don't use `solidity-authoring` when `contract-review` is the actual request.

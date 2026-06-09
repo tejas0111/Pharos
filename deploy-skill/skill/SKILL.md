@@ -643,6 +643,45 @@ Before presenting a plan, verify:
 | Explorer shows "Invalid address" | Wrong network or address format | Confirm the address and network match |
 | Transaction reverted during broadcast | Constructor reverted or preconditions not met | Check constructor args, deployer permissions |
 
+## Mainnet Launch Checklist
+
+Step-by-step checklist for a safe mainnet deployment:
+
+### 1 Week Before
+- [ ] Complete all contract development and testing on testnet
+- [ ] Run full security audit / contract review
+- [ ] Verify all upgrade paths work correctly on testnet
+- [ ] Set up mainnet RPC endpoint and verify connectivity
+- [ ] Procure mainnet PROS tokens for gas (estimate: deploy + 50% buffer)
+- [ ] Set up monitoring for the deployed contract (events, transactions)
+
+### 1 Day Before
+- [ ] Run final simulation on mainnet fork: `forge test --fork-url https://rpc.pharos.xyz`
+- [ ] Verify constructor args are final
+- [ ] Confirm multi-sig/owner address is correct
+- [ ] Prepare deployer wallet (transfer only the gas needed)
+- [ ] Verify `ETHERSCAN_API_KEY` works for mainnet verification
+- [ ] Write the deployment transaction in a prepared script
+
+### Deployment Day
+- [ ] Confirm chain ID = 1672 (Pharos Pacific Mainnet)
+- [ ] Check deployer balance has sufficient PROS
+- [ ] Run simulation: `SIMULATE_ONLY=1 ./scripts/deploy-mainnet.sh`
+- [ ] On approval: broadcast deployment
+- [ ] Verify on explorer: https://www.pharosscan.xyz
+- [ ] Run post-deploy verification: `./scripts/verify-deployment.sh mainnet <address>`
+- [ ] Transfer ownership to multi-sig (if applicable)
+- [ ] Tag the release commit: `git tag v1.0.0 -m "Contract deployed to mainnet"`
+- [ ] Update frontend config with new address
+- [ ] Announce deployment
+
+### Post-Launch (First 48 Hours)
+- [ ] Monitor for abnormal transactions or events
+- [ ] Verify all expected state transitions work
+- [ ] Check gas usage against estimates
+- [ ] Prepare rollback plan (upgrade or redeploy if critical bug found)
+- [ ] Update documentation with mainnet addresses
+
 ## Best Practices
 
 - **Simulate first** — run `SIMULATE_ONLY=1` before any real broadcast.
