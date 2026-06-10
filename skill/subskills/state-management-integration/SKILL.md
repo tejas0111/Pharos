@@ -3,7 +3,7 @@ name: pharos-state-management-integration
 description: "Wire Pharos dapp state into query, store, cache, or client-side state tools without creating drift. Use when setting up state management with Zustand, Redux, React Query, Jotai, Recoil, or global store for Pharos web3 dapps. Keywords: state management, Zustand, Redux, query client, cache, store, React Query, Jotai, Recoil, global state, Pharos, dapp, Next.js, React, TypeScript, wagmi, viem."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
 slash: true
 ---
@@ -156,7 +156,7 @@ component-local state patterns (use react-ui-patterns-and-hooks), or contract st
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -164,16 +164,16 @@ component-local state patterns (use react-ui-patterns-and-hooks), or contract st
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Identify the state ownership model and update flow.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Choose the minimal state tool or pattern that fits the app.
-4. Show the plan and ask for approval before implementation.
-5. Wire the state and verify the update path.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Identify the state ownership model and update flow.
+5. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+6. Choose the minimal state tool or pattern that fits the app.
+7. Show the plan and ask for approval before implementation.
+8. Wire the state and verify the update path.
 ## Output
 
 - state flow

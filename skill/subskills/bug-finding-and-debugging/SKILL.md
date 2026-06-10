@@ -3,7 +3,7 @@ name: pharos-bug-finding-and-debugging
 description: "Trace failures in Pharos contract compile, runtime, test, or dapp UI behavior and propose focused fixes. Use when debugging failing builds, failing tests, runtime errors, transaction reverts, or broken UI behavior in Pharos Solidity dapps. Keywords: bug, debug, error, failing build, failing test, runtime issue, broken, not working, trace failure, root cause, Solidity, Pharos, Foundry, Hardhat, revert, gas, transaction, wagmi, viem, forge, anvil, cast."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: testing
 slash: true
 ---
@@ -91,23 +91,22 @@ function test_UnstakeSilentFailure() public {
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Reproduce or reason about the failure from the error output.
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-3. Isolate the root cause and the smallest safe fix.
-4. Show the fix plan and ask for approval before editing.
-5. Patch the issue and verify the failure is gone.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Reproduce or reason about the failure from the error output.
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+5. Isolate the root cause and the smallest safe fix.
+6. Show the fix plan and ask for approval before editing.
+7. Patch the issue and verify the failure is gone.
 ## Output
 
 - root cause
@@ -136,9 +135,12 @@ contract-review (review before fixing), ci-and-build-troubleshooting (pipeline f
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
 - Present the root-cause analysis with debug trace, reproduction steps, and fix options — show the complete analysis
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Edit files, modify code, or apply fixes
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

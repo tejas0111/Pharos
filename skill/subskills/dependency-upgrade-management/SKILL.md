@@ -3,7 +3,7 @@ name: pharos-dependency-upgrade-management
 description: "Upgrade Pharos project packages or toolchains with version-aware compatibility checks and rollback planning. Use when upgrading dependencies, bumping package versions, updating toolchains (Foundry, Hardhat, Node), or managing npm/forge dependency updates for Pharos dapps. Keywords: dependency upgrade, package update, toolchain update, version bump, upgrade dependencies, npm update, Foundry, Hardhat, Pharos, Solidity, monorepo, compatiblity, rollback."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
 slash: true
 ---
@@ -73,23 +73,22 @@ adding a new dependency (use framework-integration), or refactoring code to work
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Package manager**: pnpm, npm, or yarn available.
-
 ## Workflow
 
-1. List the packages or toolchain components that need changing.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Check compatibility risk and any required code changes.
-4. Present the upgrade plan and ask for confirmation.
-5. Apply the upgrade and verify the build or tests.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. List the packages or toolchain components that need changing.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Check compatibility risk and any required code changes.
+6. Present the upgrade plan and ask for confirmation.
+7. Apply the upgrade and verify the build or tests.
 ## Output
 
 - upgrade plan

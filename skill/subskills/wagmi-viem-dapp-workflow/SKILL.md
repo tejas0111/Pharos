@@ -3,7 +3,7 @@ name: pharos-wagmi-viem-dapp-workflow
 description: "Handle Pharos wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when implementing wallet connect, contract read/write, useContractRead, useContractWrite, useAccount, useWalletClient, or dapp workflows for Pharos web3 frontends. Keywords: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient, Pharos, 688689, 1672, Atlantic, Pacific, Next.js, React, TypeScript."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
 slash: true
 ---
@@ -22,7 +22,7 @@ general React patterns (use react-ui-patterns-and-hooks), or full frontend layou
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -30,15 +30,15 @@ general React patterns (use react-ui-patterns-and-hooks), or full frontend layou
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Workflow
 
-1. Map the contract and wallet interactions the UI needs.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Choose the minimal Wagmi and Viem integration pattern.
-4. Present the plan and ask for approval before implementation.
-5. Verify the configuration and flow with a small smoke check.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Map the contract and wallet interactions the UI needs.
+4. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+5. Choose the minimal Wagmi and Viem integration pattern.
+6. Present the plan and ask for approval before implementation.
+7. Verify the configuration and flow with a small smoke check.
 ## Output
 
 - integration plan

@@ -3,7 +3,7 @@ name: pharos-performance-optimization
 description: "Find and reduce runtime, render, bundle, or gas inefficiencies in Pharos code paths. Use when optimizing performance, reducing gas costs, improving bundle size, fixing slow dapp UI, or reducing transaction latency in Pharos Solidity contracts and frontends. Keywords: performance, optimize, slow, bottleneck, bundle size, latency, gas optimization, speed up, reduce gas, Pharos, Solidity, Foundry, forge, Next.js, React, TypeScript, wagmi, viem, dapp."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: contract
 slash: true
 ---
@@ -106,23 +106,22 @@ readability or structural improvements (use refactoring-and-code-health), or bug
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Baseline metrics**: Gas snapshot or Lighthouse report before optimization.
-
 ## Workflow
 
-1. Locate the performance bottleneck or suspected hot path.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Propose a measurable optimization strategy.
-4. Show the plan and ask for approval before changes.
-5. Implement the smallest change that improves the metric and verify it.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Locate the performance bottleneck or suspected hot path.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Propose a measurable optimization strategy.
+6. Show the plan and ask for approval before changes.
+7. Implement the smallest change that improves the metric and verify it.
 ## Output
 
 - bottleneck analysis

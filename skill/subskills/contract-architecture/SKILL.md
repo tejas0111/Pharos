@@ -3,7 +3,7 @@ name: pharos-contract-architecture
 description: "Design Pharos contract modules, storage layout, access control, and upgrade boundaries before code is written. Use when planning system design, module boundaries, storage layout, access control, upgradeability patterns (UUPS/transparent proxies), or contract architecture for Pharos (mainnet 1672 / testnet 688689). Keywords: contract architecture, system design, module boundaries, storage layout, access control, upgradeability, UUPS, transparent proxy, Solidity, Pharos, PHRS, DeFi, RealFi, staking, vault, AMM, lending, tokenomics."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: contract
 slash: true
 ---
@@ -110,24 +110,23 @@ writing concrete Solidity (use solidity-authoring), reviewing existing code (use
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Clarify the product goal, trust model, and onchain constraints.
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-3. Split the system into modules, interfaces, and storage responsibilities.
-4. Identify upgrade, ownership, and permission decisions explicitly.
-5. Present the architecture and ask for approval before implementation.
-6. Include Pharos-specific address references (Safe, ProxyFactory) and PHRS gas stipend warnings.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Clarify the product goal, trust model, and onchain constraints.
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+5. Split the system into modules, interfaces, and storage responsibilities.
+6. Identify upgrade, ownership, and permission decisions explicitly.
+7. Present the architecture and ask for approval before implementation.
+8. Include Pharos-specific address references (Safe, ProxyFactory) and PHRS gas stipend warnings.
 ## Output
 
 - module map
@@ -156,9 +155,11 @@ solidity-authoring (implementation), interface-abi-design (surface), migration-a
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the module map, storage layout, access-control plan, and upgrade path — show the full architecture diagram and storage schemas
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Write contract code, modify files, or generate implementation
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

@@ -3,7 +3,7 @@ name: pharos-release-notes-and-changelog
 description: "Turn Pharos code changes into clear release notes, changelog entries, or PR summaries. Use when generating release notes, changelog entries, release summaries, PR summaries, shipping notes, or version notes for Pharos dapp releases. Keywords: release notes, changelog, release summary, PR summary, shipping notes, what changed, changelog entry, version notes, Pharos, Solidity, TypeScript, Foundry, Hardhat, dapp."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: workflow
 slash: true
 ---
@@ -53,11 +53,11 @@ Native PHRS staking with auto-compound rewards.
 
 ### Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
 - `PHAROSSCAN_API_KEY` set in `.env`
 - Safe multisig owner access
 - Upgrade executor role on the proxy admin
-
 ### Steps
 
 1. Build and verify on Atlantic Testnet (688689) first:
@@ -110,7 +110,7 @@ Native PHRS staking with auto-compound rewards.
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Project context**: You need the contract names, network targets (1672 mainnet / 688689 testnet), and version numbers relevant to the documentation.
 - **Previous artifacts**: If documenting deployed contracts, you need deployment addresses, ABI files, or changelog history.
@@ -118,12 +118,13 @@ Native PHRS staking with auto-compound rewards.
 
 ## Workflow
 
-1. Review the set of changes to be documented.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Write the release notes or changelog entry.
-4. Show the plan and ask for approval before finalizing.
-5. Verify version numbers and links.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Review the set of changes to be documented.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Write the release notes or changelog entry.
+6. Show the plan and ask for approval before finalizing.
+7. Verify version numbers and links.
 ## Examples
 
 - "Generate changelog entry for Pharos Staking v2.1.0: native PHRS staking, OZ 5.0 upgrade, Solidity 0.8.24, PharosScan gate"

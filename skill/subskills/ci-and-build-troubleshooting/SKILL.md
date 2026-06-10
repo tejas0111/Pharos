@@ -3,7 +3,7 @@ name: pharos-ci-and-build-troubleshooting
 description: "Diagnose failing builds, type errors, lint jobs, and CI regressions in Pharos projects with a narrow fix path. Use when fixing CI pipeline failures, compilation errors, type errors, lint issues, or broken test jobs in Pharos Solidity or TypeScript projects. Keywords: CI, build failure, lint failure, type error, pipeline, broken build, compilation error, CI red, Foundry, Hardhat, forge test, hardhat test, TypeScript, Next.js, Pharos, GitHub Actions, workflow, troubleshooting."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
 slash: true
 ---
@@ -119,21 +119,20 @@ runtime bugs (use bug-finding-and-debugging), or performance improvements (use p
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
-- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
-
 ## Workflow
 
-1. Read the failure output and isolate the failing stage.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Narrow the fix to the smallest change that restores the pipeline.
-4. Show the plan and ask before editing files that affect build behavior.
-5. Verify the pipeline or local equivalent after the fix.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Read the failure output and isolate the failing stage.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Narrow the fix to the smallest change that restores the pipeline.
+6. Show the plan and ask before editing files that affect build behavior.
+7. Verify the pipeline or local equivalent after the fix.
 ## Output
 
 - failure analysis
@@ -162,12 +161,15 @@ bug-finding-and-debugging (runtime bugs, not build failures)
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
 - Present the full failure analysis with error logs, root cause, and fix plan — show the complete diagnosis
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Change build config, CI workflows, lockfiles, or modify build scripts
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
 ### Pharos-Specific CI Patterns
 
 When the CI failure involves Pharos-specific configs, add these checks:

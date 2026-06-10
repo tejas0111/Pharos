@@ -3,7 +3,7 @@ name: pharos-frontend-dapp-integration
 description: "Connect Pharos dapp UI components to contract actions, onchain state, and transaction previews using wagmi/viem/ethers with Pharos network configs. Use when wiring up frontend to Pharos contracts, integrating wallet connect, displaying contract state, or building transaction flows for Pharos dapps. Keywords: frontend, dapp, UI integration, wallet connect, contract read, contract write, transaction preview, wagmi, viem, ethers, Next.js, React, TypeScript, Pharos, PHRS, web3, chain config, RPC."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
   slash: true
 ---
@@ -22,7 +22,7 @@ designing pure UI without contract interaction (use react-ui-patterns-and-hooks 
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -30,16 +30,16 @@ designing pure UI without contract interaction (use react-ui-patterns-and-hooks 
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Map the user journey and the contract state the UI needs.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Choose the minimal component tree and data flow.
-4. Show the integration plan, including files and props.
-5. Implement the UI wiring after the user confirms the direction.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Map the user journey and the contract state the UI needs.
+5. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+6. Choose the minimal component tree and data flow.
+7. Show the integration plan, including files and props.
+8. Implement the UI wiring after the user confirms the direction.
 ## Output
 
 - component map

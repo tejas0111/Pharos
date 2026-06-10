@@ -3,7 +3,7 @@ name: pharos-test-generation
 description: "Write Foundry/Hardhat tests for Pharos contracts with Pharos-specific fixtures (PhrsToken, test accounts), fork URLs (testnet/mainnet), chain assertions (chain IDs 1672/688689, ~2s block times), and SolAid/PharosScan verification checks. Use when generating unit/integration/e2e tests, fixtures, or mock data for Pharos Solidity contracts or frontend components. Keywords: write tests, generate tests, fixtures, mock data, unit test, integration test, e2e test, Foundry, Hardhat, Solidity, Pharos, forge test, hardhat test, wagmi, viem, PhrsToken, 1672, 688689."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: testing
   slash: true
 ---
@@ -22,23 +22,22 @@ planning what to test (use testing-strategy first), or debugging a failure (use 
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Use the approved test strategy and identify concrete cases.
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-3. Draft the tests with Pharos fixtures, fork URLs, and chain-specific assertions.
-4. Show the test plan and ask if the cases are correct.
-5. Generate the tests and verify they fail or pass as intended.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Use the approved test strategy and identify concrete cases.
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+5. Draft the tests with Pharos fixtures, fork URLs, and chain-specific assertions.
+6. Show the test plan and ask if the cases are correct.
+7. Generate the tests and verify they fail or pass as intended.
 ## Pharos-Specific Test Conventions
 
 ### Foundry Config for Tests
@@ -196,9 +195,11 @@ testing-strategy (planning), contract-testing-for-testnet-and-mainnet (network-s
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the mini-strategy (Tier | File | Command | Chain ID | Cases) and sample test skeleton — show the plan first
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Write test files, generate test code, or modify existing tests
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

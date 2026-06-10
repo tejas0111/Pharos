@@ -3,7 +3,7 @@ name: pharos-foundry-hardhat-contract-workflow
 description: "Set up Pharos Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs with anvil. Use when configuring Foundry (forge/anvil/cast), Hardhat, forge test, hardhat test, forge script, or contract development workflows for Pharos blockchain. Keywords: Foundry, Hardhat, forge, anvil, cast, Solidity workflow, forge init, hardhat init, forge test, hardhat test, forge script, Pharos, 688689, 1672, contract development, foundry.toml, hardhat.config, pharos.json, PharosScan, etherscan, deploy script, chain ID."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
   slash: true
 ---
@@ -22,23 +22,22 @@ writing individual contracts (use solidity-authoring), or debugging build failur
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **Hardhat** (optional): `npx hardhat compile` must succeed if using Hardhat.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
-
 ## Workflow
 
-1. Identify the contract task and the local dev stack.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Choose the smallest Foundry or Hardhat workflow that fits the request.
-4. Show the plan and proceed once it looks right.
-5. Verify the workflow with the smallest useful command or file change.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Identify the contract task and the local dev stack.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Choose the smallest Foundry or Hardhat workflow that fits the request.
+6. Show the plan and proceed once it looks right.
+7. Verify the workflow with the smallest useful command or file change.
 ## Output
 
 - workflow plan

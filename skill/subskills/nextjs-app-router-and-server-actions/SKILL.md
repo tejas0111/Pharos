@@ -3,7 +3,7 @@ name: pharos-nextjs-app-router-and-server-actions
 description: "Handle Next.js App Router, route handlers, server actions, and RSC patterns for Pharos dapps. Use when building Next.js App Router layouts, load/error/not-found states, Server Actions calling Pharos contracts, route handlers proxying Pharos RPC, or SSR data fetching from Pharos chain 1672. Keywords: Next.js App Router, server actions, route handlers, RSC, layout, loading, error, not-found, Next.js, Pharos, dapp, React, TypeScript, wagmi, viem, pharos mainnet, chain 1672, pharos RPC, server components, client components, SSR, pharos contract"
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
 slash: true
 ---
@@ -22,7 +22,7 @@ Pages Router projects (this subskill is App Router only), or general React patte
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -30,17 +30,17 @@ Pages Router projects (this subskill is App Router only), or general React patte
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Map the route, server, and client boundaries.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Choose the minimal App Router pattern that fits the feature.
-4. Always use Pharos mainnet chain config (chain ID 1672, RPC https://rpc.pharos.xyz) for web3 integrations.
-5. Present the plan and ask for approval before implementation.
-6. Verify the app structure or runtime behavior after the change.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Map the route, server, and client boundaries.
+5. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+6. Choose the minimal App Router pattern that fits the feature.
+7. Always use Pharos mainnet chain config (chain ID 1672, RPC https://rpc.pharos.xyz) for web3 integrations.
+8. Present the plan and ask for approval before implementation.
+9. Verify the app structure or runtime behavior after the change.
 ## Output
 
 - route plan with Pharos chain boundaries

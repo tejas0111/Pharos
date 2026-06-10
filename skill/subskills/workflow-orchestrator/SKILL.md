@@ -4,7 +4,7 @@ description: "Orchestrate multi-step Pharos development workflows: contract (Sol
 slash: true
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: workflow
 ---
 
@@ -26,24 +26,24 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Project context**: You need the contract names, network targets (1672 mainnet / 688689 testnet), and version numbers relevant to the documentation.
 - **Previous artifacts**: If documenting deployed contracts, you need deployment addresses, ABI files, or changelog history.
 - **Target audience**: Clarify whether this is for developers, end users, or both.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Parse the user request into discrete stages: architecture, implementation, testing, deployment (Atlantic Testnet), verification (PharosScan), frontend (wagmi/Next.js), monitoring (Forta), post-deploy.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. For each stage, route to the narrowest subskill. Preserve context (repo path, contract names, design decisions, Pharos chain ID, RPC URLs) across subskill boundaries.
-4. Execute subskills sequentially — complete each stage before starting the next. Verify at each stage before proceeding.
-5. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s https://rpc.pharos.xyz/health` (mainnet) or `curl -s https://atlantic.dplabs-internal.com/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet_v2`).
-6. At handoff points, pass a context bundle: decisions made, files created, verification results, and open questions.
-7. If a stage fails, stop and report. Do not proceed to the next stage without user direction.
-8. Show the plan and ask for approval before implementing each stage.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Parse the user request into discrete stages: architecture, implementation, testing, deployment (Atlantic Testnet), verification (PharosScan), frontend (wagmi/Next.js), monitoring (Forta), post-deploy.
+5. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+6. For each stage, route to the narrowest subskill. Preserve context (repo path, contract names, design decisions, Pharos chain ID, RPC URLs) across subskill boundaries.
+7. Execute subskills sequentially — complete each stage before starting the next. Verify at each stage before proceeding.
+8. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s https://rpc.pharos.xyz/health` (mainnet) or `curl -s https://atlantic.dplabs-internal.com/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet_v2`).
+9. At handoff points, pass a context bundle: decisions made, files created, verification results, and open questions.
+10. If a stage fails, stop and report. Do not proceed to the next stage without user direction.
+11. Show the plan and ask for approval before implementing each stage.
 ## Common Workflow Chains
 
 | Chain | Subskill sequence |

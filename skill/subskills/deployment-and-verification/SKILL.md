@@ -2,7 +2,7 @@ name: pharos-deployment-and-verification
 description: "Prepare Pharos deploy scripts, env variables, explorer verification, and post-deploy checks for testnet and mainnet. Use when preparing deployment, writing deploy scripts, configuring verification, or setting up release pipelines for Pharos contracts (Atlantic testnet 688689 / mainnet 1672). Keywords: deploy, verification, explorer, release, publish contract, deploy script, verification flow, Pharos, Foundry, Hardhat, forge script, hardhat deploy, 688689, 1672, PHAROSSCAN_API_KEY, contract verification, gate fix."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: deployment
 slash: true
 ---
@@ -20,23 +20,23 @@ deploy, verification, explorer, release, publish contract, deployment prep, depl
 actually broadcasting a transaction (requires user approval before execution), or planning deployment across networks (use deployment-for-testnet-and-mainnet)
 
 ## Prerequisites
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable in `.env` (keep this secret, never commit or expose to LLM).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Confirm the deployment target, network, and required config (`config/pharos.json`).
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. **Gate Fix check** must be performed. Ask the user for any missing values before proceeding.
-3. Draft the deploy and verification steps explicitly using Pharos-specific commands.
-4. Present the plan and wait for approval before any deploy-side change.
-5. Verify the deployed artifact on PharosScan and capture the outcome.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Confirm the deployment target, network, and required config (`config/pharos.json`).
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. **Gate Fix check** must be performed. Ask the user for any missing values before proceeding.
+5. Draft the deploy and verification steps explicitly using Pharos-specific commands.
+6. Present the plan and wait for approval before any deploy-side change.
+7. Verify the deployed artifact on PharosScan and capture the outcome.
 ## Commands
 
 ### Foundry (Forge) — Pharos Mainnet
@@ -155,9 +155,11 @@ deployment-for-testnet-and-mainnet (network planning), post-deploy (post-deploym
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the deployment plan, forge script, pre-deploy checklist, dry run command, gate fix verification, and verification steps — show the exact commands
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Broadcast, deploy, modify deploy scripts or constructor args, or send onchain transactions
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

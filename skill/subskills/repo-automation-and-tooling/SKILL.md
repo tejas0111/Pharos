@@ -3,7 +3,7 @@ name: pharos-repo-automation-and-tooling
 description: "Design scripts, automation flows, task runners, and local developer tooling for Pharos projects. Use when setting up automation, scripts, Makefiles, precommit hooks, Husky, linting config, or dev tooling for Pharos Solidity and TypeScript repos. Keywords: automation, scripts, task runner, Makefile, precommit, tooling, linting, Husky, CI script, dev tooling, Pharos, Solidity, TypeScript, Foundry, Hardhat, monorepo."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
 slash: true
 ---
@@ -123,21 +123,20 @@ Run `make build && make test` across both testnet and mainnet chain configs.
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
-- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
-
 ## Workflow
 
-1. Understand the automation need and target tools.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Design the script, config, or automation flow.
-4. Show the plan and ask for approval before implementing.
-5. Apply the changes and verify.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Understand the automation need and target tools.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Design the script, config, or automation flow.
+6. Show the plan and ask for approval before implementing.
+7. Apply the changes and verify.
 ## Output
 
 - Makefile with forge + lint + gas + deploy + verify targets
