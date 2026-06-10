@@ -29,7 +29,7 @@ post-deploy, post-deployment, verify contract, transfer ownership, multi-sig tra
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Verify contract on PharosScan:
-- Search for the deployed address on `https://pharosscan.xyz`
+- Search for the deployed address on `https://www.pharosscan.xyz`
 - Click "Verify & Publish"
 - Select the matching compiler version, EVM version, and optimization settings
 - Paste the flattened source code (use `forge flatten` or `hardhat flatten`)
@@ -60,7 +60,7 @@ Announcement template:
 ```
 Deployed <ContractName> to Pharos Mainnet
 Address: <deployed-address>
-Explorer: https://pharosscan.xyz/address/<deployed-address>
+Explorer: https://www.pharosscan.xyz/address/<deployed-address>
 Tx: <tx-hash>
 ```
 Update README with deployed address, PharosScan link, and block number.
@@ -89,3 +89,18 @@ Check explorer shows ✅ Verified. Confirm Safe transaction queue shows the owne
 ## Related
 
 testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)
+
+## Gate
+
+High risk — two-phase execution required:
+
+**Phase 1 — Plan (present freely):**
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Wait for explicit 'Approve' or 'Proceed' from the user.
+
+**Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
+- Do NOT send any onchain transactions or modify critical files until approved.
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

@@ -42,7 +42,7 @@ function getPrice(IPharosPriceFeed feed) internal view returns (uint256) {
 4. Execute stake() with msg.value in PHRS
 5. Wait for receipt (Pharos ~2s block time → poll every 1s)
 6. Confirm state: call stakes(user) to verify
-7. Emit/display PharosScan link: https://pharosscan.xyz/tx/{hash}
+7. Emit/display PharosScan link: https://www.pharosscan.xyz/tx/{hash}
 ```
 
 ### Call Order for DeFi Integration on Pharos
@@ -85,7 +85,7 @@ writing the actual integration code (use frontend-dapp-integration or solidity-a
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Workflow

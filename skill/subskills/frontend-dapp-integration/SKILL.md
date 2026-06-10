@@ -70,7 +70,7 @@ export const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 export const pharosTestnet = defineChain({
@@ -78,7 +78,7 @@ export const pharosTestnet = defineChain({
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 ```
 
@@ -137,7 +137,7 @@ const { data: phrsBalance } = useBalance({
 #### PharosScan API for contract state reads
 ```typescript
 // Read contract state via PharosScan explorer API
-const API_URL = 'https://pharosscan.xyz/api/v1/contract/query'
+const API_URL = 'https://www.pharosscan.xyz/api/v1/contract/query'
 const response = await fetch(API_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -154,7 +154,7 @@ const response = await fetch(API_URL, {
 - Use `useWriteContract` / `useSendTransaction` for writes; ensure wallet is on correct Pharos chain
 - Transaction preview: estimate gas via `estimateGas` on Pharos RPC, show PHRS fee
 - Pharos transaction receipts: block time ≈ 2s — use `waitForTransactionReceipt` with shorter polling
-- Link tx hashes to PharosScan: `https://pharosscan.xyz/tx/{txHash}`
+- Link tx hashes to PharosScan: `https://www.pharosscan.xyz/tx/{txHash}`
 
 #### Writing with useWriteContract + TX Confirmation
 
@@ -183,7 +183,7 @@ export function StakeForm({ contractAddress }: { contractAddress: `0x${string}` 
       </button>
       {isPending && <p>Check MetaMask...</p>}
       {isConfirming && <p>⏳ Waiting for Pharos confirmation (~2s block time)</p>}
-      {isSuccess && hash && <p>✅ <a href={`https://pharosscan.xyz/tx/${hash}`}>View on PharosScan</a></p>}
+      {isSuccess && hash && <p>✅ <a href={`https://www.pharosscan.xyz/tx/${hash}`}>View on PharosScan</a></p>}
     </div>
   )
 }

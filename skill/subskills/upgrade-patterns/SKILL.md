@@ -30,7 +30,7 @@ upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgrad
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Workflow
@@ -90,19 +90,19 @@ After deployment on Pharos, verify both contracts on PharosScan:
 ```bash
 # Verify implementation
 forge verify-contract $IMPLEMENTATION_ADDRESS src/MyContractV1.sol:MyContract \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --chain-id 1672 \
   --etherscan-api-key $PHAROSSCAN_API_KEY
 
 # Verify proxy with implementation address parameter
 forge verify-contract $PROXY_ADDRESS lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --chain-id 1672 \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(address,bytes)" $IMPLEMENTATION_ADDRESS "0x")
 ```
 
-View on PharosScan at `https://pharosscan.xyz/address/{proxyAddress}?address={implementationAddress}` to confirm proxy read/write routes through the implementation.
+View on PharosScan at `https://www.pharosscan.xyz/address/{proxyAddress}?address={implementationAddress}` to confirm proxy read/write routes through the implementation.
 
 ### Storage Layout for Upgradeable Contracts
 
@@ -157,7 +157,7 @@ For Hardhat-based projects on Pharos:
 - Use `@openzeppelin/hardhat-upgrades` with manual multisig upgrade flow
 - Deploy with `deployProxy(implFactory, args, { kind: 'uups' })` using Hardhat deploy script pointing to `https://rpc.pharos.xyz`
 - Upgrade via multisig: prepare upgrade transaction with `prepareUpgrade(proxyAddress, newImplFactory)`, then execute via Pharos Safe multisig
-- Verify on PharosScan using `hardhat-verify` with custom verifier URL `https://pharosscan.xyz/api`
+- Verify on PharosScan using `hardhat-verify` with custom verifier URL `https://www.pharosscan.xyz/api`
 
 ## Related
 

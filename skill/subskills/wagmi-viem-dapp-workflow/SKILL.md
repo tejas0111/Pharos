@@ -67,7 +67,7 @@ export const pharosMainnet = defineChain({
     default: { http: ['https://rpc.pharos.xyz'] },
   },
   blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
   },
 })
 
@@ -79,7 +79,7 @@ export const pharosTestnet = defineChain({
     default: { http: ['https://atlantic.dplabs-internal.com'] },
   },
   blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
   },
 })
 ```

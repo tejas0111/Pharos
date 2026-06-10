@@ -54,7 +54,7 @@ export const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 export const pharosTestnet = defineChain({
@@ -62,7 +62,7 @@ export const pharosTestnet = defineChain({
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 export const PHRS_DECIMALS = 18

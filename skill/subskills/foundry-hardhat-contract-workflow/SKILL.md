@@ -152,16 +152,16 @@ const config: HardhatUserConfig = {
         network: "pharosMainnet",
         chainId: 1672,
         urls: {
-          apiURL: "https://pharosscan.xyz/api",
-          browserURL: "https://pharosscan.xyz",
+          apiURL: "https://www.pharosscan.xyz/api",
+          browserURL: "https://www.pharosscan.xyz",
         },
       },
       {
         network: "pharosTestnet",
         chainId: 688689,
         urls: {
-          apiURL: "https://pharosscan.xyz/api",
-          browserURL: "https://pharosscan.xyz",
+          apiURL: "https://www.pharosscan.xyz/api",
+          browserURL: "https://www.pharosscan.xyz",
         },
       },
     ],

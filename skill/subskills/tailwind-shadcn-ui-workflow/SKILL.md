@@ -113,7 +113,7 @@ export function TransactionCard({ tx }: { tx: Transaction }) {
         </div>
       </CardContent>
       <CardFooter className="text-xs text-pharos-muted">
-        <a href={`https://pharosscan.xyz/tx/${tx.hash}`} target="_blank" className="text-pharos-accent hover:underline">
+        <a href={`https://www.pharosscan.xyz/tx/${tx.hash}`} target="_blank" className="text-pharos-accent hover:underline">
           View on PharosScan →
         </a>
       </CardFooter>
@@ -204,7 +204,7 @@ export function TransactionList({ txs }: { txs: Transaction[] }) {
         </div>
       </CardContent>
       <CardFooter>
-        <a href="https://pharosscan.xyz" target="_blank" className="text-pharos-accent text-sm hover:underline">View all on PharosScan</a>
+        <a href="https://www.pharosscan.xyz" target="_blank" className="text-pharos-accent text-sm hover:underline">View all on PharosScan</a>
       </CardFooter>
     </Card>
   )

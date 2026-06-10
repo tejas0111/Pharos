@@ -64,7 +64,7 @@ const pharosMainnet = {
   name: 'Pharos Mainnet',
   rpcUrl: 'https://rpc.pharos.xyz',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  explorer: 'https://pharosscan.xyz',
+  explorer: 'https://www.pharosscan.xyz',
 }
 
 const pharosTestnet = {
@@ -72,7 +72,7 @@ const pharosTestnet = {
   name: 'Pharos Testnet',
   rpcUrl: 'https://atlantic.dplabs-internal.com',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  explorer: 'https://pharosscan.xyz',
+  explorer: 'https://www.pharosscan.xyz',
 }
 ```
 
@@ -108,7 +108,7 @@ const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 const publicClient = createPublicClient({
@@ -158,7 +158,7 @@ const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 const config = getDefaultConfig({

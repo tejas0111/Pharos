@@ -68,3 +68,18 @@ Post-deploy: query getCode on the address, check explorer for verification, conf
 ## Related
 
 mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)
+
+## Gate
+
+High risk — two-phase execution required:
+
+**Phase 1 — Plan (present freely):**
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Wait for explicit 'Approve' or 'Proceed' from the user.
+
+**Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
+- Do NOT send any onchain transactions or modify critical files until approved.
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

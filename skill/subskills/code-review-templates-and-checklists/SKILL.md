@@ -40,7 +40,7 @@ _What does this PR change for the Pharos dApp/contract?_
 
 ### Deployment
 - [ ] foundry.toml has [rpc_endpoints] for both networks
-- [ ] forge verify-contract command includes --verifier-url https://pharosscan.xyz/api
+- [ ] forge verify-contract command includes --verifier-url https://www.pharosscan.xyz/api
 - [ ] Safe multisig owner set correctly for proxy admin
 - [ ] Deploy script validates chain ID before broadcast
 

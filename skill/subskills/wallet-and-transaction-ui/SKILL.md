@@ -84,7 +84,7 @@ const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
 const config = getDefaultConfig({
@@ -135,7 +135,7 @@ export function SendPhrsForm() {
       <button disabled={isPending || isConfirming} onClick={() => sendTransaction({ to: to as `0x${string}`, value: parseEther(amount || '0') })}>
         {isConfirming ? 'Sending...' : 'Send PHRS'}
       </button>
-      {hash && <a href={`https://pharosscan.xyz/tx/${hash}`} target="_blank">View on PharosScan</a>}
+      {hash && <a href={`https://www.pharosscan.xyz/tx/${hash}`} target="_blank">View on PharosScan</a>}
     </div>
   )
 }

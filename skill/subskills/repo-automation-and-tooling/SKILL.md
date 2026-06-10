@@ -48,7 +48,7 @@ deploy-mainnet:
 	forge script script/Deploy.s.sol --rpc-url pharos_mainnet --broadcast --verify
 
 verify:
-	forge verify-contract --chain-id $(PHRS) --verifier-url https://pharosscan.xyz/api \
+	forge verify-contract --chain-id $(PHRS) --verifier-url https://www.pharosscan.xyz/api \
 		--etherscan-api-key $$PHAROSSCAN_API_KEY $(ADDR) $(CONTRACT)
 
 pub-abis:
@@ -98,7 +98,7 @@ set -euo pipefail
 forge build --sizes
 forge test --fork-url https://atlantic.dplabs-internal.com --gas-report
 forge verify-contract --chain-id 688689 \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key "$PHAROSSCAN_API_KEY" \
   "$CONTRACT_ADDRESS" src/"$CONTRACT".sol:"$CONTRACT"
 ```

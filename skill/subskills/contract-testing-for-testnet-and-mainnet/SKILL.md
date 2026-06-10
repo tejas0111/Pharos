@@ -26,7 +26,7 @@ general unit test generation (use test-generation), or planning deployment (use 
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Pharos Fork Test Setup
@@ -142,7 +142,7 @@ After deploying to Pharos testnet or mainnet, verify source code on PharosScan a
 # In CI workflow
 forge verify-contract <address> src/MyContract.sol:MyContract \
   --chain-id <chainId> \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key $PHAROSSCAN_API_KEY
 
 # Then fork-test against the verified contract

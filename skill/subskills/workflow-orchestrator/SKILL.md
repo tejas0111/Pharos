@@ -60,7 +60,7 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 
 - **Compile:** `forge build --optimize --optimizer-runs 200`
 - **Test (fork):** `forge test --fork-url https://atlantic.dplabs-internal.com --match-path test/*`
-- **Deploy:** `forge script script/Deploy.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast --verify --verifier-url https://pharosscan.xyz/api`
+- **Deploy:** `forge script script/Deploy.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast --verify --verifier-url https://www.pharosscan.xyz/api`
 - **Frontend:** `npx create-next-app@latest my-dapp && npm install wagmi viem @tanstack/react-query`
 - **Deploy frontend:** `vercel deploy --prod`
 - **Monitor:** `npx forta-agent run --json-rpc https://rpc.pharos.xyz`
@@ -121,7 +121,7 @@ jobs:
   deploy:
     needs: test
     steps:
-      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --broadcast --verify --verifier-url https://pharosscan.xyz/api
+      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --broadcast --verify --verifier-url https://www.pharosscan.xyz/api
 ```
 
 ## Verification
