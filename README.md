@@ -1,83 +1,79 @@
 # Pharos Agent Dev Suite
 
-Pharos Agent Dev Suite is a developer-only skill package for AI agents working on Pharos-related code.
+Developer skill package for AI agents building on Pharos (Atlantic Testnet 688689 / Pacific Mainnet 1672).
 
-It is designed to behave like a high-signal agent skill suite rather than a generic chat assistant:
+- **46 focused subskills** — architecture, Solidity, deployment, frontend, security, and more
+- **Plan-first execution** — agents draft a plan before touching code
+- **Approval gates** — higher-risk work requires explicit confirmation
+- **Structured output** — downstream agents can reuse results
 
-- one master skill that routes requests
-- 35 focused subskills
-- plan-first execution
-- approval gates for higher-risk work
-- structured output that downstream agents can reuse
+## Install
 
-This package is a comprehensive developer and deployment suite.
-
-- Phased Execution: Requirement → Plan → Execute
-- 46 focused subskills
-- High-risk deployment and verification gating
-- Atlantic Testnet (688689) and Pacific Mainnet (1672) support
-- Installation support for Gemini CLI, Codex, Claude Code, and others
-
-## What It Covers
-
-The suite covers the entire lifecycle of Pharos development:
-- Contract architecture & Solidity authoring
-- Deployment and Verification (Foundry/Hardhat)
-- Frontend dApp integration (wagmi/viem/Next.js)
-- Security audit and performance optimization
-- Accessibility and localization
-
-## Phase 2: Pharos Pro Agent
-
-This repository now includes the **Pharos Pro Agent** (`.gemini/agents/pharos-pro.md`), an autonomous entity designed to use the Pharos Skill Suite to build, test, and deploy RWA protocols on Pharos.
-
-### Using the Agent
 ```bash
-@pharos-pro build me a RWA lending pool on Atlantic testnet.
+npx skills add https://github.com/tejas0111/Pharos
 ```
 
+### Manual Setup
+
+<details>
+<summary><b>Codex</b></summary>
+
+```bash
+mkdir -p ~/.codex/skills/pharos-agent-dev-suite
+cp -R skill/* ~/.codex/skills/pharos-agent-dev-suite/
+```
+</details>
+
+<details>
+<summary><b>Claude Code</b></summary>
+
+```bash
+mkdir -p ~/.claude/skills/pharos-agent-dev-suite
+cp -R skill/* ~/.claude/skills/pharos-agent-dev-suite/
+```
+</details>
+
+<details>
+<summary><b>OpenCode</b></summary>
+
+Add to `opencode.json`:
+
+```json
+{
+  "skills": ["skill/"]
+}
+```
+
+Or symlink:
+
+```bash
+ln -s "$PWD/skill" ~/.opencode/skills/pharos-agent-dev-suite
+```
+</details>
+
+<details>
+<summary><b>Gemini CLI</b></summary>
+
+```bash
+mkdir -p ~/.gemini/skills/pharos-agent-dev-suite
+cp -R skill/* ~/.gemini/skills/pharos-agent-dev-suite/
+```
+</details>
+
+## Usage
+
+Reference a subskill in your prompt:
+
+```
+@pharos-agent-dev-suite deploy this contract to Atlantic testnet
+```
+
+The agent classifies your request, routes to the appropriate subskill, presents a plan, and executes with verification.
+
 ## Skill Map
 
-- contract architecture
-- Solidity authoring
-- interface and ABI design
-- protocol integration planning
-- frontend dapp integration
-- wallet and transaction UI
-- framework integration
-- testing strategy
-- test generation
-- contract review
-- bug finding and debugging
-- deployment and verification
-- repo onboarding
-- docs and example generation
-- CI and build troubleshooting
-- migration and backward compatibility
-- refactoring and code health
-- dependency upgrade management
-- performance optimization
-- accessibility review
-- release notes and changelog
-- code scaffolding and generation
-- state management integration
-- monorepo and workspace management
-- localization and copy
-- repo automation and tooling
-- deployment for testnet and mainnet
-- contract testing for testnet and mainnet
-- code review templates and checklists
-- Next.js App Router and server actions
-- React UI patterns and hooks
-- Wagmi and Viem dapp workflows
-- Foundry and Hardhat contract workflows
-- Remix contract workflows
-- Tailwind and shadcn/ui workflows
-
-## Skill Map
-
-| Subskill | Best For | Approval Gate |
-| --- | --- | --- |
+| Subskill | Best For | Gate |
+|---|---|---|
 | `contract-architecture` | module boundaries, storage, permissions, upgrade stance | required |
 | `solidity-authoring` | writing or refactoring Solidity | required |
 | `interface-abi-design` | interfaces, events, errors, typed bindings | required |
@@ -90,14 +86,14 @@ This repository now includes the **Pharos Pro Agent** (`.gemini/agents/pharos-pr
 | `contract-review` | security, correctness, gas, and design review | required |
 | `bug-finding-and-debugging` | root-cause analysis and narrow fixes | required |
 | `deployment-and-verification` | deploy prep, verification, and release checks | required |
-| `repo-onboarding` | mapping the codebase and important entrypoints | optional |
+| `repo-onboarding` | mapping the codebase and entrypoints | optional |
 | `docs-and-example-generation` | docs, examples, and usage notes | optional |
 | `ci-and-build-troubleshooting` | failing builds, lint, type errors, CI regressions | required |
 | `migration-and-backward-compatibility` | safe upgrades, rewrites, rollback planning | required |
 | `refactoring-and-code-health` | behavior-preserving cleanup and structure improvements | required |
 | `dependency-upgrade-management` | package, toolchain, and version upgrades | required |
 | `performance-optimization` | runtime, render, bundle, and hot-path improvements | required |
-| `accessibility-review` | keyboard, semantics, contrast, and screen-reader checks | required |
+| `accessibility-review` | keyboard, semantics, contrast, screen-reader checks | required |
 | `release-notes-and-changelog` | release notes, changelog entries, PR summaries | optional |
 | `code-scaffolding-and-generation` | boilerplate, templates, and starter files | optional |
 | `state-management-integration` | query, store, cache, and client state wiring | required |
@@ -107,120 +103,47 @@ This repository now includes the **Pharos Pro Agent** (`.gemini/agents/pharos-pr
 | `deployment-for-testnet-and-mainnet` | network-aware deployment planning | required |
 | `contract-testing-for-testnet-and-mainnet` | network-specific contract tests and checks | required |
 | `code-review-templates-and-checklists` | PR checklists and review rubrics | optional |
-| `nextjs-app-router-and-server-actions` | App Router, route handlers, and server actions | optional |
+| `nextjs-app-router-and-server-actions` | App Router, route handlers, server actions | optional |
 | `react-ui-patterns-and-hooks` | React hooks and component patterns | optional |
 | `wagmi-viem-dapp-workflow` | wallet connect and contract flow helpers | optional |
 | `foundry-hardhat-contract-workflow` | Solidity dev workflows in Foundry or Hardhat | optional |
 | `remix-contract-workflow` | Remix/browser Solidity workflows | optional |
 | `tailwind-shadcn-ui-workflow` | Tailwind and shadcn/ui design systems | optional |
+| `cross-chain-bridge` | cross-chain bridge design and integration | required |
+| `upgrade-patterns` | proxy, beacon, and diamond upgrade strategies | required |
+| `gas-optimization` | gas profiling and optimization techniques | optional |
+| `security-audit` | comprehensive security review and audit | required |
+| `production-ops` | production monitoring, incident response, ops | required |
+| `spn-development` | Subnet (SPN) development and management | required |
+| `rwa-compliance` | real-world asset compliance and regulatory | required |
+| `workflow-orchestrator` | multi-step workflow orchestration | required |
+| `post-deploy` | post-deployment monitoring and maintenance | required |
 
-## How The Suite Works
+## Workflow
 
-1. Classify the request into one of the 35 subskills.
-2. Gather only the stack, repo, and file context that changes the plan.
-3. Draft a concrete plan before changing files.
-4. Show the plan to the user.
-5. For higher-risk work, wait for explicit approval before edits.
-6. Make the smallest useful change.
-7. Verify with the narrowest meaningful check.
-8. Return a concise summary plus a structured handoff.
-
-The agent should not jump straight into code when the task benefits from a plan.
-
-## Installation
-
-### Dev Suite
-
-### Codex
-
-Copy the `skill/` directory into your Codex skills directory:
-
-```bash
-mkdir -p ~/.codex/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.codex/skills/pharos-agent-dev-suite/
-```
-
-### Claude Code
-
-```bash
-mkdir -p ~/.claude/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.claude/skills/pharos-agent-dev-suite/
-```
-
-### OpenClaw
-
-```bash
-mkdir -p ~/.openclaw/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.openclaw/skills/pharos-agent-dev-suite/
-```
-
-### Deploy Skill
-
-Copy the `deploy-skill/skill/` directory into your skills directory:
-
-```bash
-mkdir -p ~/.codex/skills/pharos-agent-deploy-suite
-cp -R deploy-skill/skill/* ~/.codex/skills/pharos-agent-deploy-suite/
-```
-
-```bash
-mkdir -p ~/.claude/skills/pharos-agent-deploy-suite
-cp -R deploy-skill/skill/* ~/.claude/skills/pharos-agent-deploy-suite/
-```
-
-```bash
-mkdir -p ~/.openclaw/skills/pharos-agent-deploy-suite
-cp -R deploy-skill/skill/* ~/.openclaw/skills/pharos-agent-deploy-suite/
-```
-
-### Published Install
-
-If this repository is published on GitHub, agents that support `npx skills add` can install it directly:
-
-```bash
-npx skills add https://github.com/<org>/<repo>
-```
-
-Replace the placeholder URL with the public repo URL.
-
-## Verification
-
-```bash
-npm install
-npm test
-npm run build
-npm run check
-```
-
-## Example Prompts
-
-- Design the contract architecture for a staking protocol with access control and upgrade boundaries.
-- Integrate this Next.js app with wagmi and viem for a wallet connect and transaction preview flow.
-- Review this Solidity contract for security, gas, and correctness issues.
-- Map this repo so I can start implementing a frontend dapp integration.
-- Write the tests for this contract and show the plan before generating them.
-- Create a PR checklist and code review rubric for contract changes.
-- Set up a Foundry workflow for tests and scripts in this repo.
-- Plan a safe deployment for testnet and mainnet with release checks.
-- Design contract tests that cover both testnet and mainnet assumptions.
-- Set up a Remix workflow for rapid contract iteration.
-- Build the UI with Tailwind and shadcn/ui patterns.
-- Deploy this contract to Pharos testnet and verify the address on the explorer.
+1. Agent classifies the request into the appropriate subskill
+2. Gathers minimal relevant context (stack, repo structure, affected files)
+3. Drafts a concrete plan before making changes
+4. Presents the plan for review
+5. High-risk tasks wait for explicit approval
+6. Makes the smallest useful change
+7. Verifies with the narrowest meaningful check
+8. Returns a concise summary with a structured handoff
 
 ## Repository Layout
 
-- `skill/SKILL.md` master skill
-- `skill/subskills/*/SKILL.md` focused subskills
-- `skill/references/*.md` workflow and output guidance
-- `skill/agents/*.yaml` agent-facing install metadata
-- `deploy-skill/skill/SKILL.md` deploy-capable companion skill
-- `deploy-skill/skill/subskills/*/SKILL.md` testnet and mainnet deployment variants
-- `deploy-skill/skill/scripts/*.sh` Foundry and Hardhat deploy and verify templates
-- `deploy-skill/skill/agents/*.yaml` deploy-skill install metadata
-- `examples/*.md` prompt examples for supported agents
+```
+skill/
+  SKILL.md              # master skill — routing and orchestration
+  subskills/*/SKILL.md  # 46 focused subskills
+  references/*.md       # workflow and output guidance
+  scripts/*.sh          # deploy and verify scripts
+.env.example            # environment variable template
+```
 
-## Development Notes
+## Pharos Networks
 
-- This package is intentionally not an RPC or wallet utility.
-- High-risk subskills must present a plan and wait for approval before edits.
-- Low-risk subskills still present a plan, but they can proceed once the user agrees.
+| Network | Chain ID | Explorer |
+|---|---|---|
+| Atlantic Testnet | 688689 | [atlantic.pharosscan.xyz](https://atlantic.pharosscan.xyz) |
+| Pacific Mainnet | 1672 | [pharosscan.xyz](https://pharosscan.xyz) |
