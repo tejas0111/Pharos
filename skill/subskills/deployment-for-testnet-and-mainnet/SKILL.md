@@ -17,7 +17,7 @@ Use when the user needs a safe deployment plan for both Pharos networks.
 | Property         | Mainnet (Pacific)       | Atlantic Testnet               |
 |------------------|-------------------------|--------------------------|
 | Chain ID         | 1672                    | 688689                   |
-| RPC URL          | https://rpc.pharos.xyz | https://atlantic.dplabs-internal.com |
+| RPC URL          | $PHAROS_MAINNET_RPC_URL | $PHAROS_TESTNET_RPC_URL |
 | Explorer         | https://www.pharosscan.xyz   | https://atlantic.pharosscan.xyz     |
 | Block time       | ~2s                     | ~2s                      |
 | PHRS price       | market                  | faucet (free)            |
@@ -25,10 +25,13 @@ Use when the user needs a safe deployment plan for both Pharos networks.
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
@@ -45,12 +48,12 @@ PRIVATE_KEY=...
 
 ```toml
 [rpc_endpoints]
-pharos_mainnet = "https://rpc.pharos.xyz"
-pharos_testnet = "https://atlantic.dplabs-internal.com"
+pharos_mainnet = "$PHAROS_MAINNET_RPC_URL"
+pharos_testnet = "$PHAROS_TESTNET_RPC_URL"
 
 [etherscan]
-pharos_mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://www.pharosscan.xyz/api" }
-pharos_testnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }
+pharos_mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "$PHAROSSCAN_MAINNET_API_URL" }
+pharos_testnet = { key = "${PHAROSSCAN_API_KEY}", url = "$PHAROSSCAN_TESTNET_API_URL" }
 ```
 
 ### Deploy Script (DeployPharosStaking.s.sol)
@@ -94,7 +97,7 @@ forge script script/DeployPharosStaking.s.sol --rpc-url pharos_testnet --broadca
 forge verify-contract \
   --chain-id 688689 \
   --verifier custom \
-  --verifier-url https://www.pharosscan.xyz/api \
+  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(uint256,address)" 1000000 0xRecipient) \
   0xDeployedAddress src/PharosStaking.sol:PharosStaking
@@ -110,7 +113,7 @@ forge script script/DeployPharosStaking.s.sol --rpc-url pharos_mainnet --sender 
 forge script script/DeployPharosStaking.s.sol --rpc-url pharos_mainnet --broadcast --slow
 
 # Transfer ownership to Safe
-cast send --rpc-url https://rpc.pharos.xyz --chain-id 1672 \
+cast send --rpc-url $PHAROS_MAINNET_RPC_URL --chain-id 1672 \
   0xDeployedAddress "transferOwnership(address)" 0xPharosSafeAddress \
   --private-key $PRIVATE_KEY
 
@@ -118,7 +121,7 @@ cast send --rpc-url https://rpc.pharos.xyz --chain-id 1672 \
 forge verify-contract \
   --chain-id 1672 \
   --verifier custom \
-  --verifier-url https://www.pharosscan.xyz/api \
+  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(uint256,address)" 1000000 0xRecipient) \
   0xDeployedAddress src/PharosStaking.sol:PharosStaking
@@ -129,18 +132,18 @@ forge verify-contract \
 ### Atlantic Testnet (688689)
 
 - [ ] Atlantic Testnet (688689) deployment complete via `forge script script/Deploy.s.sol --rpc-url pharos_testnet --broadcast --sender $DEPLOYER`
-- [ ] Contract verified on PharosScan: `forge verify-contract --chain-id 688689 --verifier custom --verifier-url https://atlantic.pharosscan.xyz/api --etherscan-api-key $PHAROSSCAN_API_KEY 0xDeployed src/Contract.sol:Contract`
-- [ ] Integration tests passed against testnet deployment: `forge test --fork-url https://atlantic.dplabs-internal.com`
+- [ ] Contract verified on PharosScan: `forge verify-contract --chain-id 688689 --verifier custom --verifier-url $PHAROSSCAN_TESTNET_API_URL --etherscan-api-key $PHAROSSCAN_API_KEY 0xDeployed src/Contract.sol:Contract`
+- [ ] Integration tests passed against testnet deployment: `forge test --fork-url $PHAROS_TESTNET_RPC_URL`
 - [ ] Testnet deployment artifacts committed
 
 ### Mainnet (1672)
 
 - [ ] Mainnet (1672) deployment simulated with `forge script script/Deploy.s.sol --rpc-url pharos_mainnet --sender $DEPLOYER --slow`
 - [ ] Multi-sig owners confirmed for mainnet (Pharos Safe: 0x41675C099F32341bf84BFc5382aF534df5C7461a)
-- [ ] PHRS gas budget estimated for mainnet deploy (check current gas price: `cast gas-price --rpc-url https://rpc.pharos.xyz`)
+- [ ] PHRS gas budget estimated for mainnet deploy (check current gas price: `cast gas-price --rpc-url $PHAROS_MAINNET_RPC_URL`)
 - [ ] Deployer wallet funded with enough PHRS (estimated + 20% buffer)
 - [ ] Mainnet deployment executed via `forge script script/Deploy.s.sol --rpc-url pharos_mainnet --broadcast --slow`
-- [ ] Contract verified: `forge verify-contract --chain-id 1672 --verifier custom --verifier-url https://www.pharosscan.xyz/api --etherscan-api-key $PHAROSSCAN_API_KEY --constructor-args $(cast abi-encode "constructor(uint256)" 1000000) 0xDeployed src/Contract.sol:Contract`
+- [ ] Contract verified: `forge verify-contract --chain-id 1672 --verifier custom --verifier-url $PHAROSSCAN_MAINNET_API_URL --etherscan-api-key $PHAROSSCAN_API_KEY --constructor-args $(cast abi-encode "constructor(uint256)" 1000000) 0xDeployed src/Contract.sol:Contract`
 
 ## Release Flow
 
@@ -170,6 +173,7 @@ testnet deploy (688689)
 - **Multi-chain bridge** — For cross-chain deployments, use `cross-chain-bridge`.
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**

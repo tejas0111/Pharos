@@ -26,26 +26,30 @@ SPN, Special Processing Network, custom execution, validator restaking, Mailbox,
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Pharos CLI**: `pharos spn` commands available. Run `pharos --version` to verify.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Design the SPN architecture: SPN Manager (deploys and manages SPN instances), SPN Adapter (bridges between Pharos main chain and SPN), Mailbox (cross-SPN message passing), Bridge (asset transfer).
 4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
 5. Configure the custom execution environment (WASM runtime, gas schedule, state model) with TEE attestation: Pharos supports Intel SGX, Intel TDX, and AWS Nitro Enclaves. Select the TEE type in the SPN registration manifest.
-6. Register the SPN on Pharos via the Pharos CLI: `pharos spn register --tee-type sgx --min-stake 100000 --reward-rate 0.12 --pharos-rpc https://rpc.pharos.xyz`. SPN registration uses the Pharos SPN Manager contract deployed on mainnet — verify current address via `pharos spn info`.
+6. Register the SPN on Pharos via the Pharos CLI: `pharos spn register --tee-type sgx --min-stake 100000 --reward-rate 0.12 --pharos-rpc $PHAROS_MAINNET_RPC_URL`. SPN registration uses the Pharos SPN Manager contract deployed on mainnet — verify current address via `pharos spn info`.
 7. Set up validator restaking: validators stake PHRS on the Pharos main chain to secure the SPN. Minimum SPN stake: 100,000 PHRS. Validator rewards calculated as: `reward = staked_amount * reward_rate * (uptime / total_slots)`. Reward rate configurable at registration (default 12% APR).
 8. Implement cross-SPN communication via the Mailbox contract with proper nonce tracking and replay protection. Verify mailbox addresses on PharosScan: `https://www.pharosscan.xyz/pharos/address/{mailbox_contract}`.
 9. Build escape hatch mechanisms for users to exit the SPN if it becomes unresponsive: submit Merkle proof of SPN state to the main chain escape hatch contract. Escape window: 7 days from request.
 10. Define SLA monitoring with on-chain checkpoints and slashing conditions. Pharos SPN slashing: 1% of stake per missed checkpoint (up to 10% maximum). Miss more than 10 consecutive checkpoints triggers full slashing and SPN deregistration. Monitor via Pharos RPC: `pharos spn status --spn-id <id>`.
-11. Deploy on Pharos Atlantic Testnet first: `--network pharos-atlantic-testnet --rpc-url https://atlantic.dplabs-internal.com`. Verify on PharosScan before mainnet.
+11. Deploy on Pharos Atlantic Testnet first: `--network pharos-atlantic-testnet --rpc-url $PHAROS_TESTNET_RPC_URL`. Verify on PharosScan before mainnet.
 12. Show the plan and ask for approval before implementing.
 ## Deployment Sequencing
 
@@ -63,7 +67,7 @@ Step 5: Add validators
 Step 6: Test cross-SPN message flow on testnet
 Step 7: Repeat steps 1-6 on mainnet (1672)
 Step 8: Verify all contracts on PharosScan
-  forge verify-contract --chain-id 1672 --verifier-url https://www.pharosscan.xyz/api ...
+  forge verify-contract --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL ...
 ```
 
 ## Output
@@ -85,7 +89,7 @@ Step 8: Verify all contracts on PharosScan
 - **Query:** "Set up cross-SPN Mailbox communication between two app-specific subnets" → **Action:** Deploy Mailbox contracts on both SPNs, configure message envelope format (source SPN ID, nonce, payload hash), implement ordered nonce tracking and replay protection. Verify delivery on PharosScan: `https://www.pharosscan.xyz/pharos/tx/{tx_hash}`.
 - **Query:** "Implement an escape hatch for users to withdraw from the SPN" → **Action:** Build escape hatch contract on main chain, define exit window (7 days) and proof submission mechanism (Merkle proof of SPN state), test with simulated SPN unavailability on Atlantic Testnet.
 - **Query:** "Configure validator restaking for a new SPN deployment" → **Action:** Set up staking contract on main chain, define minimum stake (100,000 PHRS), slashing conditions (1% per missed checkpoint, 10% max, full slashing after 10 consecutive missed), configure reward distribution at 12% APR with uptime-based calculation.
-- **Query:** "Check if my SPN is healthy after deployment" → **Action:** Run `pharos spn status --spn-id <id>` against Pharos RPC (`https://rpc.pharos.xyz`). Monitor slashing checkpoints on PharosScan: `https://www.pharosscan.xyz/pharos/events?spn_id=<id>`. Set up alerting if 5+ consecutive checkpoints missed.
+- **Query:** "Check if my SPN is healthy after deployment" → **Action:** Run `pharos spn status --spn-id <id>` against Pharos RPC (`$PHAROS_MAINNET_RPC_URL`). Monitor slashing checkpoints on PharosScan: `https://www.pharosscan.xyz/pharos/events?spn_id=<id>`. Set up alerting if 5+ consecutive checkpoints missed.
 
 ## Verification
 

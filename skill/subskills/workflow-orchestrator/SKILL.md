@@ -26,12 +26,16 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Project context**: You need the contract names, network targets (1672 mainnet / 688689 testnet), and version numbers relevant to the documentation.
 - **Previous artifacts**: If documenting deployed contracts, you need deployment addresses, ABI files, or changelog history.
 - **Target audience**: Clarify whether this is for developers, end users, or both.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -40,7 +44,7 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 5. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
 6. For each stage, route to the narrowest subskill. Preserve context (repo path, contract names, design decisions, Pharos chain ID, RPC URLs) across subskill boundaries.
 7. Execute subskills sequentially — complete each stage before starting the next. Verify at each stage before proceeding.
-8. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s https://rpc.pharos.xyz/health` (mainnet) or `curl -s https://atlantic.dplabs-internal.com/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet_v2`).
+8. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s $PHAROS_MAINNET_RPC_URL/health` (mainnet) or `curl -s $PHAROS_TESTNET_RPC_URL/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet_v2`).
 9. At handoff points, pass a context bundle: decisions made, files created, verification results, and open questions.
 10. If a stage fails, stop and report. Do not proceed to the next stage without user direction.
 11. Show the plan and ask for approval before implementing each stage.
@@ -59,11 +63,11 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 ## Orchestration Commands
 
 - **Compile:** `forge build --optimize --optimizer-runs 200`
-- **Test (fork):** `forge test --fork-url https://atlantic.dplabs-internal.com --match-path test/*`
-- **Deploy:** `forge script script/Deploy.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast --verify --verifier-url https://www.pharosscan.xyz/api`
+- **Test (fork):** `forge test --fork-url $PHAROS_TESTNET_RPC_URL --match-path test/*`
+- **Deploy:** `forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_MAINNET_API_URL`
 - **Frontend:** `npx create-next-app@latest my-dapp && npm install wagmi viem @tanstack/react-query`
 - **Deploy frontend:** `vercel deploy --prod`
-- **Monitor:** `npx forta-agent run --json-rpc https://rpc.pharos.xyz`
+- **Monitor:** `npx forta-agent run --json-rpc $PHAROS_MAINNET_RPC_URL`
 
 ## Handoff Rules
 
@@ -94,11 +98,11 @@ Across subskill boundaries, maintain these context fields:
 
 ## Examples
 
-- **Query:** "Build a staking dapp from scratch on Pharos — architecture, code, test, and deploy" → **Action:** Generate chain: `contract-architecture` → `solidity-authoring` → `forge test --fork-url https://atlantic.dplabs-internal.com` → `contract-review` → `forge script deploy --network pharos-atlantic-testnet` → `PharosScan verify` → deploy after approval → `post-deploy`. Preserve contract names, storage layout, and test coverage context across stages. Verify Pharos chain ID at each checkpoint.
+- **Query:** "Build a staking dapp from scratch on Pharos — architecture, code, test, and deploy" → **Action:** Generate chain: `contract-architecture` → `solidity-authoring` → `forge test --fork-url $PHAROS_TESTNET_RPC_URL` → `contract-review` → `forge script deploy --network pharos-atlantic-testnet` → `PharosScan verify` → deploy after approval → `post-deploy`. Preserve contract names, storage layout, and test coverage context across stages. Verify Pharos chain ID at each checkpoint.
 - **Query:** "Full stack development of a cross-chain token bridge with frontend" → **Action:** Generate chain: `contract-architecture` (bridge design) → `cross-chain-bridge` (messaging) → `solidity-authoring` (both chains) → `forge test --fork-url pharos-atlantic-testnet` → `interface-abi-design` → `wagmi frontend (Next.js)` → `deployment-and-verification`. Pass endpoint IDs, Pharos RPC URLs, and trusted remote configs between subskills. Deploy frontend via `vercel deploy --prod`.
 - **Query:** "End-to-end RWA token with compliance, audit, and production ops setup" → **Action:** Generate chain: `rwa-compliance` → `contract-architecture` → `solidity-authoring` → `contract-review` → `forge script deploy --network pharos-atlantic-testnet` → `PharosScan verify` → `security-audit` → `production-ops`. Pass whitelist config, oracle addresses, and SPV structure across subskills. Set up Forta agents for compliance monitoring.
 - **Query:** "Complete workflow: upgrade my existing contract to UUPS with multi-sig" → **Action:** Generate chain: `contract-architecture` (v2 design) → `upgrade-patterns` → `migration-and-backward-compatibility` → `solidity-authoring` → `forge test --fork-url pharos-atlantic-testnet` → `deployment-and-verification`. Pass existing storage layout as input to upgrade-patterns. Estimate PHRS gas cost for upgrade transaction.
-- **Query:** "Set up a full Pharos dapp workflow from contract to frontend" → **Action:** Generate chain: `contract-architecture` → `solidity-authoring` (Foundry) → `forge test --fork-url https://atlantic.dplabs-internal.com` → `forge script script/Deploy.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast --verify --verifier-url https://atlantic.pharosscan.xyz/api` → generate wagmi hooks from ABI → `npx create-next-app` with `wagmi` and `viem` → `vercel deploy --prod` → `npx fortat-agent run --json-rpc https://rpc.pharos.xyz`. At each stage, verify Pharos chain ID (688689 for Atlantic Testnet), check RPC health, and estimate PHRS gas.
+- **Query:** "Set up a full Pharos dapp workflow from contract to frontend" → **Action:** Generate chain: `contract-architecture` → `solidity-authoring` (Foundry) → `forge test --fork-url $PHAROS_TESTNET_RPC_URL` → `forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_TESTNET_API_URL` → generate wagmi hooks from ABI → `npx create-next-app` with `wagmi` and `viem` → `vercel deploy --prod` → `npx fortat-agent run --json-rpc $PHAROS_MAINNET_RPC_URL`. At each stage, verify Pharos chain ID (688689 for Atlantic Testnet), check RPC health, and estimate PHRS gas.
 
 ## CI Pipeline Reference
 
@@ -121,7 +125,7 @@ jobs:
   deploy:
     needs: test
     steps:
-      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --broadcast --verify --verifier-url https://www.pharosscan.xyz/api
+      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_MAINNET_API_URL
 ```
 
 ## Verification

@@ -26,12 +26,16 @@ production ops, monitoring, alerting, incident response, emergency, pause, circu
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -45,7 +49,7 @@ import { Finding, FindingSeverity, FindingType, HandleTransaction } from "forta-
 import { ethers } from "ethers";
 
 const CONTRACT_ADDRESS = "0x1234...abcd"; // deployed Pharos contract
-const PHAROS_RPC = "https://rpc.pharos.xyz";
+const PHAROS_RPC = "$PHAROS_MAINNET_RPC_URL";
 const provider = new ethers.JsonRpcProvider(PHAROS_RPC, 1672);
 
 export const provideHandleTransaction = (): HandleTransaction => async (txEvent) => {
@@ -69,7 +73,7 @@ export const provideHandleTransaction = (): HandleTransaction => async (txEvent)
 };
 ```
 
-Test locally: `npx forta-agent run --json-rpc https://rpc.pharos.xyz`.
+Test locally: `npx forta-agent run --json-rpc $PHAROS_MAINNET_RPC_URL`.
 
 ### 2. Tenderly Web3 Action — Pharos Mainnet
 
@@ -102,19 +106,19 @@ module.exports = async (event: any) => {
 
 ### 4. Incident Response Runbook
 
-Establish via Zeroshadow: detection → triage → containment (emergency pause) → recovery → post-mortem. Include Pharos-specific handling: chain reorg detection (Pharos finality ~12 blocks, monitor for uncle blocks), RPC failover between `https://rpc.pharos.xyz` and backup endpoints.
+Establish via Zeroshadow: detection → triage → containment (emergency pause) → recovery → post-mortem. Include Pharos-specific handling: chain reorg detection (Pharos finality ~12 blocks, monitor for uncle blocks), RPC failover between `$PHAROS_MAINNET_RPC_URL` and backup endpoints.
 
 ### 5. Emergency Pause
 
 Multi-sig operations using Pharos Safe (master copy: 0x41675C099F32341bf84BFc5382aF534df5C7461a) with threshold signing. Emergency pause:
 
 ```bash
-cast send --rpc-url https://rpc.pharos.xyz --chain-id 1672 $CONTRACT "pause()" --private-key $SIGNER_KEY
+cast send --rpc-url $PHAROS_MAINNET_RPC_URL --chain-id 1672 $CONTRACT "pause()" --private-key $SIGNER_KEY
 ```
 
 For testnet testing:
 ```bash
-cast send --rpc-url https://atlantic.dplabs-internal.com --chain-id 688689 $CONTRACT "pause()" --private-key $TEST_KEY
+cast send --rpc-url $PHAROS_TESTNET_RPC_URL --chain-id 688689 $CONTRACT "pause()" --private-key $TEST_KEY
 ```
 
 ### 6. Data Recovery via PharosScan API
@@ -142,8 +146,8 @@ Replay events on new contract using recovered data. Document RPC rate limits: `e
 ## Examples
 
 - **Query:** "Set up Forta monitoring for my Pharos staking contract" → **Action:** Deploy Forta detection bot monitoring Pharos RPC with detection logic for stake/unstake events, large delegation changes, ownership transfers; configure alert severity levels and notification channels.
-- **Query:** "Create a Tenderly alert for large withdrawals from the vault on Pharos" → **Action:** Configure Tenderly project with Pharos mainnet RPC (https://rpc.pharos.xyz), create Web3 Action monitoring vault `Withdraw` events above threshold (e.g., 10,000 PHRS), set up Slack/email notification, test with simulated transaction.
-- **Query:** "Design the emergency pause mechanism for the lending protocol on Pharos" → **Action:** Implement `Pausable` with pause guardian role (multi-sig), emergency pause via `cast send --rpc-url https://rpc.pharos.xyz $CONTRACT "pause()"`, define pause-triggering conditions (oracle deviation, abnormal liquidation volume), write unpause procedure with timelock.
+- **Query:** "Create a Tenderly alert for large withdrawals from the vault on Pharos" → **Action:** Configure Tenderly project with Pharos mainnet RPC ($PHAROS_MAINNET_RPC_URL), create Web3 Action monitoring vault `Withdraw` events above threshold (e.g., 10,000 PHRS), set up Slack/email notification, test with simulated transaction.
+- **Query:** "Design the emergency pause mechanism for the lending protocol on Pharos" → **Action:** Implement `Pausable` with pause guardian role (multi-sig), emergency pause via `cast send --rpc-url $PHAROS_MAINNET_RPC_URL $CONTRACT "pause()"`, define pause-triggering conditions (oracle deviation, abnormal liquidation volume), write unpause procedure with timelock.
 - **Query:** "Write incident response runbook for Zeroshadow with Pharos-specific reorg handling" → **Action:** Document detection → triage → containment (emergency pause) → recovery → post-mortem steps, include Pharos chain reorg detection (finality ~12 blocks), RPC failover between endpoints, assign on-call roles, integrate Zeroshadow alert routing.
 - **Query:** "Plan around Pharos RPC rate limits for indexer" → **Action:** Document limits (`eth_getLogs`: 100 blocks, `trace_filter`: 500 blocks), design pagination/backoff strategy, recommend caching layer and WebSocket subscriptions for real-time data.
 - **Query:** "Recover historical event data after Pharos contract migration" → **Action:** Use PharosScan API to fetch historical events from old contract, replay events on new contract, verify state consistency across both deployments.

@@ -28,7 +28,7 @@ Upgrade packages or toolchains with version-aware compatibility checks and rollb
 # Upgrade
 npm install @openzeppelin/contracts@5.0 @openzeppelin/contracts-upgradeable@5.0
 # Test on Pharos testnet
-forge test --fork-url https://atlantic.dplabs-internal.com --chain-id 688689
+forge test --fork-url $PHAROS_TESTNET_RPC_URL --chain-id 688689
 ```
 
 ### Forge-Std 1.8 → 1.9
@@ -52,7 +52,7 @@ forge build
 
 ```bash
 # 1. Fork test
-anvil --fork-url https://atlantic.dplabs-internal.com --chain-id 688689 &
+anvil --fork-url $PHAROS_TESTNET_RPC_URL --chain-id 688689 &
 forge test --fork-url http://localhost:8545 --chain-id 688689 -vvv
 
 # 2. PharosScan verification
@@ -73,14 +73,18 @@ adding a new dependency (use framework-integration), or refactoring code to work
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Package manager**: pnpm, npm, or yarn available.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -106,7 +110,7 @@ adding a new dependency (use framework-integration), or refactoring code to work
 
 ## Verification
 
-npm install/yarn, then npm run build/npm test. For Solidity: forge build && forge test --fork-url https://atlantic.dplabs-internal.com.
+npm install/yarn, then npm run build/npm test. For Solidity: forge build && forge test --fork-url $PHAROS_TESTNET_RPC_URL.
 
 ## Related
 

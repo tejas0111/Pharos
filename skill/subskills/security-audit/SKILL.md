@@ -26,10 +26,13 @@ security audit, security review, vulnerability assessment, penetration test, aud
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
@@ -45,9 +48,10 @@ security audit, security review, vulnerability assessment, penetration test, aud
 | Oracle feeds | Supra DORA (`0xSupra...`), Chainlink (`0xChainlink...`) — verify current addresses on PharosScan |
 | Bridge contracts | Native Pharos bridge on Ethereum (`0xBdE8...`), Pharos side (`0xBr1dge...`) — verify latest on PharosScan |
 | Block explorer | PharosScan — `https://atlantic.pharosscan.xyz` (both mainnet and testnet) |
-| Verifier API | `https://www.pharosscan.xyz/api` — usage: `forge verify-contract <ADDRESS> <CONTRACT> --chain-id 1672 --verifier-url https://www.pharosscan.xyz/api --etherscan-api-key <KEY>` |
+| Verifier API | `$PHAROSSCAN_MAINNET_API_URL` — usage: `forge verify-contract <ADDRESS> <CONTRACT> --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL --etherscan-api-key <KEY>` |
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -57,7 +61,7 @@ security audit, security review, vulnerability assessment, penetration test, aud
 6. Analyze code for standard vulnerability classes: reentrancy (especially in PHRS withdrawal functions — "unprotected" means no reentrancy guard, no CEI pattern, or no pull-over-push in withdraw/claim), integer overflow (reward calculations), front-running (unstake/claim operations), flash loan composability, price manipulation — plus Pharos-specific findings: incorrect chain ID checks (must validate 1672/688689/688689 in bridge functions), bridge message validation issues, PHRS `.call{value:}` has no 2300 gas stipend (full gas forwarded — protect with gas limits or reentrancy guards).
 7. Verify against Pharos audit partner standards (ExVul, OpenZeppelin, Zellic). Configure PharosScan source verification: `https://api.atlantic.pharosscan.xyz/pharos-testnet/v1/explorer/command_api/contract`. Target critical bug density below 0.4 per 1k LOC Solidity.
 8. Present the threat model and findings with severity ratings, then ask for confirmation before finalizing the audit report.
-9. Use Pharos-specific tooling: run Slither with Pharos RPC (`slither . --rpc-url https://rpc.pharos.xyz`), Echidna fuzzing with Pharos fork (`echidna-test . --fork-url https://rpc.pharos.xyz`), Foundry fuzz tests. Generate findings report with severity (critical, high, medium, low, informational), evidence, and remediation.
+9. Use Pharos-specific tooling: run Slither with Pharos RPC (`slither . --rpc-url $PHAROS_MAINNET_RPC_URL`), Echidna fuzzing with Pharos fork (`echidna-test . --fork-url $PHAROS_MAINNET_RPC_URL`), Foundry fuzz tests. Generate findings report with severity (critical, high, medium, low, informational), evidence, and remediation.
 ## Output
 
 - threat model diagram
@@ -68,7 +72,7 @@ security audit, security review, vulnerability assessment, penetration test, aud
 
 ## Examples
 
-- **Query:** "Audit this AMM contract for Pharos deployment" → **Action:** Map threat model (trust boundaries, PHRS asset flows, privileged roles), run Slither with Pharos RPC (`slither . --rpc-url https://rpc.pharos.xyz`), Echidna fuzzing with Pharos fork, check Pharos-specific surfaces (oracle manipulation via Supra DORA + Chainlink, access control drift, chain ID validation), generate findings report with severity ratings.
+- **Query:** "Audit this AMM contract for Pharos deployment" → **Action:** Map threat model (trust boundaries, PHRS asset flows, privileged roles), run Slither with Pharos RPC (`slither . --rpc-url $PHAROS_MAINNET_RPC_URL`), Echidna fuzzing with Pharos fork, check Pharos-specific surfaces (oracle manipulation via Supra DORA + Chainlink, access control drift, chain ID validation), generate findings report with severity ratings.
 - **Query:** "Review cross-chain bridge contract for replay vulnerabilities" → **Action:** Verify nonce tracking, chain ID binding in `_msgSender()` derivation (validate chain ID 1672/688689), trusted remote configuration, replay protection in message relay functions, check for unprotected PHRS withdrawals in bridge exit functions, provide evidence with proof-of-concept test.
 - **Query:** "Prepare for an ExVul or OpenZeppelin audit" → **Action:** Run automated analyzers, compile audit readiness checklist (documented threat model, test coverage >90%, NatSpec, known issues disclosure), remediate high-severity findings before handoff.
 - **Query:** "Threat model the oracle integration for my lending protocol" → **Action:** Identify oracle dependency points (price feeds, liquidation triggers), evaluate redundancy (Supra DORA + Chainlink), model staleness attacks and flash loan price manipulation scenarios.
@@ -76,7 +80,7 @@ security audit, security review, vulnerability assessment, penetration test, aud
 
 ## Verification
 
-Run automated analyzers targeting Pharos: Slither with Pharos RPC (`slither . --rpc-url https://rpc.pharos.xyz`), Mythril, Echidna fuzzing with Pharos fork (`echidna-test . --fork-url https://rpc.pharos.xyz`), Foundry fuzz tests. Manual verification of each finding. Re-test after remediation with Pharos RPC.
+Run automated analyzers targeting Pharos: Slither with Pharos RPC (`slither . --rpc-url $PHAROS_MAINNET_RPC_URL`), Mythril, Echidna fuzzing with Pharos fork (`echidna-test . --fork-url $PHAROS_MAINNET_RPC_URL`), Foundry fuzz tests. Manual verification of each finding. Re-test after remediation with Pharos RPC.
 
 ## Related
 

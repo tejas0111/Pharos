@@ -26,14 +26,18 @@ upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgrad
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -54,7 +58,7 @@ upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgrad
 
 ## Examples
 
-- **Query:** "Set up a UUPS proxy for my Pharos staking contract" → **Action:** Generate UUPS proxy + implementation v1 using Pharos RPC (`https://rpc.pharos.xyz`), add initializable pattern with `__Staking_init` and 50-slot storage gap (`uint256[50] private __gap`), configure proxy admin owner via Pharos Safe (`0x41675C099F32341bf84BFc5382aF534df5C7461a`), write upgrade script with `upgradeTo` call, test on Atlantic Testnet fork (`forge test --fork-url https://atlantic.dplabs-internal.com`), verify both proxy and implementation on PharosScan.
+- **Query:** "Set up a UUPS proxy for my Pharos staking contract" → **Action:** Generate UUPS proxy + implementation v1 using Pharos RPC (`$PHAROS_MAINNET_RPC_URL`), add initializable pattern with `__Staking_init` and 50-slot storage gap (`uint256[50] private __gap`), configure proxy admin owner via Pharos Safe (`0x41675C099F32341bf84BFc5382aF534df5C7461a`), write upgrade script with `upgradeTo` call, test on Atlantic Testnet fork (`forge test --fork-url $PHAROS_TESTNET_RPC_URL`), verify both proxy and implementation on PharosScan.
 - **Query:** "Design a Beacon proxy pattern for multiple token contracts" → **Action:** Deploy Beacon contract, implement token implementations (v1, v2) pointing to Beacon, generate multi-sig controller for Beacon upgrade, document storage gap recommendations.
 - **Query:** "Plan a safe upgrade with storage gap and multi-sig ownership on Pharos" → **Action:** Audit existing storage layout on PharosScan (`https://atlantic.pharosscan.xyz/address/{proxyAddress}?address={implAddress}`), propose v2 storage with 50-slot gap at end of each base contract, generate Safe transaction for proxy admin transfer via Pharos Safe multisig, write timelock delay (48h mainnet, 1h testnet) between proposal and execution, test on Pharos Atlantic Testnet fork.
 - **Query:** "Transfer proxy admin to a Pharos Safe multi-sig" → **Action:** Generate `transferOwnership` calldata to Pharos Safe (`0x41675C099F32341bf84BFc5382aF534df5C7461a`), prepare Safe transaction batch, test on testnet before mainnet.
@@ -72,16 +76,16 @@ Deploy a UUPS proxy on Pharos using Foundry with the Pharos RPC:
 
 ```bash
 # Deploy implementation
-forge create src/MyContractV1.sol:MyContract --rpc-url https://rpc.pharos.xyz --private-key $DEPLOYER_KEY
+forge create src/MyContractV1.sol:MyContract --rpc-url $PHAROS_MAINNET_RPC_URL --private-key $DEPLOYER_KEY
 
 # Deploy ERC1967Proxy pointing to implementation
 forge create lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy \
-  --rpc-url https://rpc.pharos.xyz \
+  --rpc-url $PHAROS_MAINNET_RPC_URL \
   --private-key $DEPLOYER_KEY \
   --constructor-args $IMPLEMENTATION_ADDRESS "0x"
 ```
 
-For testnet, use `--rpc-url https://atlantic.dplabs-internal.com`.
+For testnet, use `--rpc-url $PHAROS_TESTNET_RPC_URL`.
 
 ### Proxy Verification on PharosScan
 
@@ -90,13 +94,13 @@ After deployment on Pharos, verify both contracts on PharosScan:
 ```bash
 # Verify implementation
 forge verify-contract $IMPLEMENTATION_ADDRESS src/MyContractV1.sol:MyContract \
-  --verifier-url https://www.pharosscan.xyz/api \
+  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
   --chain-id 1672 \
   --etherscan-api-key $PHAROSSCAN_API_KEY
 
 # Verify proxy with implementation address parameter
 forge verify-contract $PROXY_ADDRESS lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy \
-  --verifier-url https://www.pharosscan.xyz/api \
+  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
   --chain-id 1672 \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(address,bytes)" $IMPLEMENTATION_ADDRESS "0x")
@@ -141,7 +145,7 @@ This ensures that adding new state variables in derived contracts during upgrade
 Always test upgrades against a Pharos Atlantic Testnet fork before mainnet:
 
 ```bash
-forge test --fork-url https://atlantic.dplabs-internal.com --match-contract UpgradeTest -vvv
+forge test --fork-url $PHAROS_TESTNET_RPC_URL --match-contract UpgradeTest -vvv
 ```
 
 Include assertions for:
@@ -155,9 +159,9 @@ Include assertions for:
 For Hardhat-based projects on Pharos:
 
 - Use `@openzeppelin/hardhat-upgrades` with manual multisig upgrade flow
-- Deploy with `deployProxy(implFactory, args, { kind: 'uups' })` using Hardhat deploy script pointing to `https://rpc.pharos.xyz`
+- Deploy with `deployProxy(implFactory, args, { kind: 'uups' })` using Hardhat deploy script pointing to `$PHAROS_MAINNET_RPC_URL`
 - Upgrade via multisig: prepare upgrade transaction with `prepareUpgrade(proxyAddress, newImplFactory)`, then execute via Pharos Safe multisig
-- Verify on PharosScan using `hardhat-verify` with custom verifier URL `https://www.pharosscan.xyz/api`
+- Verify on PharosScan using `hardhat-verify` with custom verifier URL `$PHAROSSCAN_MAINNET_API_URL`
 
 ## Related
 

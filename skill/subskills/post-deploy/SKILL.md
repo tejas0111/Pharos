@@ -25,6 +25,7 @@ post-deploy, post-deployment, verify contract, transfer ownership, multi-sig tra
 - **Frontend development** — If the user wants to build or update a dapp frontend (not just update config with new addresses), use `frontend-dapp-integration`.
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -36,7 +37,7 @@ post-deploy, post-deployment, verify contract, transfer ownership, multi-sig tra
 - Submit and confirm the status shows Verified (green checkmark)
 4. Transfer ownership to multi-sig: prepare Safe transaction (Pharos Safe master copy: 0x41675C099F32341bf84BFc5382aF534df5C7461a) to transfer proxy admin or contract ownership.
 ```
-cast send --rpc-url https://rpc.pharos.xyz $CONTRACT "transferOwnership(address)" $MULTISIG
+cast send --rpc-url $PHAROS_MAINNET_RPC_URL $CONTRACT "transferOwnership(address)" $MULTISIG
 ```
 5. Update frontend config: set environment variables for the deployed contract.
 ```
@@ -46,7 +47,7 @@ NEXT_PUBLIC_PHAROS_CHAIN_ID=1672
 Regenerate TypeChain/abitype bindings if the ABI changed.
 6. Run integration tests against the deployed contract: use fork tests pointing at the real deployment or direct RPC calls to verify state.
 ```
-forge test --fork-url https://rpc.pharos.xyz --match-contract IntegrationTest -vvv
+forge test --fork-url $PHAROS_MAINNET_RPC_URL --match-contract IntegrationTest -vvv
 ```
 7. Set up monitoring alerts:
 - **Forta bot:** deploy or enable a detection bot for the deployed contract monitoring ownership changes, large transfers, and pausing events

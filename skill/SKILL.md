@@ -146,7 +146,9 @@ Classify the request by asking these questions in order:
 
 Every broadcast requires explicit approval. No exceptions.
 
-1. **Pre-flight**: Validate RPC, Chain ID (1672/688689), Signer balance, and Compiler version.
+1. **Pre-flight**:
+    - **.env Check**: Verify `.env` exists and contains `PRIVATE_KEY` and necessary RPC/API URLs.
+    - **Validation**: Validate RPC, Chain ID (1672/688689), Signer balance, and Compiler version.
 2. **Gate Fix**: Check for and fix any 'gate' issues in the frontend/contract interaction layer before proceeding.
 3. **Simulation**: Run `SIMULATE_ONLY=1` (Foundry) or Hardhat dry-run to confirm success.
 4. **Approval**: Present the final command and env vars (hidden) for explicit user confirmation.
@@ -167,6 +169,11 @@ Every broadcast requires explicit approval. No exceptions.
 
 ## Best Practices
 
+- **Strict .env Enforcement**:
+    - **Storage**: All environment variables (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) MUST be stored in a `.env` file in the project root.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values before attempting any deployment or on-chain action.
+    - **No Exports**: Never instruct the user to `export VAR=...`. Instead, tell them to add the variable to `.env`.
+    - **Security**: The `.env` file MUST be ignored by git.
 - **Use Env Var Expansion**: Never hardcode keys. Use `${PRIVATE_KEY}` in config files. Private keys must be added to `.env` and never exposed in prompts or logs.
 - **Route Narrowly**: pick the most specific subskill to avoid context bloat.
 - **Plan First, Code Second**: Never make edits without showing a concrete plan first.

@@ -28,13 +28,14 @@ mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-d
 5. Start from scripts/deploy-testnet.sh for Foundry or scripts/deploy-testnet-hardhat.sh for Hardhat, or use the repo's existing deploy flow.
 Forge deployment command:
 ```
-forge script script/Deploy.s.sol --rpc-url https://atlantic.dplabs-internal.com --chain-id 688689 --broadcast --verify --verifier-url https://atlantic.pharosscan.xyz/api
+forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --chain-id 688689 --broadcast --verify --verifier-url $PHAROSSCAN_TESTNET_API_URL
 ```
 Hardhat deployment command:
 ```
 npx hardhat run scripts/deploy.ts --network pharosTestnet
 ```
 6. Pre-deploy checklist:
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 - Funded wallet with testnet PHRS
 - Chain ID confirmed as 688689 (Atlantic Testnet)
 - Gas price checked and within budget

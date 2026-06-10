@@ -22,10 +22,13 @@ writing concrete tests (use test-generation), or running tests (that's a CI task
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
@@ -48,15 +51,15 @@ runs = 256
 depth = 16
 
 [rpc_endpoints]
-pharos_mainnet = "https://rpc.pharos.xyz"
-pharos_testnet = "https://atlantic.dplabs-internal.com"
+pharos_mainnet = "$PHAROS_MAINNET_RPC_URL"
+pharos_testnet = "$PHAROS_TESTNET_RPC_URL"
 ```
 
 ```bash
 # Coverage
-forge coverage --fork-url https://atlantic.dplabs-internal.com --report lcov
+forge coverage --fork-url $PHAROS_TESTNET_RPC_URL --report lcov
 # Gas report
-forge test --gas-report --fork-url https://atlantic.dplabs-internal.com
+forge test --gas-report --fork-url $PHAROS_TESTNET_RPC_URL
 ```
 
 ## Pharos Coverage Targets
@@ -82,6 +85,7 @@ If your dapp bridges assets, test:
 - Event emission format matches bridge expectations
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
