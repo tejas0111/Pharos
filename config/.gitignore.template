@@ -1,0 +1,37 @@
+# Pharos project .gitignore template
+# Copy or merge into your project's .gitignore
+
+# Dependencies
+node_modules/
+lib/
+
+# Build outputs
+out/
+cache/
+artifacts/
+typechain-types/
+types/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+coverage.json
+
+# Deployer
+deployer/
+broadcast/*/run-latest.json
