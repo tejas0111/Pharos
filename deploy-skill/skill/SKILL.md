@@ -72,6 +72,57 @@ Choose the correct script by answering these questions in order:
 | Hardhat + testnet + verify | `DEPLOYED_ADDRESS=0x... ./scripts/verify-testnet-hardhat.sh` |
 | Hardhat + mainnet + verify | `DEPLOYED_ADDRESS=0x... ./scripts/verify-mainnet-hardhat.sh` |
 
+## Foundry Config for Pharos
+
+To use the bundled Foundry scripts, your `foundry.toml` should include:
+
+```toml
+[profile.default]
+src = "contracts"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+
+[rpc_endpoints]
+pharos-mainnet = "https://rpc.pharos.xyz"
+pharos-testnet = "https://atlantic.dplabs-internal.com"
+
+[etherscan]
+pharos-mainnet = { key = "${ETHERSCAN_API_KEY}" }
+pharos-testnet = { key = "${ETHERSCAN_API_KEY}" }
+```
+
+The `[rpc_endpoints]` section is optional but recommended — it lets you run `forge script --rpc-url pharos-testnet` without setting the env var.
+
+## Hardhat Config for Pharos
+
+To use the bundled Hardhat scripts, your `hardhat.config.ts` should include:
+
+```typescript
+const PHAROS_TESTNET_RPC = process.env.PHAROS_TESTNET_RPC_URL || 'https://atlantic.dplabs-internal.com';
+const PHAROS_MAINNET_RPC = process.env.PHAROS_MAINNET_RPC_URL || 'https://rpc.pharos.xyz';
+const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
+
+const config: HardhatUserConfig = {
+  networks: {
+    pharosTestnet: {
+      url: PHAROS_TESTNET_RPC,
+      chainId: 688689,
+      accounts: [PRIVATE_KEY],
+    },
+    pharosMainnet: {
+      url: PHAROS_MAINNET_RPC,
+      chainId: 1672,
+      accounts: [PRIVATE_KEY],
+    },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+};
+```
+
 ## Pre-Flight Checklist
 
 Before any broadcast, confirm with the user (or via repo config) that these conditions are met:
@@ -150,15 +201,15 @@ All scripts live in `scripts/` and are parameterized via environment variables.
 
 ### Foundry
 
-| Script | Purpose | Env vars |
-|---|---|---|
-| `scripts/deploy-testnet.sh` | Deploy contract via Foundry to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` |
-| `scripts/deploy-mainnet.sh` | Deploy contract via Foundry to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` |
+| Script | Purpose | Env vars | Pre-flight checks |
+|---|---|---|---|
+| `scripts/deploy-testnet.sh` | Deploy via Foundry to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` | Chain ID validation (688689), deployer balance check |
+| `scripts/deploy-mainnet.sh` | Deploy via Foundry to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `SCRIPT_TARGET`, `SIMULATE_ONLY`, `VERIFY` | Chain ID validation (1672), deployer balance check, mainnet banner warning |
 
 Foundry script usage:
 
 ```bash
-# Simulate only (no broadcast)
+# Simulate only (no broadcast) — validates chain ID and balance
 SIMULATE_ONLY=1 ./scripts/deploy-testnet.sh
 
 # Deploy + verify on testnet
@@ -168,14 +219,16 @@ VERIFY=1 ./scripts/deploy-testnet.sh
 SCRIPT_TARGET=script/MyDeploy.s.sol:MyDeploy ./scripts/deploy-mainnet.sh
 ```
 
+The Foundry scripts automatically validate the chain ID and check deployer balance before running. If the RPC points to the wrong network, the script exits with an error before any broadcast.
+
 ### Hardhat
 
-| Script | Purpose | Env vars |
-|---|---|---|
-| `scripts/deploy-testnet-hardhat.sh` | Deploy via Hardhat to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` |
-| `scripts/deploy-mainnet-hardhat.sh` | Deploy via Hardhat to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` |
-| `scripts/verify-testnet-hardhat.sh` | Verify contract on testnet explorer | `PHAROS_TESTNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` |
-| `scripts/verify-mainnet-hardhat.sh` | Verify contract on mainnet explorer | `PHAROS_MAINNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` |
+| Script | Purpose | Env vars | Pre-flight checks |
+|---|---|---|---|
+| `scripts/deploy-testnet-hardhat.sh` | Deploy via Hardhat to testnet | `PHAROS_TESTNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` | Hardhat installation check |
+| `scripts/deploy-mainnet-hardhat.sh` | Deploy via Hardhat to mainnet | `PHAROS_MAINNET_RPC_URL`, `PRIVATE_KEY`, optional: `DEPLOY_TAGS`, `HARDHAT_NETWORK` | Hardhat installation check, mainnet banner warning |
+| `scripts/verify-testnet-hardhat.sh` | Verify contract on testnet explorer | `PHAROS_TESTNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` | Prints explorer URL for manual confirmation |
+| `scripts/verify-mainnet-hardhat.sh` | Verify contract on mainnet explorer | `PHAROS_MAINNET_RPC_URL`, `DEPLOYED_ADDRESS`, optional: `HARDHAT_NETWORK` | Prints explorer URL, mainnet banner warning |
 
 Hardhat script usage:
 
@@ -406,6 +459,24 @@ Always return all 6 fields:
   "approvalQuestion": "Fix the solc version and re-run verification?"
 }
 ```
+
+## Handoff from Dev Suite
+
+When the dev suite (`pharos-agent-dev-suite`) hands off a deployment, it will provide:
+
+1. **Contract artifact**: The compiled contract and deploy script
+2. **Target network**: Testnet or mainnet with chain ID
+3. **Deploy command**: The exact script and env vars needed
+4. **Verification config**: Whether verification is needed and with which API key
+
+On receiving a handoff:
+
+1. Confirm the handoff details with the user.
+2. Verify the artifact and script exist.
+3. Run the pre-flight checklist before broadcasting.
+4. Broadcast, verify, and report back to the user.
+
+If the handoff is incomplete (missing contract, missing script, missing env vars), ask the user to complete the prep with `pharos-agent-dev-suite` first.
 
 ## Operating Rules
 
