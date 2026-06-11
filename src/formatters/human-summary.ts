@@ -1,13 +1,9 @@
-import type { SkillLane } from "../types";
+import type { DeveloperPlan, DeveloperPromptIntent } from "../types";
 
-export function buildHumanSummary(lane: SkillLane, details: Record<string, unknown>) {
-  if (lane === "developer") {
-    return `Developer summary: ${JSON.stringify(details)}`;
-  }
-
-  if (lane === "defi") {
-    return `DeFi summary: ${JSON.stringify(details)}`;
-  }
-
-  return `Investor summary: ${JSON.stringify(details)}`;
+export function buildHumanSummary(intent: DeveloperPromptIntent, plan: DeveloperPlan) {
+  const frameworkLabel = intent.frameworks.length > 0 ? ` using ${intent.frameworks.join(", ")}` : "";
+  const approvalLabel = plan.approvalRequired
+    ? "approval required before edits"
+    : "plan-first, then proceed if the user agrees";
+  return `Pharos Agent Dev Suite: ${plan.title.toLowerCase()}${frameworkLabel} - ${approvalLabel}.`;
 }

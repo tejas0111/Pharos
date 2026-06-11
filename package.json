@@ -1,9 +1,10 @@
 {
-  "name": "pharos-power-skill",
+  "name": "pharos-agent-dev-suite",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "description": "Developer-only Pharos agent skill suite for contract, UI, framework, testing, and review workflows.",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
@@ -11,7 +12,6 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "viem": "^2.22.23",
     "zod": "^3.24.1"
   },
   "devDependencies": {

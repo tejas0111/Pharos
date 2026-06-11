@@ -1,0 +1,8 @@
+interface:
+  display_name: "Pharos Agent Dev Suite"
+  short_description: "Developer-only Pharos agent skill suite for contract, UI, framework, testing, and review workflows"
+  default_prompt: "Use $pharos-agent-dev-suite to plan, build, review, debug, or document Pharos developer work."
+
+policy:
+  allow_implicit_invocation: true
+  require_confirmation_for_high_risk: true

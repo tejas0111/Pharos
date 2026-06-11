@@ -1,0 +1,8 @@
+interface:
+  display_name: "Pharos Agent Deploy Suite"
+  short_description: "Deployment-capable Pharos skill suite for contract broadcast and verification with testnet, mainnet, Foundry, and Hardhat variants"
+  default_prompt: "Use $pharos-agent-deploy-suite to prepare, broadcast, and verify Pharos contract deployments."
+
+policy:
+  allow_implicit_invocation: true
+  require_confirmation_for_high_risk: true
