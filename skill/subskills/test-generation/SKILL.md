@@ -1,15 +1,23 @@
 ---
 name: pharos-test-generation
-description: Write unit, integration, or end-to-end tests with readable setup and assertions from an approved strategy. Use when the user says: write tests, generate tests, fixtures, mock data, test files.
+description: "Write unit, integration, or end-to-end tests from the chosen strategy. Use when the user says: write tests, generate tests, fixtures, mock data, test files, add tests for, test this function, unit test, integration test. Do NOT use for: planning what to test (use testing-strategy first), or debugging a failure (use bug-finding-and-debugging). See also: testing-strategy (planning), contract-testing-for-testnet-and-mainnet (network-specific), bug-finding-and-debugging (fixing failures)."
 ---
 
 # Test Generation
 
-Use when the user wants concrete tests or fixtures written.
+Write unit, integration, or end-to-end tests from the chosen strategy.
+
+## When to Use
+
+write tests, generate tests, fixtures, mock data, test files, add tests for, test this function, unit test, integration test
+
+## When NOT to Use
+
+planning what to test (use testing-strategy first), or debugging a failure (use bug-finding-and-debugging)
 
 ## Workflow
 
-1. Use the approved strategy and identify concrete cases.
+1. Use the approved test strategy and identify concrete cases.
 2. Draft the tests with readable setup and assertions.
 3. Show the test plan and ask if the cases are correct.
 4. Generate the tests and verify they fail or pass as intended.
@@ -21,6 +29,16 @@ Use when the user wants concrete tests or fixtures written.
 - assertions
 - coverage notes
 
-## Gate
+## Examples
 
-High risk. Do not generate tests before the plan is approved.
+- "Generate tests for the withdraw path and failure branches"
+- "Create UI tests for transaction preview states"
+- "Write Foundry tests for a staking contract's edge cases"
+
+## Verification
+
+forge test or npx hardhat test or npm test. Confirm tests pass (or fail as expected for TDD).
+
+## Related
+
+testing-strategy (planning), contract-testing-for-testnet-and-mainnet (network-specific), bug-finding-and-debugging (fixing failures)

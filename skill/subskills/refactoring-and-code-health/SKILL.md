@@ -1,11 +1,19 @@
 ---
 name: pharos-refactoring-and-code-health
-description: Improve code structure, readability, naming, and separation of concerns without changing behavior. Use when the user says: refactor, code health, cleanup, simplify, remove duplication.
+description: "Improve structure, readability, naming, and separation of concerns without changing behavior. Use when the user says: refactor, code health, cleanup, simplify, remove duplication, technical debt, restructure, improve structure, readability. Do NOT use for: adding new features (use the relevant authoring subskill), or fixing bugs (use bug-finding-and-debugging). See also: performance-optimization (performance-driven changes), solidity-authoring (contract refactors)."
 ---
 
 # Refactoring and Code Health
 
-Use when the user wants cleaner code without behavior changes.
+Improve structure, readability, naming, and separation of concerns without changing behavior.
+
+## When to Use
+
+refactor, code health, cleanup, simplify, remove duplication, technical debt, restructure, improve structure, readability
+
+## When NOT to Use
+
+adding new features (use the relevant authoring subskill), or fixing bugs (use bug-finding-and-debugging)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants cleaner code without behavior changes.
 - cleanup notes
 - verification result
 
-## Gate
+## Examples
 
-Medium risk. Present the plan first and proceed only after agreement.
+- "Refactor this hook to separate data fetching from UI state"
+- "Improve the code health of this contract module without changing behavior"
+- "Clean up the duplicated address validation logic across the codebase"
+
+## Verification
+
+No change in test results. npm test still passes. Diff shows no behavior change.
+
+## Related
+
+performance-optimization (performance-driven changes), solidity-authoring (contract refactors)

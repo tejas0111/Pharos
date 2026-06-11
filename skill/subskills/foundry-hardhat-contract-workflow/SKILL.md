@@ -1,11 +1,19 @@
 ---
 name: pharos-foundry-hardhat-contract-workflow
-description: Set up Solidity development workflows for Foundry (forge/anvil) or Hardhat including tests, scripts, and local runs. Use when the user says: Foundry, Hardhat, forge, anvil, Solidity workflow.
+description: "Set up Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs. Use when the user says: Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init, hardhat init, forge test, hardhat test. Do NOT use for: writing individual contracts (use solidity-authoring), or debugging build failures (use ci-and-build-troubleshooting). See also: framework-integration (initial setup), solidity-authoring (writing contracts)."
 ---
 
 # Foundry and Hardhat Contract Workflow
 
-Use when the user needs a Foundry or Hardhat development workflow.
+Set up Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs.
+
+## When to Use
+
+Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init, hardhat init, forge test, hardhat test
+
+## When NOT to Use
+
+writing individual contracts (use solidity-authoring), or debugging build failures (use ci-and-build-troubleshooting)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs a Foundry or Hardhat development workflow.
 - test notes
 - verification command
 
-## Gate
+## Examples
 
-Low risk. Present the plan first, then proceed once it looks right.
+- "Set up a Foundry workflow for this contract repo"
+- "Create the Hardhat contract workflow for tests and scripts"
+- "Configure Foundry with fuzz testing and gas reporting"
+
+## Verification
+
+forge test or npx hardhat test.
+
+## Related
+
+framework-integration (initial setup), solidity-authoring (writing contracts)

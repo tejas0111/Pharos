@@ -1,11 +1,19 @@
 ---
 name: pharos-solidity-authoring
-description: Write or refactor Solidity contracts with clear structure, custom errors, events, modifiers, and testable patterns. Use when the user says: write Solidity, implement contract, refactor contract, contract code.
+description: "Write or refactor Solidity contracts with clear structure, custom errors, events, modifiers, and testable patterns. Use when the user says: write Solidity, implement contract, refactor contract, contract code, Solidity, write a contract, implement the staking contract, write smart contract. Do NOT use for: designing architecture (use contract-architecture), reviewing code (use contract-review), or writing tests (use test-generation). See also: contract-architecture (design), interface-abi-design (ABI), test-generation (tests)."
 ---
 
 # Solidity Authoring
 
-Use when the user wants Solidity code written or refactored.
+Write or refactor Solidity contracts with clear structure, custom errors, events, modifiers, and testable patterns.
+
+## When to Use
+
+write Solidity, implement contract, refactor contract, contract code, Solidity, write a contract, implement the staking contract, write smart contract
+
+## When NOT to Use
+
+designing architecture (use contract-architecture), reviewing code (use contract-review), or writing tests (use test-generation)
 
 ## Workflow
 
@@ -16,10 +24,22 @@ Use when the user wants Solidity code written or refactored.
 
 ## Output
 
-- contract draft or refactor plan
-- events, errors, and modifier notes
-- test hooks and invariants
+- contract draft
+- event and error plan
+- implementation notes
+- test hooks
+- invariants
 
-## Gate
+## Examples
 
-High risk. Do not write contract code before approval.
+- "Write a Solidity escrow contract with refund and dispute paths"
+- "Refactor this token contract to use custom errors and events"
+- "Implement a staking contract with deposit, withdraw, and reward distribution"
+
+## Verification
+
+forge build or npx hardhat compile. Then forge test for unit tests.
+
+## Related
+
+contract-architecture (design), interface-abi-design (ABI), test-generation (tests)

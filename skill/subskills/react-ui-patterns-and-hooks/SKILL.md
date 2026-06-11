@@ -1,11 +1,19 @@
 ---
 name: pharos-react-ui-patterns-and-hooks
-description: Improve React components, hooks, context patterns, and client-side UI state architecture. Use when the user says: React hooks, component pattern, context, state hook, UI patterns.
+description: "Improve React hooks, component boundaries, and client-side UI patterns. Use when the user says: React hooks, component pattern, context, state hook, UI patterns, custom hook, component design, React component, composition. Do NOT use for: dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state management (use state-management-integration). See also: state-management-integration (global state), frontend-dapp-integration (dapp-specific)."
 ---
 
 # React UI Patterns and Hooks
 
-Use when the user wants a better React component or hook pattern.
+Improve React hooks, component boundaries, and client-side UI patterns.
+
+## When to Use
+
+React hooks, component pattern, context, state hook, UI patterns, custom hook, component design, React component, composition
+
+## When NOT to Use
+
+dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state management (use state-management-integration)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants a better React component or hook pattern.
 - rendering notes
 - follow-up suggestions
 
-## Gate
+## Examples
 
-Low risk. Present the plan first, then proceed once it looks right.
+- "Refine this React hook and component boundary"
+- "Design a cleaner state pattern for this wallet flow UI"
+- "Create a reusable data-fetching hook pattern for this dapp"
+
+## Verification
+
+npm run build and component rendering check.
+
+## Related
+
+state-management-integration (global state), frontend-dapp-integration (dapp-specific)

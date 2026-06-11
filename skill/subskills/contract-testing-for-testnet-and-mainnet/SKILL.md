@@ -1,11 +1,19 @@
 ---
 name: pharos-contract-testing-for-testnet-and-mainnet
-description: Design contract test coverage and environment-aware checks that validate behavior across both testnet and mainnet. Use when the user says: contract testing, testnet tests, mainnet tests, network-specific testing.
+description: "Design contract test coverage and environment-aware checks for both network contexts. Use when the user says: contract testing, testnet tests, mainnet tests, network-specific testing, environment-aware tests, fork tests, network fork. Do NOT use for: general unit test generation (use test-generation), or planning deployment (use deployment-for-testnet-and-mainnet). See also: testing-strategy (general planning), deployment-for-testnet-and-mainnet (deploy counterpart)."
 ---
 
 # Contract Testing for Testnet and Mainnet
 
-Use when the user needs network-aware contract tests or checks.
+Design contract test coverage and environment-aware checks for both network contexts.
+
+## When to Use
+
+contract testing, testnet tests, mainnet tests, network-specific testing, environment-aware tests, fork tests, network fork
+
+## When NOT to Use
+
+general unit test generation (use test-generation), or planning deployment (use deployment-for-testnet-and-mainnet)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs network-aware contract tests or checks.
 - fixture notes
 - verification command
 
-## Gate
+## Examples
 
-High risk. Do not generate network-aware tests before approval.
+- "Design contract tests that cover both testnet and mainnet assumptions"
+- "Plan the network-specific test checks for this deployment flow"
+- "Write fork tests that validate mainnet behavior against a local fork"
+
+## Verification
+
+forge test --fork-url <network> or hardhat network fork tests.
+
+## Related
+
+testing-strategy (general planning), deployment-for-testnet-and-mainnet (deploy counterpart)

@@ -1,11 +1,19 @@
 ---
 name: pharos-accessibility-review
-description: Review UI for keyboard support, screen reader compatibility, color contrast, and semantic HTML. Use when the user says: accessibility, a11y, keyboard, screen reader, contrast, semantics.
+description: "Review UI behavior for keyboard support, semantics, contrast, and screen-reader friendliness. Use when the user says: accessibility, a11y, keyboard, screen reader, contrast, semantics, ARIA, tab order, focus management, accessible. Do NOT use for: general UI component design (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or dapp-specific UI (use frontend-dapp-integration). See also: react-ui-patterns-and-hooks (component patterns), tailwind-shadcn-ui-workflow (styling)."
 ---
 
 # Accessibility Review
 
-Use when the user wants accessibility issues found or fixed.
+Review UI behavior for keyboard support, semantics, contrast, and screen-reader friendliness.
+
+## When to Use
+
+accessibility, a11y, keyboard, screen reader, contrast, semantics, ARIA, tab order, focus management, accessible
+
+## When NOT to Use
+
+general UI component design (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or dapp-specific UI (use frontend-dapp-integration)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants accessibility issues found or fixed.
 - fix plan
 - verification notes
 
-## Gate
+## Examples
 
-Medium risk. Present the plan before editing UI behavior.
+- "Review this transaction modal for accessibility issues"
+- "Check whether this wallet flow is keyboard-friendly"
+- "Audit the color contrast and ARIA labels on this dapp dashboard"
+
+## Verification
+
+Keyboard navigation test. axe-core or lighthouse accessibility check.
+
+## Related
+
+react-ui-patterns-and-hooks (component patterns), tailwind-shadcn-ui-workflow (styling)

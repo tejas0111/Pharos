@@ -1,11 +1,19 @@
 ---
 name: pharos-ci-and-build-troubleshooting
-description: Diagnose failing builds, type errors, lint failures, and CI pipeline regressions with narrow fix paths. Use when the user says: CI, build failure, lint failure, type error, pipeline, broken test job.
+description: "Diagnose failing builds, type errors, lint jobs, and CI regressions with a narrow fix path. Use when the user says: CI, build failure, lint failure, type error, pipeline, broken test job, build is failing, CI is red, compilation error. Do NOT use for: runtime bugs (use bug-finding-and-debugging), or performance improvements (use performance-optimization). See also: bug-finding-and-debugging (runtime bugs, not build failures)."
 ---
 
 # CI and Build Troubleshooting
 
-Use when the build pipeline, typecheck, lint, or CI is failing.
+Diagnose failing builds, type errors, lint jobs, and CI regressions with a narrow fix path.
+
+## When to Use
+
+CI, build failure, lint failure, type error, pipeline, broken test job, build is failing, CI is red, compilation error
+
+## When NOT to Use
+
+runtime bugs (use bug-finding-and-debugging), or performance improvements (use performance-optimization)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the build pipeline, typecheck, lint, or CI is failing.
 - pipeline notes
 - verification command
 
-## Gate
+## Examples
 
-High risk. Do not change build behavior before approval.
+- "Fix this failing TypeScript build in the repo"
+- "Diagnose why CI is failing after the recent changes"
+- "Resolve the Solidity compiler version mismatch in the CI pipeline"
+
+## Verification
+
+The exact failing command passes. Re-run the pipeline step or equivalent local command.
+
+## Related
+
+bug-finding-and-debugging (runtime bugs, not build failures)

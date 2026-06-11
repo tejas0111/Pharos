@@ -1,11 +1,19 @@
 ---
 name: pharos-wagmi-viem-dapp-workflow
-description: Wire wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when the user says: wagmi, viem, wallet connect, contract read, contract write, dapp workflow.
+description: "Handle wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when the user says: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient. Do NOT use for: general React patterns (use react-ui-patterns-and-hooks), or full frontend layout (use tailwind-shadcn-ui-workflow). See also: frontend-dapp-integration (UI wiring), nextjs-app-router-and-server-actions (routing)."
 ---
 
 # Wagmi and Viem Dapp Workflow
 
-Use when the user wants Wagmi and Viem wired into a dapp flow.
+Handle wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem.
+
+## When to Use
+
+Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient
+
+## When NOT to Use
+
+general React patterns (use react-ui-patterns-and-hooks), or full frontend layout (use tailwind-shadcn-ui-workflow)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants Wagmi and Viem wired into a dapp flow.
 - config notes
 - smoke-check suggestion
 
-## Gate
+## Examples
 
-Low risk. Show the plan first, then proceed once it looks right.
+- "Wire Wagmi and Viem into this dapp flow"
+- "Plan the contract read and write helpers for a wallet-connected UI"
+- "Set up Wagmi config with Pharos chain and wallet connectors"
+
+## Verification
+
+Config validation in dev tools, component renders without errors.
+
+## Related
+
+frontend-dapp-integration (UI wiring), nextjs-app-router-and-server-actions (routing)

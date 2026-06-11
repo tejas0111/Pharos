@@ -1,18 +1,28 @@
 ---
 name: pharos-testnet-deployment
-description: Prepare, broadcast, and verify Pharos contract deployments on testnet. Use when the user says: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL.
+description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on testnet. Use when the user says: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release. Do NOT use for: mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite). See also: mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)."
 ---
 
-# Pharos Testnet Deployment
+# Testnet Deployment
 
-Use when the user wants a Pharos testnet deployment or testnet-only deploy rehearsal.
+Prepare, simulate, broadcast, and verify Pharos contract deployments on testnet.
+
+## When to Use
+
+deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release
+
+## When NOT to Use
+
+mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite)
 
 ## Workflow
 
 1. Confirm the contract artifact, testnet RPC, signer, and verification target.
-2. Start from `scripts/deploy-testnet.sh` for Foundry, `scripts/deploy-testnet-hardhat.sh` for Hardhat deploy, and `scripts/verify-testnet-hardhat.sh` for Hardhat verification, or use the repo's existing deploy flow.
-3. Present the plan and ask for explicit approval before broadcast.
-4. Broadcast, capture the address and tx hash, then verify the result.
+2. Run pre-flight checks: RPC reachable, balance sufficient, simulation passes.
+3. Start from scripts/deploy-testnet.sh for Foundry or scripts/deploy-testnet-hardhat.sh for Hardhat, or use the repo's existing deploy flow.
+4. Present the plan and ask for explicit approval before broadcast.
+5. Simulate first (SIMULATE_ONLY=1), then broadcast on approval.
+6. Capture the address, tx hash, and run post-deploy verification.
 
 ## Output
 
@@ -20,14 +30,18 @@ Use when the user wants a Pharos testnet deployment or testnet-only deploy rehea
 - deploy command
 - verification command
 - explorer link
+- deployment record (address, tx hash)
 
-## Gate
-
-High risk. Do not broadcast before approval.
-
-## Prompt
-
-Use this when the user says:
+## Examples
 
 - "Deploy this contract to Pharos testnet"
 - "Verify this deployment on testnet"
+- "Simulate the testnet deployment before broadcasting"
+
+## Verification
+
+Post-deploy: query getCode on the address, check explorer for verification, confirm state matches constructor args.
+
+## Related
+
+mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)

@@ -1,11 +1,19 @@
 ---
 name: pharos-repo-automation-and-tooling
-description: Design scripts, Makefiles, task runners, precommit hooks, and local developer tooling. Use when the user says: automation, scripts, task runner, Makefile, precommit, tooling.
+description: "Design scripts, automation flows, task runners, and local developer tooling. Use when the user says: automation, scripts, task runner, Makefile, precommit, tooling, set up linting, Husky, CI script, dev tooling. Do NOT use for: modifying application code (use the relevant subskill), or setting up CI pipelines (use ci-and-build-troubleshooting). See also: code-review-templates-and-checklists (process automation), ci-and-build-troubleshooting (CI pipelines)."
 ---
 
 # Repo Automation and Tooling
 
-Use when the user wants repetitive work turned into simple developer automation.
+Design scripts, automation flows, task runners, and local developer tooling.
+
+## When to Use
+
+automation, scripts, task runner, Makefile, precommit, tooling, set up linting, Husky, CI script, dev tooling
+
+## When NOT to Use
+
+modifying application code (use the relevant subskill), or setting up CI pipelines (use ci-and-build-troubleshooting)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants repetitive work turned into simple developer automation.
 - tooling checklist
 - maintenance notes
 
-## Gate
+## Examples
 
-Low risk. Show the plan first, then proceed once the user agrees.
+- "Set up scripts to run lint, test, and build in one command"
+- "Design the local tooling workflow for this repo"
+- "Create a Makefile with common dev commands for this Solidity project"
+
+## Verification
+
+Run the automated script/check and confirm it works.
+
+## Related
+
+code-review-templates-and-checklists (process automation), ci-and-build-troubleshooting (CI pipelines)

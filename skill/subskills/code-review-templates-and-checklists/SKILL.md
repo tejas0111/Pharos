@@ -1,11 +1,19 @@
 ---
 name: pharos-code-review-templates-and-checklists
-description: Create PR checklists, code review templates, and evaluation rubrics for consistent review hygiene. Use when the user says: code review template, PR checklist, review rubric.
+description: "Create review templates, PR checklists, and evaluation rubrics for better code review hygiene. Use when the user says: code review template, PR checklist, review rubric, review checklist, review notes, PR template, review guidelines. Do NOT use for: actually performing a code review (use contract-review for Solidity, or the relevant subskill for other code). See also: repo-automation-and-tooling (automating PR checks), contract-review (performing reviews)."
 ---
 
 # Code Review Templates and Checklists
 
-Use when the user wants a reusable review template or checklist.
+Create review templates, PR checklists, and evaluation rubrics for better code review hygiene.
+
+## When to Use
+
+code review template, PR checklist, review rubric, review checklist, review notes, PR template, review guidelines
+
+## When NOT to Use
+
+actually performing a code review (use contract-review for Solidity, or the relevant subskill for other code)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user wants a reusable review template or checklist.
 - rubric
 - usage notes
 
-## Gate
+## Examples
 
-Low risk. Show the outline first, then proceed once it looks right.
+- "Write a PR checklist for this Pharos repo"
+- "Create a code review template for contract changes"
+- "Design a review rubric for dapp frontend PRs"
+
+## Verification
+
+Visual review of the template.
+
+## Related
+
+repo-automation-and-tooling (automating PR checks), contract-review (performing reviews)

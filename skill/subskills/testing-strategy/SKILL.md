@@ -1,11 +1,19 @@
 ---
 name: pharos-testing-strategy
-description: Choose test scope, fixtures, coverage focus, and regression approach before writing tests. Use when the user says: test strategy, coverage, fixtures, edge cases, test plan.
+description: "Choose the right test mix, fixtures, and coverage focus before writing tests. Use when the user says: test strategy, coverage, fixtures, edge cases, test plan, what should I test, test approach, test coverage plan. Do NOT use for: writing concrete tests (use test-generation), or running tests (that's a CI task, not a subskill). See also: test-generation (execution), contract-testing-for-testnet-and-mainnet (network-aware tests)."
 ---
 
 # Testing Strategy
 
-Use when the user needs a test plan before implementation.
+Choose the right test mix, fixtures, and coverage focus before writing tests.
+
+## When to Use
+
+test strategy, coverage, fixtures, edge cases, test plan, what should I test, test approach, test coverage plan
+
+## When NOT to Use
+
+writing concrete tests (use test-generation), or running tests (that's a CI task, not a subskill)
 
 ## Workflow
 
@@ -21,6 +29,16 @@ Use when the user needs a test plan before implementation.
 - coverage goals
 - regression checklist
 
-## Gate
+## Examples
 
-High risk. Do not generate tests until the strategy is approved.
+- "Design the test strategy for a token sale contract"
+- "Plan coverage for a multi-step dapp transaction flow"
+- "What should we test in this upgradeable vault contract?"
+
+## Verification
+
+Review of the test matrix. No test files yet.
+
+## Related
+
+test-generation (execution), contract-testing-for-testnet-and-mainnet (network-aware tests)
