@@ -98,6 +98,28 @@ Before any broadcast, confirm with the user (or via repo config) that these cond
 | 13 | Contract bytecode is final | Confirm no pending changes to the source after compilation |
 | 14 | Timelock/multi-sig is ready | If the contract uses upgradeable proxy or admin role, confirm ownership transfer plan |
 
+## Pharos Network Reference
+
+Official Pharos network configurations for deployment:
+
+| Network | Chain ID | RPC URL | Explorer | Symbol | Faucet |
+|---|---|---|---|---|---|
+| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS | N/A (real value) |
+| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | https://testnet.pharosnetwork.xyz |
+
+Always verify the chain ID matches the target network before broadcasting:
+
+```bash
+# Check chain ID via cast (Foundry)
+cast chain-id --rpc-url $PHAROS_TESTNET_RPC_URL
+# Expected: 688689
+
+cast chain-id --rpc-url $PHAROS_MAINNET_RPC_URL
+# Expected: 1672
+```
+
+Never hardcode RPC URLs, chain IDs, or private keys in scripts or config files. Always use environment variables.
+
 ## Environment Variables
 
 These are required by the bundled scripts. The user must set them before deployment:
