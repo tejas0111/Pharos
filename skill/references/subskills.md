@@ -164,6 +164,17 @@ Extended descriptions of all 35 developer subskills. Each entry includes: trigge
 - **Verification**: N/A — read-only exploration. Optionally ask the user if the map matches expectations.
 - **Cross-ref**: All other subskills (this is a prelude to any development work).
 
+### deployment-for-testnet-and-mainnet
+
+**Plan and validate contract deployments across testnet and mainnet with environment-aware safeguards.**
+
+- **Triggers**: "testnet", "mainnet", "deployment", "release", "deploy flow", "network-specific deploy"
+- **Use when**: The user needs to plan deployment to a specific network with environment-specific safeguards.
+- **Do NOT use when**: The user is preparing deploy scripts (use `deployment-and-verification`) or ready to broadcast (hand off to `pharos-agent-deploy-suite`).
+- **Workflow**: Identify target network and release assumptions → Separate testnet validation from mainnet release → Show plan → Deploy after approval.
+- **Verification**: Network-aware dry run. Confirm the correct RPC, chain ID, and artifact.
+- **Cross-ref**: `deployment-and-verification` (script prep), `contract-testing-for-testnet-and-mainnet` (test counterpart), `pharos-agent-deploy-suite` (broadcast)
+
 ### dependency-upgrade-management
 
 **Upgrade packages or toolchains with version-aware compatibility checks and rollback planning.**
