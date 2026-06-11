@@ -1,8 +1,24 @@
 interface:
   display_name: "Pharos Agent Deploy Suite"
-  short_description: "Deployment-capable Pharos skill suite for Claude Code with testnet, mainnet, Foundry, and Hardhat variants"
-  default_prompt: "Use $pharos-agent-deploy-suite to prepare, broadcast, and verify Pharos contract deployments."
+  short_description: "High-risk Pharos deployment suite for Claude Code — contract broadcast, explorer verification, and post-deploy checks on testnet/mainnet via Foundry and Hardhat scripts."
+  long_description: "Handles all deployment operations: script selection (Foundry vs Hardhat, testnet vs mainnet), pre-flight checks (RPC, balance, simulation), broadcast with explicit approval, post-deploy verification (getCode, explorer, state), and emergency rollback guidance. Every broadcast requires explicit approval."
+  default_prompt: "Use $pharos-agent-deploy-suite to broadcast and verify Pharos contracts. Requires pharos-agent-dev-suite to have prepared deploy scripts and verification config first."
+  capabilities:
+    - "Contract deployment broadcast (Foundry and Hardhat)"
+    - "Explorer verification (post-deploy)"
+    - "Deployment simulation and dry-run"
+    - "Post-deploy state verification"
+    - "Pre-flight checklist execution"
+    - "Emergency rollback guidance"
+  deployment_networks:
+    - "pharos-testnet"
+    - "pharos-mainnet"
+  toolchains:
+    - "Foundry (forge script)"
+    - "Hardhat (npx hardhat deploy/verify)"
 
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
+  require_simulation_before_broadcast: true
+  require_network_confirmation: true

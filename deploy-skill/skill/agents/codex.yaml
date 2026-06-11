@@ -1,7 +1,13 @@
 interface:
   display_name: "Pharos Agent Deploy Suite"
-  short_description: "Deployment-capable Pharos skill suite for Codex with testnet, mainnet, Foundry, and Hardhat variants"
-  default_prompt: "Use $pharos-agent-deploy-suite to prepare, broadcast, and verify Pharos contract deployments."
+  short_description: "High-risk Pharos deployment suite for Codex — broadcast and verify contracts on testnet/mainnet with Foundry or Hardhat."
+  long_description: "Full deployment lifecycle: script selection, simulation, pre-flight checks, broadcast (with explicit approval), post-deploy verification, and rollback guidance. Bundled deploy scripts for both Foundry and Hardhat toolchains."
+  default_prompt: "Use $pharos-agent-deploy-suite for contract deployment and verification. Development work should be done first via pharos-agent-dev-suite."
+  capabilities:
+    - "Contract deployment (testnet and mainnet)"
+    - "Explorer verification"
+    - "Deployment simulation"
+    - "Post-deploy verification"
 
 policy:
   allow_implicit_invocation: true

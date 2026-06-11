@@ -1,8 +1,16 @@
 interface:
   display_name: "Pharos Agent Deploy Suite"
-  short_description: "Deployment-capable Pharos skill suite for OpenClaw with testnet, mainnet, Foundry, and Hardhat variants"
-  default_prompt: "Use $pharos-agent-deploy-suite to prepare, broadcast, and verify Pharos contract deployments."
+  short_description: "High-risk Pharos deployment suite for OpenClaw — contract broadcast, verification, and post-deploy operations on testnet/mainnet with Foundry and Hardhat."
+  long_description: "Complete deployment workflow: script selection decision tree, pre-flight checklist (10 checks for testnet, 14 for mainnet), simulation-before-broadcast enforcement, explicit user approval gate for every broadcast, post-deploy verification protocol (7-step), and emergency rollback guidance for 6 failure scenarios."
+  default_prompt: "Use $pharos-agent-deploy-suite for Pharos deployment operations. Route development work to pharos-agent-dev-suite."
+  capabilities:
+    - "Contract deployment and broadcast"
+    - "Explorer verification"
+    - "Deployment simulation"
+    - "Pre-flight and post-deploy verification"
+    - "Rollback guidance"
 
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
+  require_simulation_before_broadcast: true
