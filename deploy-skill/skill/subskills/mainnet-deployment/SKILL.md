@@ -1,6 +1,6 @@
 ---
 name: pharos-mainnet-deployment
-description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on mainnet. Use when the user says: deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live. Do NOT use for: testnet rehearsal (use testnet-deployment first), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite). See also: testnet-deployment (testnet rehearsal), pharos-agent-dev-suite/deployment-and-verification (prep work)."
+description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Pacific Mainnet (chain ID: 1672). Use when the user says: deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live, Pacific mainnet. Do NOT use for: testnet rehearsal (use testnet-deployment first), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite). See also: testnet-deployment (testnet rehearsal), pharos-agent-dev-suite/deployment-and-verification (prep work)."
 ---
 
 # Mainnet Deployment

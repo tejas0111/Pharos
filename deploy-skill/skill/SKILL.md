@@ -6,7 +6,25 @@ slash: true
 
 # Pharos Agent Deploy Suite
 
-High-risk deployment skill for broadcasting and verifying Pharos contracts on testnet and mainnet. **Every broadcast requires explicit approval.** No exceptions.
+High-risk deployment skill for broadcasting and verifying Pharos contracts on testnet (Atlantic, chain ID: 688689) and mainnet (Pacific, chain ID: 1672). **Every broadcast requires explicit approval.** No exceptions.
+
+## Quick Start
+
+```
+You: "Deploy this contract to Pharos testnet"
+ → Routes to testnet-deployment subskill
+ → Pre-flight: validate RPC, chain ID, deployer balance, simulation
+ → Present plan → wait for approval → broadcast → verify
+
+You: "Deploy to mainnet"
+ → Routes to mainnet-deployment subskill
+ → Pre-flight: all testnet checks + mainnet banner warning
+ → Present plan → wait for explicit approval → broadcast → verify
+
+You: "Verify the deployed contract"
+ → Routes to appropriate verify script
+ → Presents explorer link and verification result
+```
 
 ## Quick Reference
 
