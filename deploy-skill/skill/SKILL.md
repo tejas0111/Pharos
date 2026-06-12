@@ -141,6 +141,21 @@ const config: HardhatUserConfig = {
 };
 ```
 
+## Getting Testnet PHRS
+
+Before deploying to testnet, the deployer address needs testnet PHRS for gas:
+
+1. Go to the Pharos testnet faucet: https://testnet.pharosnetwork.xyz
+2. Connect your wallet or paste your deployer address
+3. Request testnet PHRS (usually received within seconds)
+4. Verify balance: `cast balance --rpc-url $PHAROS_TESTNET_RPC_URL <address>`
+
+If the faucet is unavailable, try:
+- Pharos Discord faucet channel: https://discord.com/invite/pharos
+- Pharos testnet bridge (if available)
+
+Never use mainnet PROS for testnet deployment. Testnet PHRS has no real value.
+
 ## Pre-Flight Checklist
 
 Before any broadcast, confirm with the user (or via repo config) that these conditions are met:
@@ -166,6 +181,18 @@ Before any broadcast, confirm with the user (or via repo config) that these cond
 | 12 | Balance check: deployer has sufficient funds | Mainnet gas costs are real; check balance is 2x estimated gas |
 | 13 | Contract bytecode is final | Confirm no pending changes to the source after compilation |
 | 14 | Timelock/multi-sig is ready | If the contract uses upgradeable proxy or admin role, confirm ownership transfer plan |
+
+## Pharos Resources
+
+| Resource | URL |
+|---|---|
+| Official Docs | https://docs.pharos.xyz |
+| PharosScan (Mainnet) | https://www.pharosscan.xyz |
+| PharosScan (Testnet) | https://atlantic.pharosscan.xyz |
+| Testnet Faucet | https://testnet.pharosnetwork.xyz |
+| GitHub | https://github.com/PharosNetwork |
+| Discord | https://discord.com/invite/pharos |
+| RPC Providers | https://docs.pharos.xyz/tooling-and-infrastructure/rpc |
 
 ## Pharos Network Reference
 

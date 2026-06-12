@@ -609,6 +609,18 @@ contract TimeLock {
 - **Cross-chain**: Pharos supports LayerZero, CCTP, and standard bridge patterns
 - **SPNs**: Special Processing Networks for app-specific scaling (advanced)
 
+## Pharos Resources
+
+| Resource | URL |
+|---|---|
+| Official Docs | https://docs.pharos.xyz |
+| PharosScan (Mainnet) | https://www.pharosscan.xyz |
+| PharosScan (Testnet) | https://atlantic.pharosscan.xyz |
+| Testnet Faucet | https://testnet.pharosnetwork.xyz |
+| GitHub | https://github.com/PharosNetwork |
+| Discord | https://discord.com/invite/pharos |
+| RPC Providers | https://docs.pharos.xyz/tooling-and-infrastructure/rpc |
+
 ## References
 
 These files live in `skill/references/` and should be read when the task requires deeper guidance:
