@@ -330,6 +330,20 @@ Suggest these follow-up steps:
 2. Tag the release commit: `git tag v1.0.0-deployed -m "Contract deployed to mainnet"`
 3. Update the README with the deployed address and explorer link
 
+## Post-Deploy Verification Script
+
+A standalone verification script is provided for quick post-deploy checks:
+
+```bash
+# Verify on testnet
+./scripts/verify-deployment.sh testnet 0xDeployedAddress
+
+# Verify on mainnet with owner check
+./scripts/verify-deployment.sh mainnet 0xDeployedAddress 0xExpectedOwner
+```
+
+The script checks: chain ID matches expected network, bytecode exists at the address (contract is alive), transaction nonce, explorer URL is generated, and optionally the contract owner matches the expected address.
+
 ## Post-Deploy Verification Protocol
 
 After a successful broadcast, confirm:
@@ -565,6 +579,39 @@ If the handoff is incomplete (missing contract, missing script, missing env vars
 - **Never broadcast on mainnet** without running the full pre-flight checklist first.
 - **Abort on failure** — if simulation fails, do not broadcast. Report the failure and ask for direction.
 - **No mnemonic derivation** — only accept hex private keys or keystore files. Never derive from a mnemonic.
+
+## Cast Cheatsheet (Foundry)
+
+Useful `cast` commands for Pharos network operations:
+
+```bash
+# Check chain ID (always verify before broadcasting)
+cast chain-id --rpc-url $RPC_URL
+
+# Get deployer balance
+cast balance --rpc-url $RPC_URL $DEPLOYER_ADDR
+
+# Get contract bytecode (check if deployed)
+cast code --rpc-url $RPC_URL $CONTRACT_ADDR
+
+# Call a read function
+cast call --rpc-url $RPC_URL $CONTRACT_ADDR "totalSupply()(uint256)"
+
+# Send a write transaction
+cast send --rpc-url $RPC_URL --private-key $PK $CONTRACT_ADDR "transfer(address,uint256)" $TO $AMOUNT
+
+# Estimate gas
+cast estimate --rpc-url $RPC_URL $CONTRACT_ADDR "someFunction()"
+
+# Get transaction receipt
+cast tx --rpc-url $RPC_URL $TX_HASH
+
+# Get block number
+cast block-number --rpc-url $RPC_URL
+
+# Look up an ABI-encoded function signature
+cast 4byte 0x$a9059cbb
+```
 
 ## Self-Verification Checklist
 
