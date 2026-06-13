@@ -627,6 +627,29 @@ Before presenting a plan, verify:
 - [ ] Did I capture the post-deploy state?
 - [ ] Did I check if verification should be included?
 
+## Common Deployment Questions
+
+**Q: How do I estimate PROS/PHRS needed for deployment?**
+A: Use `forge script --gas-estimate` for Foundry or Hardhat's built-in gas reporter. As a rough guide, a typical ERC-20 costs ~1.5-3 PROS on mainnet. Always deploy with a 50% gas buffer.
+
+**Q: What if the deploy script says "insufficient funds"?**
+A: The deployer address doesn't have enough PROS/PHRS for gas. Get testnet PHRS from https://testnet.pharosnetwork.xyz or transfer mainnet PROS to the deployer wallet. The script checks balance automatically before broadcast.
+
+**Q: What if chain ID validation fails?**
+A: Double-check your RPC URL. The script expects chain ID 688689 for testnet (Atlantic) and 1672 for mainnet (Pacific). Run `cast chain-id --rpc-url $RPC_URL` to verify.
+
+**Q: How long does deployment take on Pharos?**
+A: Blocks confirm in <1 second, so deployment is nearly instant after submission. Total time is usually 5-15 seconds including transaction propagation and block inclusion.
+
+**Q: What are common causes of transaction revert on Pharos?**
+A: Same as Ethereum: out of gas, insufficient funds, failed require statements, invalid constructor args, reentrancy protection, or overflow. Use `cast run` with a trace for debugging.
+
+**Q: How do I verify after Hardhat deployment?**
+A: Use `npx hardhat verify --network pharosTestnet <contract-address> <constructor-args>`. Ensure `ETHERSCAN_API_KEY` is set and the Hardhat config includes the chain's `url` and `chainId`.
+
+**Q: Can I cancel or replace a stuck transaction on Pharos?**
+A: Yes — send a new transaction with the same nonce, higher gas price, and zero value. Pharos has no mempool differentiation from standard Ethereum.
+
 ## Troubleshooting
 
 | Problem | Likely cause | Fix |

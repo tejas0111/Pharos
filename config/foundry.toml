@@ -1,0 +1,17 @@
+[profile.default]
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+libs = ["lib"]
+src = "src"
+out = "out"
+ffi = true
+
+[rpc_endpoints]
+pharos_testnet = "${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
+pharos_mainnet = "${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}
+
+[etherscan]
+pharos_testnet = { key = "${ETHERSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }
+pharos_mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://www.pharosscan.xyz/api" }
