@@ -1,6 +1,11 @@
 ---
 name: pharos-testing-strategy
-description: "Choose the right test mix, fixtures, and coverage focus before writing tests. Use when the user says: test strategy, coverage, fixtures, edge cases, test plan, what should I test, test approach, test coverage plan. Do NOT use for: writing concrete tests (use test-generation), or running tests (that's a CI task, not a subskill). See also: test-generation (execution), contract-testing-for-testnet-and-mainnet (network-aware tests)."
+description: "Choose the right test mix, fixtures, and coverage focus for Pharos contracts and dapps before writing tests. Use when planning test strategy, coverage goals, edge cases, test plans, or deciding what to test for Pharos Solidity dapps and frontend integrations. Keywords: test strategy, coverage, fixtures, edge cases, test plan, test approach, Pharos, Solidity, Foundry, Hardhat, wagmi, viem, contract testing, dapp testing, integration testing."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: testing
+slash: true
 ---
 
 # Testing Strategy

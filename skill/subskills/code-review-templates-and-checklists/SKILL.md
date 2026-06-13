@@ -1,6 +1,11 @@
 ---
 name: pharos-code-review-templates-and-checklists
-description: "Create review templates, PR checklists, and evaluation rubrics for better code review hygiene. Use when the user says: code review template, PR checklist, review rubric, review checklist, review notes, PR template, review guidelines. Do NOT use for: actually performing a code review (use contract-review for Solidity, or the relevant subskill for other code). See also: repo-automation-and-tooling (automating PR checks), contract-review (performing reviews)."
+description: "Create review templates, PR checklists, and evaluation rubrics for better code review hygiene in Pharos projects. Use when building code review templates, PR checklists, review rubrics, review guidelines, or PR templates for Pharos Solidity or TypeScript repos. Keywords: code review template, PR checklist, review rubric, review notes, PR template, review guidelines, Pharos, Solidity, TypeScript, GitHub, monorepo."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
+slash: true
 ---
 
 # Code Review Templates and Checklists

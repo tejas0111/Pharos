@@ -1,6 +1,11 @@
 ---
 name: pharos-react-ui-patterns-and-hooks
-description: "Improve React hooks, component boundaries, and client-side UI patterns. Use when the user says: React hooks, component pattern, context, state hook, UI patterns, custom hook, component design, React component, composition. Do NOT use for: dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state management (use state-management-integration). See also: state-management-integration (global state), frontend-dapp-integration (dapp-specific)."
+description: "Improve React hooks, component boundaries, and client-side UI patterns for Pharos dapps. Use when designing React hooks, component patterns, context, custom hooks, component composition, or UI patterns for Pharos web3 frontends. Keywords: React hooks, component pattern, context, state hook, UI patterns, custom hook, component design, composition, Pharos, dapp, Next.js, TypeScript, wagmi, viem, tailwind, shadcn."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # React UI Patterns and Hooks

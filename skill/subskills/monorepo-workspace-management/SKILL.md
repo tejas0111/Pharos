@@ -1,6 +1,11 @@
 ---
 name: pharos-monorepo-workspace-management
-description: "Handle workspace boundaries, package scripts, and shared tooling in monorepos. Use when the user says: monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace boundaries, package scripts, multi-package. Do NOT use for: working within a single package (use the relevant feature subskill), or adding a single dependency (use dependency-upgrade-management). See also: dependency-upgrade-management (package version changes), repo-automation-and-tooling (workspace scripts)."
+description: "Handle workspace boundaries, package scripts, and shared tooling in Pharos monorepos. Use when managing monorepos, Turborepo, pnpm workspaces, shared packages, workspace boundaries, package scripts, or multi-package setups for Pharos dapps. Keywords: monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace boundaries, package scripts, multi-package, Pharos, Solidity, TypeScript, Next.js, Foundry, Hardhat."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # Monorepo and Workspace Management

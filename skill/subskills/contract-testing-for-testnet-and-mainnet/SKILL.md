@@ -1,6 +1,11 @@
 ---
 name: pharos-contract-testing-for-testnet-and-mainnet
-description: "Design contract test coverage and environment-aware checks for both network contexts. Use when the user says: contract testing, testnet tests, mainnet tests, network-specific testing, environment-aware tests, fork tests, network fork. Do NOT use for: general unit test generation (use test-generation), or planning deployment (use deployment-for-testnet-and-mainnet). See also: testing-strategy (general planning), deployment-for-testnet-and-mainnet (deploy counterpart)."
+description: "Design Pharos contract test coverage and environment-aware checks for testnet (Atlantic 688689) and mainnet (Pacific 1672). Use when planning network-specific testing, fork tests, environment-aware test suites, or testnet vs mainnet contract validation for Pharos. Keywords: contract testing, testnet tests, mainnet tests, fork tests, network fork, Pharos, Atlantic, Pacific, 688689, 1672, Foundry, forge, anvil, environment-aware, integration testing."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: testing
+slash: true
 ---
 
 # Contract Testing for Testnet and Mainnet

@@ -13,6 +13,10 @@ interface:
     - "Refactoring and code health improvement"
     - "Dependency upgrade and monorepo management"
 
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true

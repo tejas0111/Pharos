@@ -1,6 +1,11 @@
 ---
 name: pharos-protocol-integration-planning
-description: "Plan read/write flows, approvals, and call order for integrating a protocol or contract surface. Use when the user says: integration, protocol flow, call sequence, approval flow, contract interaction plan, how to call, what transactions, read/write flow. Do NOT use for: writing the actual integration code (use frontend-dapp-integration or solidity-authoring), or reviewing existing integrations (use contract-review). See also: frontend-dapp-integration (UI wiring), solidity-authoring (contract changes), wallet-and-transaction-ui (user-facing states)."
+description: "Plan Pharos protocol read/write flows, approvals, and call order for integrating contract surfaces. Use when planning integration, protocol flow, call sequences, approval flows, or transaction plans for Pharos DeFi/RealFi protocols, staking, AMM, or lending systems. Keywords: integration, protocol flow, call sequence, approval flow, contract interaction, read/write flow, Pharos, DeFi, RealFi, staking, AMM, lending, PROS, PHRS, transaction planning."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Protocol Integration Planning

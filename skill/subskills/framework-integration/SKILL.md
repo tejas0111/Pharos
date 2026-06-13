@@ -1,6 +1,11 @@
 ---
 name: pharos-framework-integration
-description: "Wire Pharos development patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix. Use when the user says: Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Pharos to, configure, integration setup. Do NOT use for: working within an already-configured framework (use the workflow-specific subskill, e.g., wagmi-viem-dapp-workflow). See also: wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, nextjs-app-router-and-server-actions, remix-contract-workflow, tailwind-shadcn-ui-workflow."
+description: "Wire Pharos development patterns into Next.js, wagmi, viem, ethers, Foundry, Hardhat, or Remix. Use when setting up framework integration, adding Pharos to existing projects, configuring toolchains, or initializing development environments for Pharos dapps. Keywords: Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Pharos, configure, integration setup, Pharos, 688689, 1672, Atlantic, Pacific, RPC, toolchain."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: tooling
+slash: true
 ---
 
 # Framework Integration

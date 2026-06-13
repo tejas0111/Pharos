@@ -1,6 +1,11 @@
 ---
 name: pharos-performance-optimization
-description: "Find and reduce runtime, render, bundle, or gas-adjacent inefficiencies in code paths. Use when the user says: performance, optimize, slow, bottleneck, bundle size, latency, gas optimization, too slow, speed up, reduce gas. Do NOT use for: readability or structural improvements (use refactoring-and-code-health), or bug fixes (use bug-finding-and-debugging). See also: refactoring-and-code-health (non-performance structure changes), solidity-authoring (contract gas optimization)."
+description: "Find and reduce runtime, render, bundle, or gas inefficiencies in Pharos code paths. Use when optimizing performance, reducing gas costs, improving bundle size, fixing slow dapp UI, or reducing transaction latency in Pharos Solidity contracts and frontends. Keywords: performance, optimize, slow, bottleneck, bundle size, latency, gas optimization, speed up, reduce gas, Pharos, Solidity, Foundry, forge, Next.js, React, TypeScript, wagmi, viem, dapp."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Performance Optimization

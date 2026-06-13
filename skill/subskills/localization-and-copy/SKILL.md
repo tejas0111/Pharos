@@ -1,6 +1,11 @@
 ---
 name: pharos-localization-and-copy
-description: "Adjust product copy, labels, and localization structure for clearer user-facing text. Use when the user says: localization, i18n, translation, copy, microcopy, labels, strings, text content, locale, multi-language. Do NOT use for: UI component changes (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or technical documentation (use docs-and-example-generation). See also: accessibility-review (inclusive language), docs-and-example-generation (developer docs)."
+description: "Adjust Pharos dapp product copy, labels, and localization structure for clearer user-facing text. Use when handling localization, i18n, translation, microcopy, labels, strings, text content, locale setup, or multi-language support for Pharos web3 dapps. Keywords: localization, i18n, translation, copy, microcopy, labels, strings, text content, locale, multi-language, Pharos, dapp, Next.js, React, TypeScript."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # Localization and Copy

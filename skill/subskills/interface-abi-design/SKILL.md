@@ -1,6 +1,11 @@
 ---
 name: pharos-interface-abi-design
-description: "Define interfaces, events, errors, and typed bindings so downstream tooling can integrate cleanly. Use when the user says: ABI, interface, events, errors, typed bindings, contract surface, define the interface, what events should I emit, method signatures. Do NOT use for: writing the full contract implementation (use solidity-authoring), or integrating the ABI into frontend (use frontend-dapp-integration). See also: solidity-authoring (full implementation), frontend-dapp-integration (consuming the ABI)."
+description: "Define Pharos contract interfaces, events, errors, and typed bindings so downstream tooling can integrate cleanly. Use when designing ABI surfaces, event schemas, error definitions, method signatures, or typed bindings for Pharos Solidity contracts. Keywords: ABI, interface, events, errors, typed bindings, contract surface, method signatures, Solidity, Pharos, wagmi, viem, ethers, TypeScript, codegen."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: contract
+slash: true
 ---
 
 # Interface and ABI Design

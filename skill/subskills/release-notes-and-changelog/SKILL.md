@@ -1,6 +1,11 @@
 ---
 name: pharos-release-notes-and-changelog
-description: "Turn a set of code changes into clear release notes, changelog entries, or PR summaries. Use when the user says: release notes, changelog, release summary, PR summary, shipping notes, what changed, changelog entry, version notes. Do NOT use for: writing technical documentation (use docs-and-example-generation), or preparing deployment (use deployment-and-verification). See also: code-scaffolding-and-generation (file generation variant), docs-and-example-generation (developer docs)."
+description: "Turn Pharos code changes into clear release notes, changelog entries, or PR summaries. Use when generating release notes, changelog entries, release summaries, PR summaries, shipping notes, or version notes for Pharos dapp releases. Keywords: release notes, changelog, release summary, PR summary, shipping notes, what changed, changelog entry, version notes, Pharos, Solidity, TypeScript, Foundry, Hardhat, dapp."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
+slash: true
 ---
 
 # Release Notes and Changelog

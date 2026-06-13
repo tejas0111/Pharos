@@ -1,6 +1,11 @@
 ---
 name: pharos-state-management-integration
-description: "Wire app state into query, store, cache, or client-side state tools without creating drift. Use when the user says: state management, Zustand, Redux, query client, cache, store, React Query, Jotai, Recoil, global state. Do NOT use for: component-local state patterns (use react-ui-patterns-and-hooks), or contract state wiring (use frontend-dapp-integration). See also: react-ui-patterns-and-hooks (local state), frontend-dapp-integration (contract state)."
+description: "Wire Pharos dapp state into query, store, cache, or client-side state tools without creating drift. Use when setting up state management with Zustand, Redux, React Query, Jotai, Recoil, or global store for Pharos web3 dapps. Keywords: state management, Zustand, Redux, query client, cache, store, React Query, Jotai, Recoil, global state, Pharos, dapp, Next.js, React, TypeScript, wagmi, viem."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: frontend
+slash: true
 ---
 
 # State Management Integration

@@ -1,6 +1,11 @@
 ---
 name: pharos-deployment-and-verification
-description: "Prepare deploy scripts, env variables, explorer verification, and post-deploy checks. Use when the user says: deploy, verification, explorer, release, publish contract, deployment prep, deploy script, verification flow. Do NOT use for: actually broadcasting a transaction (hand off to pharos-agent-deploy-suite), or planning deployment across networks (use deployment-for-testnet-and-mainnet). See also: deployment-for-testnet-and-mainnet (network planning), pharos-agent-deploy-suite (broadcast execution)."
+description: "Prepare Pharos deploy scripts, env variables, explorer verification, and post-deploy checks for testnet and mainnet. Use when preparing deployment, writing deploy scripts, configuring verification, or setting up release pipelines for Pharos contracts (Atlantic 688689 / Pacific 1672). Keywords: deploy, verification, explorer, release, publish contract, deploy script, verification flow, Pharos, Foundry, Hardhat, forge script, hardhat deploy, 688689, 1672, Atlantic, Pacific, ETHERSCAN_API_KEY, contract verification."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: deployment
+slash: true
 ---
 
 # Deployment and Verification

@@ -1,6 +1,11 @@
 ---
 name: pharos-docs-and-example-generation
-description: "Write clear docs, usage instructions, and examples for developers and agents. Use when the user says: docs, README, examples, usage instructions, agent prompt, guides, documentation, how-to, API docs. Do NOT use for: generating file structure (use code-scaffolding-and-generation), or writing release notes (use release-notes-and-changelog). See also: code-scaffolding-and-generation (generating file structure), release-notes-and-changelog (release docs)."
+description: "Write clear docs, usage instructions, and examples for Pharos developers and AI agents. Use when generating README files, usage guides, how-to docs, API documentation, or developer examples for Pharos Solidity contracts and dapps. Keywords: docs, README, examples, usage instructions, guides, documentation, how-to, API docs, Pharos, Solidity, TypeScript, Foundry, Hardhat, wagmi, viem, Next.js, developer docs."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
+slash: true
 ---
 
 # Docs and Example Generation
