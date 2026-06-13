@@ -203,7 +203,9 @@ Official Pharos network configurations for deployment:
 | Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS | N/A (real value) |
 | Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | https://testnet.pharosnetwork.xyz |
 
-Always verify the chain ID matches the target network before broadcasting:
+Always verify the chain ID matches the target network before broadcasting.
+
+> Ready-to-use config files are in the `config/` directory: `pharos.json` (machine-readable chain data), `chains.ts` (wagmi/viem chain definitions), `foundry.toml`, `hardhat.config.ts`, and `.env.example` (environment template). Copy them into your project and adjust as needed.
 
 ```bash
 # Check chain ID via cast (Foundry)

@@ -7,6 +7,11 @@
 #   ./scripts/verify-deployment.sh mainnet 0x123... 0xOwnerAddr
 set -euo pipefail
 
+# === Source .env if present ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+
 if [ $# -lt 2 ]; then
   echo "Usage: $0 <testnet|mainnet> <contract-address> [expected-owner-address]"
   echo ""

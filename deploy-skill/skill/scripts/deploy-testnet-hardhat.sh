@@ -9,8 +9,11 @@ set -euo pipefail
 # === Pharos Testnet Config ===
 PHAROS_TESTNET_CHAIN_ID=688689
 
-# === Required Env Vars ===
-: "${PHAROS_TESTNET_RPC_URL:?  Set PHAROS_TESTNET_RPC_URL (default: https://atlantic.dplabs-internal.com)}"
+# === Env Vars (with .env support) ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+PHAROS_TESTNET_RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
 : "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex)}"
 
 # === Optional Env Vars ===

@@ -9,8 +9,11 @@ set -euo pipefail
 # === Pharos Mainnet Config ===
 PHAROS_MAINNET_CHAIN_ID=1672
 
-# === Required Env Vars ===
-: "${PHAROS_MAINNET_RPC_URL:?  Set PHAROS_MAINNET_RPC_URL (default: https://rpc.pharos.xyz)}"
+# === Env Vars (with .env support) ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
+PHAROS_MAINNET_RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
 : "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex)}"
 
 # === Optional Env Vars ===

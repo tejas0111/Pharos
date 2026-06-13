@@ -8,7 +8,10 @@ set -euo pipefail
 # === Pharos Testnet Config ===
 PHAROS_TESTNET_CHAIN_ID=688689
 
-# === Required Env Vars ===
+# === Env Vars (with .env support) ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
 : "${PHAROS_TESTNET_RPC_URL:?  Set PHAROS_TESTNET_RPC_URL}"
 : "${DEPLOYED_ADDRESS:?        Set DEPLOYED_ADDRESS to the contract address to verify}"
 

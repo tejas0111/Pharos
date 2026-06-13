@@ -8,7 +8,10 @@ set -euo pipefail
 # === Pharos Mainnet Config ===
 PHAROS_MAINNET_CHAIN_ID=1672
 
-# === Required Env Vars ===
+# === Env Vars (with .env support) ===
+if [ -f .env ]; then
+  set -a; source .env; set +a
+fi
 : "${PHAROS_MAINNET_RPC_URL:?  Set PHAROS_MAINNET_RPC_URL}"
 : "${DEPLOYED_ADDRESS:?        Set DEPLOYED_ADDRESS to the contract address to verify}"
 
