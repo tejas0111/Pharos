@@ -433,7 +433,7 @@ Official Pharos network endpoints for configuration and deployment:
 
 Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup.
 
-> Ready-to-use config files are in the `config/` directory: `pharos.json` (machine-readable chain data), `chains.ts` (wagmi/viem chain definitions), `foundry.toml`, and `hardhat.config.ts`. Copy them into your project and adjust as needed.
+> Ready-to-use config files are in the `config/` directory: `pharos.json` (machine-readable chain data), `chains.ts` (wagmi/viem chain definitions), `foundry.toml`, `hardhat.config.ts`, and `.env.example` (environment template). Copy them into your project and adjust as needed.
 
 ```toml
 # foundry.toml
