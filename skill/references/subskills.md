@@ -1,6 +1,6 @@
 # Subskill Reference
 
-Extended descriptions of all 35 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
+Extended descriptions of all 43 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
 
 ## Contract Work
 
@@ -401,9 +401,105 @@ Extended descriptions of all 35 developer subskills. Each entry includes: trigge
 - **Verification**: Visual review of the text in context.
 - **Cross-ref**: `accessibility-review` (inclusive language), `docs-and-example-generation` (developer docs)
 
+### cross-chain-bridge
+
+**Plan cross-chain messaging, bridge integrations, and token transfers across supported protocols.**
+
+- **Risk**: high (cross-chain value transfer requires careful planning)
+- **Triggers**: "cross-chain", "bridge", "layerzero", "cctp", "spn mailbox", "lz", "oft", "cross-chain messaging"
+- **Use when**: The user needs to integrate cross-chain messaging, configure LayerZero OFT, or plan CCTP token transfer flows.
+- **Do NOT use when**: The user is working within a single chain — use the relevant contract or integration subskill.
+- **Workflow**: Identify source and destination chains → Choose bridge protocol → Plan call sequence and fees → Show plan → Implement after approval.
+- **Verification**: Compile check. Cross-chain integration test on testnet.
+- **Cross-ref**: `spn-development` (SPN-specific cross-chain), `protocol-integration-planning` (single-chain integration), `deployment-patterns.md` (cross-chain deployment)
+
+### upgrade-patterns
+
+**Design and implement contract upgrade patterns: UUPS, Transparent proxy, and Beacon proxy.**
+
+- **Risk**: high (proxy misconfiguration can freeze funds)
+- **Triggers**: "upgrade", "proxy", "uups", "transparent proxy", "beacon", "upgradeable", "initializable", "deploy proxy"
+- **Use when**: The user needs to design, implement, or verify an upgradeable contract pattern.
+- **Do NOT use when**: The user is designing a static contract — use `contract-architecture` or `solidity-authoring`.
+- **Workflow**: Identify upgrade requirements (versioned storage, access control) → Choose proxy pattern → Design storage layout → Show plan → Implement after approval.
+- **Verification**: Compile check. Test upgrade path from v1 to v2.
+- **Cross-ref**: `contract-architecture` (system design), `migration-and-backward-compatibility` (data migration), `deployment-patterns.md` (upgrade deployment)
+
+### gas-optimization
+
+**Analyze and optimize Solidity contract gas usage using SALI patterns and advanced techniques.**
+
+- **Risk**: medium (optimizations are low-risk but change contract bytecode)
+- **Triggers**: "gas", "gas optimization", "gas cost", "save gas", "expensive", "sal"
+- **Use when**: The user wants to reduce gas costs in Solidity contracts through verified optimization patterns.
+- **Do NOT use when**: The user needs general performance improvements — use `performance-optimization`.
+- **Workflow**: Identify high-gas operations (loops, storage, calls) → Apply SALI patterns → Show gas savings estimate → Implement after approval.
+- **Verification**: `forge test --gas-report` or Hardhat gas reporter. Compare before/after gas estimates.
+- **Cross-ref**: `performance-optimization` (non-gas performance), `contract-review` (gas found in review), `solidity-authoring` (applying optimizations)
+
+### security-audit
+
+**Prepare for and conduct security audit readiness reviews of Solidity contracts.**
+
+- **Risk**: high (audit prep is time-sensitive; missed issues have real cost)
+- **Triggers**: "audit", "security audit", "audit prep", "audit readiness", "formal verification", "code freeze"
+- **Use when**: The user needs to prepare for a security audit or review audit readiness.
+- **Do NOT use when**: The user wants a casual code review — use `contract-review`.
+- **Workflow**: Identify audit scope and threat model → Freeze code → Run static analysis → Generate audit readiness report → Present findings.
+- **Verification**: Slither, solhint, forge test, manual review against checklist.
+- **Cross-ref**: `contract-review` (pre-audit review), `gas-optimization` (gas findings), `bug-finding-and-debugging` (fixing issues)
+
+### production-ops
+
+**Set up monitoring, alerting, and incident response for deployed Pharos contracts.**
+
+- **Risk**: high (production monitoring gaps can cause missed incidents)
+- **Triggers**: "monitoring", "alerting", "incident response", "production ops", "contract monitoring", "event tracking", "uptime"
+- **Use when**: The user needs operational tooling for live contracts — event monitoring, alert rules, dashboards.
+- **Do NOT use when**: The user is deploying new contracts — use `deployment-and-verification` or the deploy suite.
+- **Workflow**: Identify contract events and critical paths → Choose monitoring approach → Set up alerting rules → Show plan → Implement after approval.
+- **Verification**: Deploy monitoring config, verify alerts trigger on test events.
+- **Cross-ref**: `deployment-and-verification` (deploy prep), `pharos-ecosystem.md` (RPC, explorers)
+
+### spn-development
+
+**Develop and integrate Special Processing Networks (SPNs) on Pharos.**
+
+- **Risk**: high (SPN configuration affects network resources)
+- **Triggers**: "spn", "special processing network", "spn development", "spn integration", "pharos spn", "appchain"
+- **Use when**: The user needs to design, develop, or integrate an SPN on Pharos.
+- **Do NOT use when**: The user is building a standard contract — use the relevant contract subskill.
+- **Workflow**: Identify SPN requirements and scaling needs → Design SPN architecture → Plan integration with main chain → Show plan → Implement after approval.
+- **Verification**: SPN deployment test on testnet. Cross-chain message test.
+- **Cross-ref**: `cross-chain-bridge` (cross-chain messaging), `pharos-ecosystem.md` (SPN contracts)
+
+### rwa-compliance
+
+**Design and implement Real World Asset (RWA) compliance patterns for Pharos tokens.**
+
+- **Risk**: high (compliance errors have legal and regulatory consequences)
+- **Triggers**: "rwa", "real world asset", "compliance", "tokenization", "kyc", "accredited investor", "security token"
+- **Use when**: The user needs to implement compliance-aware tokenization for real-world assets.
+- **Do NOT use when**: The user needs a standard ERC-20/721 — use `solidity-authoring`.
+- **Workflow**: Identify compliance requirements (jurisdiction, investor tiers) → Design compliance controls → Plan tokenization → Show plan → Implement after approval.
+- **Verification**: Compliance rule tests. Role-based access verification.
+- **Cross-ref**: `contract-architecture` (system design), `solidity-authoring` (implementation), `contract-review` (compliance review)
+
+### workflow-orchestrator
+
+**Orchestrate multi-step development workflows by chaining subskills in sequence.**
+
+- **Risk**: low (planning meta-subskill, no code changes on its own)
+- **Triggers**: "orchestrate", "workflow", "multi-step", "end to end", "full pipeline", "automate workflow"
+- **Use when**: The user wants to run a multi-step workflow that spans multiple subskills (e.g., design → implement → test → deploy).
+- **Do NOT use when**: The request fits a single subskill — route to that subskill directly.
+- **Workflow**: Identify end-to-end goal → Break into sequential steps → Map each step to a subskill → Present orchestration plan → Execute one step at a time.
+- **Verification**: Each step verified independently before the next begins.
+- **Cross-ref**: All subskills (this is a meta-subskill for chaining them)
+
 ## Subskill Families
 
-The 35 subskills are grouped into three families for organizational clarity:
+The 43 subskills are grouped into three families for organizational clarity:
 
 - **Repo automation and maintenance**: repo-onboarding, repo-automation-and-tooling, dependency-upgrade-management, monorepo-workspace-management, code-review-templates-and-checklists
 - **Framework-specific implementation**: framework-integration, nextjs-app-router-and-server-actions, react-ui-patterns-and-hooks, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, tailwind-shadcn-ui-workflow
