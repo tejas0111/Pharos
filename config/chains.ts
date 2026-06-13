@@ -13,6 +13,32 @@ export const pharosTestnet: Chain = {
   testnet: true,
 };
 
+export const pharosTestnetV2: Chain = {
+  id: 688_688,
+  name: 'Pharos Testnet v2',
+  nativeCurrency: { name: 'Pharos Testnet', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://testnet.dplabs-internal.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://testnet.pharosscan.xyz' },
+  },
+  testnet: true,
+};
+
+export const pharosDevnet: Chain = {
+  id: 50_002,
+  name: 'Pharos Devnet',
+  nativeCurrency: { name: 'Pharos Devnet', symbol: 'PHRS', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://devnet.dplabs-internal.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+  },
+  testnet: true,
+};
+
 export const pharosMainnet: Chain = {
   id: 1_672,
   name: 'Pharos Pacific',

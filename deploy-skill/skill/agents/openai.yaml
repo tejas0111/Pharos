@@ -8,7 +8,19 @@ interface:
     - "Deployment simulation and dry-run"
     - "Explorer verification"
     - "Pre-flight and post-deploy checks"
+  deployment_networks:
+    - "pharos-testnet"
+    - "pharos-mainnet"
+  toolchains:
+    - "Foundry (forge script)"
+    - "Hardhat (npx hardhat deploy/verify)"
 
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
 policy:
   allow_implicit_invocation: true
   require_confirmation_for_high_risk: true
+  require_simulation_before_broadcast: true
+  require_network_confirmation: true

@@ -1,7 +1,11 @@
 ---
 name: pharos-agent-deploy-suite
-description: "Use ONLY when the user needs to deploy, broadcast, or verify Pharos contracts on testnet (Atlantic, chain ID: 688689) or mainnet (Pacific, chain ID: 1672). This skill handles: contract deployment (Foundry/Hardhat), transaction broadcast, explorer verification, RPC configuration, signer setup, post-deploy checks, deployment simulation/dry-run, and explorer interactions. Do NOT use for: contract coding, testing, debugging, architecture, frontend work, or any non-deploy development. Trigger keywords: deploy, broadcast, verify, testnet, mainnet, RPC, explorer, forge script, hardhat deploy, PHAROS_TESTNET_RPC_URL, PHAROS_MAINNET_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, simulate, dry-run, gas estimation, signer, nonce, release, go live, production, Atlantic, Pacific, 688689, 1672, PROS, PHRS, fund, faucet, get testnet tokens, claim, explorer verification, contract verification, deployment, broadcast transaction, forge create, forge script --broadcast. Hand off to pharos-agent-dev-suite for all development work before deployment."
+description: "High-risk Pharos deployment suite for broadcasting and verifying contracts on testnet (Atlantic, chain ID: 688689) and mainnet (Pacific, chain ID: 1672). Use when deploying, broadcasting, verifying, or simulating Pharos contract deployments with Foundry or Hardhat, or when configuring RPC, signers, post-deploy checks, and explorer interactions. Keywords: deploy, broadcast, verify, testnet, mainnet, RPC, explorer, forge script, hardhat deploy, PHAROS_TESTNET_RPC_URL, PHAROS_MAINNET_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, simulate, dry-run, gas estimation, signer, nonce, release, go live, production, Atlantic, Pacific, 688689, 1672, PROS, PHRS, fund, faucet, forge create, forge script, broadcast transaction, contract verification, deployment."
 slash: true
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
 ---
 
 # Pharos Agent Deploy Suite
@@ -105,10 +109,13 @@ evm_version = "cancun"
 [rpc_endpoints]
 pharos-mainnet = "https://rpc.pharos.xyz"
 pharos-testnet = "https://atlantic.dplabs-internal.com"
+pharos-testnet-v2 = "https://testnet.dplabs-internal.com"
+pharos-devnet = "https://devnet.dplabs-internal.com"
 
 [etherscan]
 pharos-mainnet = { key = "${ETHERSCAN_API_KEY}" }
 pharos-testnet = { key = "${ETHERSCAN_API_KEY}" }
+pharos-testnet-v2 = { key = "${ETHERSCAN_API_KEY}" }
 ```
 
 The `[rpc_endpoints]` section is optional but recommended — it lets you run `forge script --rpc-url pharos-testnet` without setting the env var.
@@ -132,6 +139,16 @@ const config: HardhatUserConfig = {
     pharosMainnet: {
       url: PHAROS_MAINNET_RPC,
       chainId: 1672,
+      accounts: [PRIVATE_KEY],
+    },
+    pharosTestnetV2: {
+      url: process.env.PHAROS_TESTNET_V2_RPC_URL || 'https://testnet.dplabs-internal.com',
+      chainId: 688688,
+      accounts: [PRIVATE_KEY],
+    },
+    pharosDevnet: {
+      url: process.env.PHAROS_DEVNET_RPC_URL || 'https://devnet.dplabs-internal.com',
+      chainId: 50002,
       accounts: [PRIVATE_KEY],
     },
   },
@@ -199,9 +216,17 @@ Before any broadcast, confirm with the user (or via repo config) that these cond
 Official Pharos network configurations for deployment:
 
 | Network | Chain ID | RPC URL | Explorer | Symbol | Faucet |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS | N/A (real value) |
-| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | https://testnet.pharosnetwork.xyz |
+| Atlantic Testnet (deprecated) | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | https://testnet.pharosnetwork.xyz |
+| Testnet v2 | 688688 | `https://testnet.dplabs-internal.com` | https://testnet.pharosscan.xyz | PHRS | https://testnet.pharosnetwork.xyz |
+| Devnet | 50002 | `https://devnet.dplabs-internal.com` | https://pharosscan.xyz | PHRS | N/A |
+
+### Alternative RPC Providers
+
+| Provider | Testnet | Mainnet |
+|---|---|---|
+| ZAN | `https://api.zan.top/node/v1/pharos/testnet/{apikey}` | `https://api.zan.top/node/v1/pharos/mainnet/{apikey}` |
 
 Always verify the chain ID matches the target network before broadcasting.
 

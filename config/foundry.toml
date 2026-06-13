@@ -10,7 +10,9 @@ ffi = true
 
 [rpc_endpoints]
 pharos_testnet = "${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com}"
-pharos_mainnet = "${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}
+pharos_mainnet = "${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
+pharos_testnet_v2 = "${PHAROS_TESTNET_V2_RPC_URL:-https://testnet.dplabs-internal.com}"
+pharos_devnet = "${PHAROS_DEVNET_RPC_URL:-https://devnet.dplabs-internal.com}"
 
 [etherscan]
 pharos_testnet = { key = "${ETHERSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }

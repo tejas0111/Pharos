@@ -199,7 +199,7 @@ Use when something went wrong during execution.
 4. **Files are concrete paths**. Absolute or relative from project root. Never vague like "the contract file".
 5. **Verification is actionable**. A command the user can run or a manual check they can perform.
 6. **Approval question is a direct yes/no**. Not a suggestion. Not a rhetorical question.
-7. **When not gated**, omit the `approvalQuestion` field or set it to an empty string.
+7. **`approvalQuestion` is always required.** Include it in every response. When not gated (low risk), set `approvalQuestion` to a question about whether the plan is acceptable rather than omitting it.
 8. **Never include RPC URLs, private keys, or API keys** in any output field.
 
 ## Edge Cases

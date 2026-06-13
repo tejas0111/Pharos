@@ -5,9 +5,6 @@
 #   DEPLOYED_ADDRESS=0x123... HARDHAT_NETWORK=pharosMainnet ./scripts/verify-mainnet-hardhat.sh
 set -euo pipefail
 
-# === Pharos Mainnet Config ===
-PHAROS_MAINNET_CHAIN_ID=1672
-
 # === Env Vars (with .env support) ===
 if [ -f .env ]; then
   set -a; source .env; set +a

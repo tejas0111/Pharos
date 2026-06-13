@@ -5,9 +5,6 @@
 #   DEPLOYED_ADDRESS=0x123... HARDHAT_NETWORK=pharosTestnet ./scripts/verify-testnet-hardhat.sh
 set -euo pipefail
 
-# === Pharos Testnet Config ===
-PHAROS_TESTNET_CHAIN_ID=688689
-
 # === Env Vars (with .env support) ===
 if [ -f .env ]; then
   set -a; source .env; set +a
