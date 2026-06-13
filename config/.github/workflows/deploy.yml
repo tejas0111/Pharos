@@ -1,0 +1,265 @@
+name: Pharos Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Target network'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      simulate_only:
+        description: 'Simulate only (no broadcast)'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  PHAROS_TESTNET_RPC_URL: ${{ secrets.PHAROS_TESTNET_RPC_URL }}
+  PHAROS_MAINNET_RPC_URL: ${{ secrets.PHAROS_MAINNET_RPC_URL }}
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: ci
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.network || 'testnet' }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Solidity formatting
+        run: forge fmt --check
+
+      - name: Run solhint
+        run: npx solhint 'contracts/**/*.sol'
+
+      - name: TypeScript lint
+        run: npx tsc --noEmit
+
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Forge build
+        run: forge build --sizes
+
+      - name: Forge tests
+        run: forge test -vvv
+
+      - name: Hardhat tests (if applicable)
+        run: npx hardhat test || echo "No Hardhat tests found"
+
+  deploy-testnet:
+    name: Deploy to Testnet
+    needs: test
+    if: |
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') &&
+      (github.event.inputs.network == 'testnet' || github.event_name == 'push')
+    runs-on: ubuntu-latest
+    environment: testnet
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Forge build
+        run: forge build --sizes
+
+      - name: Determine deploy mode
+        id: mode
+        run: |
+          if [[ "${{ github.event.inputs.simulate_only }}" == "true" ]] || [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "SIMULATE_ONLY=1" >> $GITHUB_ENV
+            echo "mode=simulation" >> $GITHUB_OUTPUT
+          else
+            echo "mode=broadcast" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy (simulation)
+        if: env.SIMULATE_ONLY == '1'
+        run: |
+          echo "Running testnet deployment simulation..."
+          forge script script/Deploy.s.sol \
+            --rpc-url pharos-testnet \
+            --slow \
+            --sig "run()" 2>&1 | tee deploy-simulation.log
+
+      - name: Deploy (broadcast)
+        if: env.SIMULATE_ONLY != '1'
+        run: |
+          echo "Deploying to testnet..."
+          forge script script/Deploy.s.sol \
+            --rpc-url pharos-testnet \
+            --broadcast \
+            --verify \
+            --slow \
+            --sig "run()" 2>&1 | tee deploy-output.log
+          
+          echo "Extracting deployed address..."
+          DEPLOYED_ADDRESS=$(grep -oP 'Deployed at: \K(0x[a-fA-F0-9]{40})' deploy-output.log || echo "")
+          echo "deployed_address=$DEPLOYED_ADDRESS" >> $GITHUB_OUTPUT
+
+      - name: Upload deployment receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-receipt-${{ github.sha }}
+          path: |
+            deploy-output.log
+            deploy-simulation.log
+            broadcast/*/run-latest.json
+
+  deploy-mainnet:
+    name: Deploy to Mainnet
+    needs: test
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event.inputs.network == 'mainnet'
+    runs-on: ubuntu-latest
+    environment:
+      name: mainnet
+      url: https://www.pharosscan.xyz
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Forge build
+        run: forge build --sizes
+
+      - name: Simulate mainnet deployment
+        run: |
+          echo "Running mainnet deployment simulation..."
+          forge script script/Deploy.s.sol \
+            --rpc-url pharos-mainnet \
+            --slow \
+            --sig "run()" 2>&1 | tee mainnet-simulation.log
+
+      - name: Require manual approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ vars.MAINNET_APPROVERS }}
+          minimum-approvals: 2
+          issue-title: "Mainnet deployment approval for ${{ github.sha }}"
+          issue-body: |
+            Review the simulation result and approve or reject the mainnet deployment.
+            Simulation log is attached as an artifact.
+
+      - name: Deploy to mainnet
+        run: |
+          echo "Deploying to mainnet..."
+          forge script script/Deploy.s.sol \
+            --rpc-url pharos-mainnet \
+            --broadcast \
+            --verify \
+            --slow \
+            --sig "run()" 2>&1 | tee mainnet-deploy.log
+
+      - name: Tag release
+        run: |
+          VERSION=v$(date +%Y%m%d)-${{ github.sha }}
+          git tag $VERSION -m "Mainnet deployment ${{ github.sha }}"
+          git push origin $VERSION
+
+      - name: Upload mainnet deployment receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: mainnet-deploy-receipt-${{ github.sha }}
+          path: |
+            mainnet-deploy.log
+            mainnet-simulation.log
+            broadcast/*/run-latest.json
+
+  post-deploy:
+    name: Post-Deployment
+    needs: [deploy-testnet, deploy-mainnet]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download deployment artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Generate deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Simulation logs: artifacts/" >> $GITHUB_STEP_SUMMARY
+          echo "- Broadcast receipts: artifacts/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Verify contract on PharosScan" >> $GITHUB_STEP_SUMMARY
+          echo "2. Transfer ownership to multi-sig" >> $GITHUB_STEP_SUMMARY
+          echo "3. Update frontend config" >> $GITHUB_STEP_SUMMARY
+          echo "4. Set up monitoring alerts" >> $GITHUB_STEP_SUMMARY
