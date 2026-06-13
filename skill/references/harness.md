@@ -4,20 +4,23 @@ Operational reference for the Pharos dev skill suite. This document contains the
 
 ## Decision Tree (Detailed)
 
-The master skill routes to 35 subskills. Classification follows this process:
+The master skill routes to 43 developer subskills + 3 deployment subskills. Classification follows this process:
 
 ### Step 1: Broad Category
 
 Read the user's request and map it to one of 6 categories:
 
 | Category | Primary subskills |
-|---|---|
-| Contract Work | contract-architecture, solidity-authoring, interface-abi-design, protocol-integration-planning |
+|---|---|---|
+| Contract Work | contract-architecture, solidity-authoring, interface-abi-design, protocol-integration-planning, upgrade-patterns, rwa-compliance |
 | UI Work | frontend-dapp-integration, wallet-and-transaction-ui |
 | Testing & Review | testing-strategy, test-generation, contract-review, bug-finding-and-debugging, contract-testing-for-testnet-and-mainnet |
 | Framework & Tooling | framework-integration, ci-and-build-troubleshooting, repo-onboarding, dependency-upgrade-management, monorepo-workspace-management, repo-automation-and-tooling, code-review-templates-and-checklists, deployment-for-testnet-and-mainnet, nextjs-app-router-and-server-actions, react-ui-patterns-and-hooks, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, tailwind-shadcn-ui-workflow |
-| Quality & Performance | refactoring-and-code-health, performance-optimization, accessibility-review, state-management-integration |
+| Integration | cross-chain-bridge, spn-development |
+| Quality & Performance | refactoring-and-code-health, performance-optimization, accessibility-review, state-management-integration, gas-optimization, security-audit |
 | Shipping & Docs | deployment-and-verification, migration-and-backward-compatibility, release-notes-and-changelog, code-scaffolding-and-generation, docs-and-example-generation, localization-and-copy |
+| Operations | production-ops |
+| Workflow | workflow-orchestrator |
 
 ### Step 2: Narrow to a Single Subskill
 
@@ -86,7 +89,7 @@ Do NOT read: unrelated modules, third-party libraries (unless you need their typ
 
 Derived from `src/registry/subskills.ts`. The registry is authoritative; this list mirrors it for quick reference.
 
-### High Risk (approvalRequired: true) — 8 subskills
+### High Risk (approvalRequired: true) — 14 subskills
 
 | Subskill | Why |
 |---|---|
@@ -98,8 +101,14 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | migration-and-backward-compatibility | Plans upgrades and data moves |
 | deployment-for-testnet-and-mainnet | Network-aware deployment planning |
 | ci-and-build-troubleshooting | Changes build config, CI pipelines, or type settings |
+| cross-chain-bridge | Cross-chain value transfer requires careful planning |
+| upgrade-patterns | Proxy misconfiguration can freeze funds |
+| security-audit | Audit prep is time-sensitive; missed issues have real cost |
+| production-ops | Production monitoring gaps can cause missed incidents |
+| spn-development | SPN configuration affects network resources |
+| rwa-compliance | Compliance errors have legal and regulatory consequences |
 
-### Medium Risk (approvalRequired: true) — 13 subskills
+### Medium Risk (approvalRequired: true) — 14 subskills
 
 | Subskill | Why |
 |---|---|
@@ -116,8 +125,9 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | accessibility-review | Changes UI behavior |
 | state-management-integration | Wires state tools |
 | monorepo-workspace-management | Changes workspace boundaries |
+| gas-optimization | Optimizations are low-risk but change contract bytecode |
 
-### Low Risk (approvalRequired: false) — 14 subskills
+### Low Risk (approvalRequired: false) — 15 subskills
 
 | Subskill | Why |
 |---|---|
@@ -135,6 +145,7 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | code-scaffolding-and-generation | Creates new files, no existing code change |
 | docs-and-example-generation | Documentation-only |
 | localization-and-copy | Text-only changes |
+| workflow-orchestrator | Planning meta-subskill, no code changes on its own |
 
 ## What Not To Do
 
