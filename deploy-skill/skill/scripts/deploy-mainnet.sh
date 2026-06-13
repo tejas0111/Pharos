@@ -15,6 +15,14 @@ fi
 # === Pharos Mainnet Config ===
 PHAROS_MAINNET_CHAIN_ID=1672
 
+# === Dependency checks ===
+for cmd in cast forge; do
+  if ! command -v "$cmd" &> /dev/null; then
+    echo "ERROR: '$cmd' not found. Install Foundry: curl -L https://foundry.paradigm.xyz | bash"
+    exit 1
+  fi
+done
+
 # === Required Env Vars ===
 PHAROS_MAINNET_RPC_URL="${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
 : "${PRIVATE_KEY:?              Set PRIVATE_KEY (deployer private key, hex with or without 0x)}"
