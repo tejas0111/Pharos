@@ -359,7 +359,7 @@ Deployment receipts are saved as build artifacts:
 - `skill/subskills/cross-chain-bridge/SKILL.md` — LayerZero, CCTP, SPN Mailbox
 - `skill/subskills/upgrade-patterns/SKILL.md` — UUPS, Transparent, Beacon proxy
 - `skill/subskills/deployment-and-verification/SKILL.md` — deploy prep in dev suite
-- `skill/subskills/post-deploy/SKILL.md` — post-deployment operations
+- `deploy-skill/skill/subskills/post-deploy/SKILL.md` — post-deployment operations
 
 ## Related Subskills
 
