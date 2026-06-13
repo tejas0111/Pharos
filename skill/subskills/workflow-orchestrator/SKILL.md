@@ -18,7 +18,11 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 
 ## When NOT to Use
 
-Single-step request that fits one subskill — route directly. Deployment broadcast — hand off to pharos-agent-deploy-suite.
+- **Single-step request that fits one subskill** — Route directly without orchestration overhead. Example: "Deploy my contract" goes to `deployment-and-verification`, not the orchestrator.
+- **Deployment broadcast** — Hand off to `pharos-agent-deploy-suite`. The orchestrator plans; broadcasting is a separate responsibility.
+- **Vague exploration without a concrete ask** — If the user says "Tell me about Pharos" or "How do I start?", route to the master skill's onboarding flow.
+- **Bug investigation with known cause** — If the user reports a specific error (e.g., "transfer reverts with arithmetic overflow"), route directly to `bug-finding-and-debugging`.
+- **Pure learning / Q&A** — If the user asks "How does UUPS work?" without wanting implementation, answer directly without triggering a multi-step workflow.
 
 ## Workflow
 
@@ -66,10 +70,10 @@ Across subskill boundaries, maintain these context fields:
 
 ## Examples
 
-- "Build a staking dapp from scratch on Pharos — architecture, code, test, and deploy"
-- "Full stack development of a cross-chain token bridge with frontend"
-- "End-to-end RWA token with compliance, audit, and production ops setup"
-- "Complete workflow: upgrade my existing contract to UUPS with multi-sig"
+- **Query:** "Build a staking dapp from scratch on Pharos — architecture, code, test, and deploy" → **Action:** Generate chain: `contract-architecture` → `solidity-authoring` → `test-generation` → `contract-review` → `deployment-and-verification` → handoff to `pharos-agent-deploy-suite` → `post-deploy`. Preserve contract names, storage layout, and test coverage context across stages.
+- **Query:** "Full stack development of a cross-chain token bridge with frontend" → **Action:** Generate chain: `contract-architecture` (bridge design) → `cross-chain-bridge` (messaging) → `solidity-authoring` (both chains) → `test-generation` → `interface-abi-design` → `frontend-dapp-integration` → `deployment-and-verification`. Pass endpoint IDs and trusted remote configs between subskills.
+- **Query:** "End-to-end RWA token with compliance, audit, and production ops setup" → **Action:** Generate chain: `rwa-compliance` → `contract-architecture` → `solidity-authoring` → `security-audit` → `production-ops`. Pass whitelist config, oracle addresses, and SPV structure across subskills.
+- **Query:** "Complete workflow: upgrade my existing contract to UUPS with multi-sig" → **Action:** Generate chain: `contract-architecture` (v2 design) → `upgrade-patterns` → `migration-and-backward-compatibility` → `solidity-authoring` → `test-generation` → `deployment-and-verification`. Pass existing storage layout as input to upgrade-patterns.
 
 ## Verification
 

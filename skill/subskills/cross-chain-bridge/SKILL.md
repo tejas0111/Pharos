@@ -1,6 +1,10 @@
 ---
 name: pharos-cross-chain-bridge
 description: "Plan and implement cross-chain bridge integrations on Pharos using LayerZero, CCTP, native bridge patterns, and SPN Mailbox-based messaging. Use when the user says: cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstraction, multichain, omnichain, interchain, bridging tokens, cross-chain messaging, bridge integration. Do NOT use for: single-chain contract authoring (use solidity-authoring), general architecture design (use contract-architecture), or deployment (use deployment-and-verification). See also: spn-development (SPN Mailbox patterns), upgrade-patterns (bridge proxy upgrades), contract-architecture (system design)."
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: cross-chain
 ---
 
 # Cross-Chain Bridge
@@ -13,7 +17,11 @@ cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstra
 
 ## When NOT to Use
 
-single-chain contract authoring (use solidity-authoring), general architecture design (use contract-architecture), or deployment (use deployment-and-verification)
+- **Single-chain contract authoring** — If the user only needs a basic ERC-20/721 without cross-chain logic, use `solidity-authoring` instead.
+- **General architecture design** — If the request is about system layout, data flow, or modular decomposition without bridging requirements, use `contract-architecture`.
+- **Deployment** — If the user is ready to broadcast, use `deployment-and-verification`. This subskill covers design and implementation only.
+- **Arbitrary messaging protocols** — If the user mentions a custom P2P or off-chain relayer without on-chain verification, route to `contract-architecture`.
+- **Frontend bridge UI** — If the user asks about building a bridge frontend, use `frontend-dapp-integration` instead.
 
 ## Workflow
 
@@ -33,10 +41,10 @@ single-chain contract authoring (use solidity-authoring), general architecture d
 
 ## Examples
 
-- "Integrate LayerZero OFT for my token on Pharos and Ethereum"
-- "Set up CCTP USDC bridging between Pharos testnet and Arbitrum"
-- "Design an SPN Mailbox-based cross-chain message flow"
-- "Bridge my ERC-721 collection from Pharos to Polygon using ONFT"
+- **Query:** "Integrate LayerZero OFT for my token on Pharos and Ethereum" → **Action:** Design OFT adapter, configure endpoint IDs for Pharos (1672) and Ethereum (1), set trusted remotes, implement `_debit`/`_credit` overrides, generate fee estimation.
+- **Query:** "Set up CCTP USDC bridging between Pharos testnet and Arbitrum" → **Action:** Map CCTP domain IDs, implement `messageTransmitter` integration, configure attestation endpoint, write test for circle attestation + `receiveTransaction` flow.
+- **Query:** "Design an SPN Mailbox-based cross-chain message flow" → **Action:** Architect Mailbox adapter pattern, define message envelope (source chain, nonce, payload hash), implement replay protection with ordered nonce tracking.
+- **Query:** "Bridge my ERC-721 collection from Pharos to Polygon using ONFT" → **Action:** Extend ERC-721 with ONFT semantics, override `_debit`/`_credit` for NFT locking/burning on source and minting on destination, configure min gas limit for destination execution.
 
 ## Verification
 
