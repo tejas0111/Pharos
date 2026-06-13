@@ -1,10 +1,11 @@
 ---
 name: pharos-upgrade-patterns
-description: "Design and implement contract upgrade patterns on Pharos: UUPS, Transparent proxy, Beacon proxy. Cover storage slot safety, multi-sig ownership transfer, timelocks, and Pharos Safes. Use when the user says: upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgradeability, proxy pattern, EIP-1967, EIP-1822, EIP-2535, diamond, initializable, reinitializer, storage gap, multi-sig ownership, timelock, Safe, safe wallet, master copy, ownership transfer. Do NOT use for: writing initial contracts (use solidity-authoring), general architecture (use contract-architecture), or migration planning (use migration-and-backward-compatibility). See also: contract-architecture (design), migration-and-backward-compatibility (migration path), security-audit (proxy security review)."
+description: "Design and implement contract upgrade patterns on Pharos: UUPS, Transparent proxy, Beacon proxy. Cover storage slot safety, multi-sig ownership transfer, timelocks, and Pharos Safes. Use when. Keywords: upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgradeability, proxy pattern, EIP-1967, EIP-1822, EIP-2535, diamond, initializable, reinitializer, storage gap, multi-sig ownership, timelock, Safe, safe wallet, master copy, ownership transfer. Do NOT use for: writing initial contracts (use solidity-authoring), general architecture (use contract-architecture), or migration planning (use migration-and-backward-compatibility). See also: contract-architecture (design), migration-and-backward-compatibility (migration path), security-audit (proxy security review)."
 metadata:
   audience: developer
   version: 1.0.0
   category: upgrade
+slash: true
 ---
 
 # Upgrade Patterns

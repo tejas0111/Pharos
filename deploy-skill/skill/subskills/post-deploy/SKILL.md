@@ -1,10 +1,11 @@
 ---
 name: pharos-post-deploy
-description: "Post-deployment operations: verify contract on explorer, transfer ownership to multi-sig, update frontend config, run integration tests against deployed contract, set up monitoring alerts, announce deployment. Use when the user says: post-deploy, post-deployment, verify contract, transfer ownership, multi-sig transfer, update frontend config, integration tests on deployed, monitoring setup, deployment announcement, tagging release, after deploy, deployment follow-up, deployment complete. Do NOT use for: actual broadcast or deployment simulation (use testnet-deployment or mainnet-deployment), deployment prep (use pharos-agent-dev-suite/deployment-and-verification), or production ops planning (use pharos-agent-dev-suite/production-ops). See also: testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)."
+description: "Post-deployment operations: verify contract on explorer, transfer ownership to multi-sig, update frontend config, run integration tests against deployed contract, set up monitoring alerts, announce deployment. Use when. Keywords: post-deploy, post-deployment, verify contract, transfer ownership, multi-sig transfer, update frontend config, integration tests on deployed, monitoring setup, deployment announcement, tagging release, after deploy, deployment follow-up, deployment complete. Do NOT use for: actual broadcast or deployment simulation (use testnet-deployment or mainnet-deployment), deployment prep (use pharos-agent-dev-suite/deployment-and-verification), or production ops planning (use pharos-agent-dev-suite/production-ops). See also: testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)."
 metadata:
   audience: developer
   version: 1.0.0
   category: deployment
+slash: true
 ---
 
 # Post-Deployment

@@ -1,10 +1,11 @@
 ---
 name: pharos-spn-development
-description: "Develop Special Processing Networks (SPNs) on Pharos: custom execution environments, validator restaking, cross-SPN Mailbox communication, escape hatches, SLA monitoring. Reference contracts: SPN Manager, SPN Adapter, Mailbox, Bridge. Use when the user says: SPN, Special Processing Network, custom execution, validator restaking, Mailbox, SPN Manager, SPN Adapter, escape hatch, SLA, cross-SPN, app-specific subnet, execution environment, custom VM, sovereign chain, Pharos SPN. Do NOT use for: standard EVM contract development (use solidity-authoring), general cross-chain messaging (use cross-chain-bridge), or deployment (use deployment-and-verification). See also: cross-chain-bridge (Mailbox-based messaging), upgrade-patterns (SPN adapter upgrades), contract-architecture (system design)."
+description: "Develop Special Processing Networks (SPNs) on Pharos: custom execution environments, validator restaking, cross-SPN Mailbox communication, escape hatches, SLA monitoring. Reference contracts: SPN Manager, SPN Adapter, Mailbox, Bridge. Use when. Keywords: SPN, Special Processing Network, custom execution, validator restaking, Mailbox, SPN Manager, SPN Adapter, escape hatch, SLA, cross-SPN, app-specific subnet, execution environment, custom VM, sovereign chain, Pharos SPN. Do NOT use for: standard EVM contract development (use solidity-authoring), general cross-chain messaging (use cross-chain-bridge), or deployment (use deployment-and-verification). See also: cross-chain-bridge (Mailbox-based messaging), upgrade-patterns (SPN adapter upgrades), contract-architecture (system design)."
 metadata:
   audience: developer
   version: 1.0.0
   category: spn
+slash: true
 ---
 
 # SPN Development

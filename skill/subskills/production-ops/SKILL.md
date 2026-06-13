@@ -1,10 +1,11 @@
 ---
 name: pharos-production-ops
-description: "Plan and manage Pharos contract production operations: monitoring (Forta/Tenderly), alerting, incident response (Zeroshadow), multi-sig operations, emergency pause, data recovery, RPC rate limits (eth_getLogs: 100 blocks, trace_filter: 500 block limit). Use when the user says: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall. Do NOT use for: deployment (use deployment-and-verification or deploy-suite), contract authoring (use solidity-authoring), or security auditing (use security-audit). See also: deployment-and-verification (post-deploy setup), security-audit (threat model), upgrade-patterns (emergency upgrade path)."
+description: "Plan and manage Pharos contract production operations: monitoring (Forta/Tenderly), alerting, incident response (Zeroshadow), multi-sig operations, emergency pause, data recovery, RPC rate limits (eth_getLogs: 100 blocks, trace_filter: 500 block limit). Use when. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall. Do NOT use for: deployment (use deployment-and-verification or deploy-suite), contract authoring (use solidity-authoring), or security auditing (use security-audit). See also: deployment-and-verification (post-deploy setup), security-audit (threat model), upgrade-patterns (emergency upgrade path)."
 metadata:
   audience: developer
   version: 1.0.0
   category: operations
+slash: true
 ---
 
 # Production Operations

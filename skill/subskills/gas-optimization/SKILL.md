@@ -1,10 +1,11 @@
 ---
 name: pharos-gas-optimization
-description: "Optimize Solidity contract gas usage for Pharos-specific conditions: SALI-friendly storage layout, batch operations, DTVM dual-VM gas costing, EIP-1559 fee estimation, block gas limit of 1 billion, ~80% cheaper storage than Ethereum. Use when the user says: gas optimization, gas golf, save gas, reduce gas cost, optimize contract, gas efficient, storage optimization, batch, SALI, DTVM, gas estimation, fee estimation, block gas limit, cheaper storage, calldata optimization, EIP-1559. Do NOT use for: runtime performance optimization in frontend code (use performance-optimization), general code refactoring (use refactoring-and-code-health), or architecture design unrelated to gas (use contract-architecture). See also: performance-optimization (frontend), contract-architecture (storage layout design), refactoring-and-code-health (code structure)."
+description: "Optimize Solidity contract gas usage for Pharos-specific conditions: SALI-friendly storage layout, batch operations, DTVM dual-VM gas costing, EIP-1559 fee estimation, block gas limit of 1 billion, ~80% cheaper storage than Ethereum. Use when. Keywords: gas optimization, gas golf, save gas, reduce gas cost, optimize contract, gas efficient, storage optimization, batch, SALI, DTVM, gas estimation, fee estimation, block gas limit, cheaper storage, calldata optimization, EIP-1559. Do NOT use for: runtime performance optimization in frontend code (use performance-optimization), general code refactoring (use refactoring-and-code-health), or architecture design unrelated to gas (use contract-architecture). See also: performance-optimization (frontend), contract-architecture (storage layout design), refactoring-and-code-health (code structure)."
 metadata:
   audience: developer
   version: 1.0.0
   category: optimization
+slash: true
 ---
 
 # Gas Optimization
