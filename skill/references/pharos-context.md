@@ -10,7 +10,6 @@ When a user mentions Pharos without specifying a network, detect from their lang
 |---|---|---|---|
 | "testnet", "test", "dev", "faucet", "PHRS", "try it out", "experiment", "Atlantic" | **Atlantic Testnet** (primary testnet) | 688689 | PHRS |
 | "mainnet", "production", "live", "PROS", "deploy", "launch", "release" | **Mainnet** | 1672 | PROS |
-| "Atlantic Testnet", "688689" | **Legacy Testnet** (SHUT DOWN) | 688689 | PHRS |
 | Just "Pharos" with no network | Ask the user: "Atlantic Testnet (688689, PHRS) or Mainnet (1672, PROS)?" | — | — |
 | "deploy", "broadcast", "ship" | Likely testnet first, then mainnet | 688689 → 1672 | PHRS → PROS |
 | "fork", "local", "anvil", "test" | Local/test environment (use anvil) | 31337 | PHRS (simulated) |
@@ -28,7 +27,7 @@ When a user mentions Pharos without specifying a network, detect from their lang
 
 | Network | Chain ID | Notes |
 |---|---|---|
-| Atlantic Testnet | 688689 | **SHUT DOWN**. Migrate all work to Atlantic (688689). |
+| Atlantic v1 | 688688 | **SHUT DOWN**. Migrate all work to Atlantic (688689). |
 
 ## Quick Recognition Guide
 
