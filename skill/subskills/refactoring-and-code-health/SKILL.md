@@ -3,7 +3,7 @@ name: pharos-refactoring-and-code-health
 description: "Improve Pharos code structure, readability, naming, and separation of concerns without changing behavior. Use when refactoring, cleaning up, simplifying, removing duplication, paying down technical debt, or restructuring Pharos Solidity contracts and TypeScript dapps. Keywords: refactor, code health, cleanup, simplify, remove duplication, technical debt, restructure, readability, Pharos, Solidity, TypeScript, Next.js, React, Foundry, Hardhat."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: contract
 slash: true
 ---
@@ -84,23 +84,22 @@ adding new features (use the relevant authoring subskill), or fixing bugs (use b
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Tests passing**: The current test suite should pass before refactoring.
-
 ## Workflow
 
-1. Identify the code smells or maintenance costs.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Propose the refactor scope and behavior guarantees.
-4. Show the plan and ask if the direction is correct.
-5. Refactor with tests or checks that preserve behavior.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Identify the code smells or maintenance costs.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Propose the refactor scope and behavior guarantees.
+6. Show the plan and ask if the direction is correct.
+7. Refactor with tests or checks that preserve behavior.
 ## Output
 
 - refactor plan

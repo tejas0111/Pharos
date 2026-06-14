@@ -3,7 +3,7 @@ name: pharos-production-ops
 description: "Plan and manage Pharos contract production operations: Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PHRS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API. Use when setting up monitoring, incident response, or production ops for Pharos contracts. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall, Pharos mainnet, PharosScan."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: operations
 slash: true
 ---
@@ -26,18 +26,17 @@ production ops, monitoring, alerting, incident response, emergency, pause, circu
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
-- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
-
 ## Workflow
 
-1. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-2. Show the plan and ask for approval before implementing.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+4. Show the plan and ask for approval before implementing.
 ### 1. Forta Bot — Pharos Mainnet
 
 ```typescript

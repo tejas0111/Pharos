@@ -3,7 +3,7 @@ name: pharos-remix-contract-workflow
 description: "Set up Remix-based Pharos contract development, testing, and quick iteration flows. Use when using Remix IDE, browser-based Solidity, quick contract iteration, or online Solidity development for Pharos smart contracts. Keywords: Remix, browser Solidity, quick contract iteration, Remix workflow, Remix IDE, online Solidity, Pharos, smart contract, Solidity, quick prototype, test, MetaMask, inject provider, PharosScan, verify, remixd, custom RPC, chain ID, 688689, 1672."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
   slash: true
 ---
@@ -22,22 +22,22 @@ local development environment (use foundry-hardhat-contract-workflow), or produc
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Remix IDE**: Browser-based Solidity IDE at https://remix.ethereum.org with MetaMask connected.
 - **RPC endpoint**: Pharos network configured in MetaMask (`https://atlantic.dplabs-internal.com` or `https://rpc.pharos.xyz`).
 - **Private key**: Stored in MetaMask (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Verify MetaMask shows the correct Pharos chain ID (1672 mainnet / 688689 testnet).
-
 ## Workflow
 
-1. Identify the contract task and Remix-specific constraints.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Choose the smallest workflow or file structure that fits the task.
-4. Show the plan and proceed once it looks right.
-5. Verify the result with a simple local or browser-based check.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Identify the contract task and Remix-specific constraints.
+4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+5. Choose the smallest workflow or file structure that fits the task.
+6. Show the plan and proceed once it looks right.
+7. Verify the result with a simple local or browser-based check.
 ## Output
 
 - Remix plan

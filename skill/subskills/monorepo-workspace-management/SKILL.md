@@ -3,7 +3,7 @@ name: pharos-monorepo-workspace-management
 description: "Handle workspace boundaries, package scripts, and shared tooling in Pharos monorepos. Use when managing monorepos, Turborepo, pnpm workspaces, shared packages, workspace boundaries, package scripts, or multi-package setups for Pharos dapps. Keywords: monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace boundaries, package scripts, multi-package, Pharos, Solidity, TypeScript, Next.js, Foundry, Hardhat."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: tooling
 slash: true
 ---
@@ -116,22 +116,21 @@ working within a single package (use the relevant feature subskill), or adding a
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
-- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Map the workspace structure and package boundaries.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Identify the minimum workspace changes required.
-4. Present the plan and ask for confirmation.
-5. Apply the workspace changes and verify the affected packages.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Map the workspace structure and package boundaries.
+5. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+6. Identify the minimum workspace changes required.
+7. Present the plan and ask for confirmation.
+8. Apply the workspace changes and verify the affected packages.
 ## Output
 
 - workspace map

@@ -3,7 +3,7 @@ name: pharos-rwa-compliance
 description: "Implement Real-World Asset (RWA) patterns on Pharos: whitelist-based transfer control (ERC-3643 on Pharos), stablecoin depeg protection (oracle-triggered circuit breaker), redemption queues, liquidity reserves (5-10% buffer), NAV-based pricing, legal isolation (SPV), Supra DORA + Chainlink oracles. Pharos-specific KYC/AML registry, Pharos RWA token standard, PharosScan compliance monitoring. Use when tokenizing real-world assets or configuring RWA compliance on Pharos. Keywords: RWA, real-world asset, tokenized asset, stablecoin, depeg protection, circuit breaker, whitelist transfer, redemption queue, liquidity reserve, NAV pricing, SPV, legal isolation, Supra DORA, compliance, transfer restriction, KYC, accredited investor, security token, regulated token, MiCA, SEC, Pharos RWA, ERC-3643 Pharos, Pharos KYC registry, PharosScan compliance, Pharos jurisdiction, on-chain verification flow."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: rwa
 slash: true
 ---
@@ -26,19 +26,18 @@ RWA, real-world asset, tokenized asset, stablecoin, depeg protection, circuit br
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
-
 ## Workflow
 
-1. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-2. Show the plan and ask for approval before implementing.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+4. Show the plan and ask for approval before implementing.
 ### 1. Whitelist Transfer Control
 
 ```solidity
@@ -153,9 +152,11 @@ contract-architecture (system design), security-audit (compliance security revie
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the full compliance architecture with KYC/AML integration, transfer restrictions, jurisdiction rules, and admin controls — show the complete design
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Deploy whitelist controls, modify transfer logic, change compliance parameters, or send onchain transactions
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

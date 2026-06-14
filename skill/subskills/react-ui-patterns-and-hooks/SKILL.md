@@ -3,7 +3,7 @@ name: pharos-react-ui-patterns-and-hooks
 description: "Improve React hooks, component boundaries, and client-side UI patterns for Pharos dapps. Use when designing React hooks, component patterns, context, custom hooks, component composition, or UI patterns for Pharos web3 frontends. Keywords: React hooks, component pattern, context, state hook, UI patterns, custom hook, component design, composition, Pharos, dapp, Next.js, TypeScript, wagmi, viem, tailwind, shadcn."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
 slash: true
 ---
@@ -22,7 +22,7 @@ dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state mana
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -30,7 +30,6 @@ dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state mana
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Pharos-Specific Hook Patterns
 
 ### useBalance for PHRS Token (Pharos Mainnet, chainId: 1672)
@@ -338,12 +337,13 @@ export function usePhrsBalance(address: `0x${string}` | undefined) {
 
 ## Workflow
 
-1. Identify the state and rendering pattern that needs support.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Suggest the smallest React pattern that fits the feature.
-4. Present the plan and ask for approval before implementation.
-5. Keep the component shape simple enough to maintain.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Identify the state and rendering pattern that needs support.
+4. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+5. Suggest the smallest React pattern that fits the feature.
+6. Present the plan and ask for approval before implementation.
+7. Keep the component shape simple enough to maintain.
 ## Output
 
 - hook plan

@@ -3,7 +3,7 @@ name: pharos-repo-onboarding
 description: "Map Pharos codebase entrypoints, scripts, and conventions so future work starts from the right place. Use when onboarding, mapping repo structure, finding entrypoints, understanding project layout, or getting a codebase tour before Pharos development. Keywords: onboard, map repo, entrypoints, project layout, codebase tour, repo structure, Pharos, Solidity, Foundry, monorepo, smart contract, dapp."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: workflow
 slash: true
 ---
@@ -89,21 +89,20 @@ PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
-- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Map the codebase entrypoints, scripts, and conventions.
-2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-3. Present the repo map to the user and confirm understanding.
-4. Show the plan and ask for approval before proceeding.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Map the codebase entrypoints, scripts, and conventions.
+5. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+6. Present the repo map to the user and confirm understanding.
+7. Show the plan and ask for approval before proceeding.
 ## Examples
 
 - "Map this Pharos monorepo so I can start dapp integration work — show contracts/, frontend/, shared/ layout"

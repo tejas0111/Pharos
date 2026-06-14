@@ -3,7 +3,7 @@ name: pharos-wallet-and-transaction-ui
 description: "Design Pharos dapp wallet connection, transaction preview, status, and history screens that feel reliable. Use when building wallet connect UI, transaction modals, tx status screens, transaction history, or connection flows for Pharos web3 dapps (mainnet 1672 / testnet 688689). Keywords: wallet UI, transaction UI, preview, status screen, history, wallet connect, tx modal, transaction status, wagmi, viem, ethers, Next.js, React, TypeScript, Pharos, web3, dapp, pharosscan."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: frontend
 slash: true
 ---
@@ -22,7 +22,7 @@ wiring contract reads/writes (use frontend-dapp-integration), or designing gener
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
@@ -30,16 +30,16 @@ wiring contract reads/writes (use frontend-dapp-integration), or designing gener
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
 - **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
-
 ## Workflow
 
-0. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
-1. Identify the wallet states, transaction states, and error states.
-2. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
-3. Define the screen sequence and what each state shows.
-4. Present the UI plan and ask for changes before implementation.
-5. Build the smallest working state machine and verify the transitions.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Detect the user target network — Use `references/pharos-context.md` Network Detection table to determine if the user means testnet (688689, PHRS), mainnet (1672, PROS), or is ambiguous. If the user didn't specify, ask: 'Atlantic Testnet or Mainnet?' Adapt all following steps (RPC URLs, token symbols, deploy commands, chain IDs) to match.
+4. Identify the wallet states, transaction states, and error states.
+5. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
+6. Define the screen sequence and what each state shows.
+7. Present the UI plan and ask for changes before implementation.
+8. Build the smallest working state machine and verify the transitions.
 ## Output
 
 - screen flow
@@ -189,9 +189,11 @@ frontend-dapp-integration (data wiring), react-ui-patterns-and-hooks (component 
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the complete UI plan with wallet connect/disconnect, network switcher, tx preview modal, and status indicators — show components and hooks
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Change transaction behavior, gas display logic, chain-gating rules, or deploy UI changes
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

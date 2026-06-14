@@ -3,7 +3,7 @@ name: pharos-cross-chain-bridge
 description: "Plan and implement cross-chain bridge integrations on Pharos using LayerZero, CCTP, native Pharos bridge, and SPN Mailbox-based messaging. Covers cross-chain message format, fee calculation in PHRS/ETH for destination gas, bridge limits and timelocks, and testnet bridge. Use when bridging tokens between chains or setting up cross-chain messaging on Pharos. Keywords: cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstraction, multichain, omnichain, interchain, bridging tokens, cross-chain messaging, bridge integration."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: cross-chain
 slash: true
 ---
@@ -26,25 +26,24 @@ cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstra
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Identify the cross-chain messaging protocol (LayerZero OFT/ONFT, CCTP, native Pharos bridge, or SPN Mailbox).
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-3. Map the source and destination chains (Pharos mainnet 1672, testnet 688689) with endpoint IDs and gas limits.
-4. Design the message payload, security model (trusted remotes, pausability), and fee estimation.
-5. Present the cross-chain design and security model, then ask for approval before implementing.
-6. Implement the adapter or receiver contract with proper access control and replay protection.
-7. Test with testnet deployments on both sides before mainnet.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Identify the cross-chain messaging protocol (LayerZero OFT/ONFT, CCTP, native Pharos bridge, or SPN Mailbox).
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+5. Map the source and destination chains (Pharos mainnet 1672, testnet 688689) with endpoint IDs and gas limits.
+6. Design the message payload, security model (trusted remotes, pausability), and fee estimation.
+7. Present the cross-chain design and security model, then ask for approval before implementing.
+8. Implement the adapter or receiver contract with proper access control and replay protection.
+9. Test with testnet deployments on both sides before mainnet.
 ## Output
 
 - cross-chain architecture diagram (source ↔ destination)
@@ -164,9 +163,11 @@ spn-development (SPN Mailbox patterns), upgrade-patterns (bridge proxy upgrades)
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the bridge integration plan with call sequence, approval flow, relayer setup, and error handling — show the complete architecture
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT Configure bridge adapters, approve token spend, implement message passing, or deploy bridge contracts
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.

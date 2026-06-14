@@ -3,7 +3,7 @@ name: pharos-upgrade-patterns
 description: "Design and implement contract upgrade patterns on Pharos: UUPS, Transparent proxy, Beacon proxy. Covers Pharos-specific UUPS deployment with forge script using Pharos RPC, proxy verification on PharosScan, storage gap recommendation (50 slots for Pharos), timelock governance, and upgrade test on Pharos Atlantic Testnet fork. Use when designing or implementing upgradeable contracts on Pharos. Keywords: upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgradeability, proxy pattern, EIP-1967, EIP-1822, EIP-2535, diamond, initializable, reinitializer, storage gap, multi-sig ownership, timelock, Safe, safe wallet, master copy, ownership transfer."
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: upgrade
 slash: true
 ---
@@ -26,25 +26,24 @@ upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgrad
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-
 ## Workflow
 
-1. Choose the upgrade pattern based on trust model and gas requirements: UUPS (cheapest deploy, complex logic in implementation), Transparent (simple, higher overhead), Beacon (many proxies, shared logic).
-2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-3. Design storage layout with gaps, explicit slots, and append-only patterns. Never reorder or remove existing variables.
-4. Present the upgrade plan with storage layout diff, V2 contract code, and access control design, then ask for approval before executing (deploying, upgrading, or sending onchain transactions).
-5. Write the proxy and implementation contract code with initializable pattern and access control (Phase 1 — no approval needed to draft).
-6. Draft the multi-sig ownership transfer and timelock configuration (Phase 1 — prepare Safe transaction data together with the upgrade plan).
-7. After user approves the plan (Phase 2), deploy, upgrade, and verify on testnet: deploy proxy, deploy v2 implementation, call upgradeTo, verify state preservation with forge test fork.
-
+1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
+2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
+3. Choose the upgrade pattern based on trust model and gas requirements: UUPS (cheapest deploy, complex logic in implementation), Transparent (simple, higher overhead), Beacon (many proxies, shared logic).
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+5. Design storage layout with gaps, explicit slots, and append-only patterns. Never reorder or remove existing variables.
+6. Present the upgrade plan with storage layout diff, V2 contract code, and access control design, then ask for approval before executing (deploying, upgrading, or sending onchain transactions).
+7. Write the proxy and implementation contract code with initializable pattern and access control (Phase 1 — no approval needed to draft).
+8. Draft the multi-sig ownership transfer and timelock configuration (Phase 1 — prepare Safe transaction data together with the upgrade plan).
+9. After user approves the plan (Phase 2), deploy, upgrade, and verify on testnet: deploy proxy, deploy v2 implementation, call upgradeTo, verify state preservation with forge test fork.
 ## Output
 
 - proxy contract (UUPS, Transparent, or Beacon)
@@ -170,12 +169,14 @@ contract-architecture (design), migration-and-backward-compatibility (migration 
 High risk — two-phase execution required:
 
 **Phase 1 — Plan (present freely):**
-- Draft the upgrade plan with storage layout diff, V2 contract code, access control design, and multi-sig config
+- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
 - Show the exact `forge script` commands (with placeholder address), expected implementation address pattern, and `upgradeTo` calldata structure
 - Present the complete upgrade transaction data for user review
-- Do NOT wait for approval to draft code — show everything in your response
+- Wait for explicit 'Approve' or 'Proceed' from the user.
 
 **Phase 2 — Execute (wait for approval):**
+- Execute the approved plan from `PLAN.md`.
 - Do NOT deploy new implementations, change storage layout, call `upgradeTo`, or modify `_authorizeUpgrade`
 - Do NOT send any onchain transactions (deploy, verify, proxy upgrade, Safe submission)
-- Wait for explicit user confirmation ('I approve', 'proceed', 'execute') before running any deployment or upgrade commands
+- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
