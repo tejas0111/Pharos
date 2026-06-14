@@ -20,13 +20,13 @@ Add `[rpc_endpoints]` to your `foundry.toml` so CI can resolve them:
 
 ```toml
 [rpc_endpoints]
-pharos_mainnet = "https://rpc.pharos.xyz"
-pharos_testnet = "https://atlantic.dplabs-internal.com"
+pharos_mainnet = "$PHAROS_MAINNET_RPC_URL"
+pharos_testnet = "$PHAROS_TESTNET_RPC_URL"
 ```
 
 CI does not have `.env` loaded by default — either set `FOUNDRY_ETH_RPC_URL` or reference inline:
 ```bash
-forge test --fork-url https://rpc.pharos.xyz
+forge test --fork-url $PHAROS_MAINNET_RPC_URL
 ```
 
 ### 2. Missing forge-std in CI
@@ -58,9 +58,9 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - run: forge install foundry-rs/forge-std --no-commit || true
       - run: forge build --via-ir --locked
-      - run: forge test --fork-url https://rpc.pharos.xyz -vvv
+      - run: forge test --fork-url $PHAROS_MAINNET_RPC_URL -vvv
         env:
-          FOUNDRY_ETH_RPC_URL: https://rpc.pharos.xyz
+          FOUNDRY_ETH_RPC_URL: $PHAROS_MAINNET_RPC_URL
 ```
 
 ### Hardhat CI for Pharos
@@ -105,7 +105,7 @@ jobs:
       - run: npm run lint
       - run: npm run build
         env:
-          NEXT_PUBLIC_PHAROS_RPC: https://rpc.pharos.xyz
+          NEXT_PUBLIC_PHAROS_RPC: $PHAROS_MAINNET_RPC_URL
           NEXT_PUBLIC_PHAROS_CHAIN_ID: "1672"
 ```
 
@@ -119,12 +119,16 @@ runtime bugs (use bug-finding-and-debugging), or performance improvements (use p
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -145,7 +149,7 @@ runtime bugs (use bug-finding-and-debugging), or performance improvements (use p
 - "Fix this failing TypeScript build in the Pharos dapp repo"
 - "Diagnose why CI is failing with 'Failed to resolve network: pharos_mainnet'"
 - "Resolve the Solidity compiler version mismatch in the Pharos CI pipeline"
-- "Set up Foundry CI for Pharos contracts with forge test --fork-url https://rpc.pharos.xyz"
+- "Set up Foundry CI for Pharos contracts with forge test --fork-url $PHAROS_MAINNET_RPC_URL"
 - "Add Hardhat CI with PHAROSSCAN_API_KEY for contract verification on PharosScan"
 
 ## Verification

@@ -14,7 +14,7 @@ Handle Next.js App Router, route handlers, server actions, and RSC patterns for 
 
 ## When to Use
 
-Next.js App Router, server actions, route handlers, RSC, Next.js, layout, loading.tsx, error.tsx, not-found.tsx, Pharos mainnet (chain 1672), Pharos RPC (https://rpc.pharos.xyz), wagmi provider config for Pharos, viem client for Pharos, SSR balance fetch from Pharos, Pharos contract reads via Server Actions
+Next.js App Router, server actions, route handlers, RSC, Next.js, layout, loading.tsx, error.tsx, not-found.tsx, Pharos mainnet (chain 1672), Pharos RPC ($PHAROS_MAINNET_RPC_URL), wagmi provider config for Pharos, viem client for Pharos, SSR balance fetch from Pharos, Pharos contract reads via Server Actions
 
 ## When NOT to Use
 
@@ -22,15 +22,19 @@ Pages Router projects (this subskill is App Router only), or general React patte
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
 - **Dependencies**: Run `pnpm install` (or `npm install`) before proceeding.
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
-- **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
+- **RPC endpoint**: Ensure your app's RPC URL points to `$PHAROS_MAINNET_RPC_URL` (mainnet) or `$PHAROS_TESTNET_RPC_URL` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -38,7 +42,7 @@ Pages Router projects (this subskill is App Router only), or general React patte
 4. Map the route, server, and client boundaries.
 5. Check prerequisites: verify Node.js/pnpm are installed, dependencies are installed, and network config is correct. Ask the user for any missing values before proceeding.
 6. Choose the minimal App Router pattern that fits the feature.
-7. Always use Pharos mainnet chain config (chain ID 1672, RPC https://rpc.pharos.xyz) for web3 integrations.
+7. Always use Pharos mainnet chain config (chain ID 1672, RPC $PHAROS_MAINNET_RPC_URL) for web3 integrations.
 8. Present the plan and ask for approval before implementation.
 9. Verify the app structure or runtime behavior after the change.
 ## Output
@@ -52,7 +56,7 @@ Pages Router projects (this subskill is App Router only), or general React patte
 ## Examples
 
 - "Add a Next.js App Router layout with wagmi provider configured for Pharos mainnet (chain 1672)"
-- "Design a Server Action that reads contract state via viem publicClient({ chain: pharosMainnet, transport: http('https://rpc.pharos.xyz') })"
+- "Design a Server Action that reads contract state via viem publicClient({ chain: pharosMainnet, transport: http('$PHAROS_MAINNET_RPC_URL') })"
 - "Build a Route Handler at app/api/contract/route.ts that proxies Pharos contract read calls"
 - "Create a Server Component that fetches PHRS balance during SSR using viem"
 - "Set up parallel routes and intercepting routes for a multi-step dapp wizard"
@@ -69,7 +73,7 @@ import { pharosMainnet } from '@/lib/chains/pharos'
 
 const config = createConfig({
   chains: [pharosMainnet],
-  transports: { [pharosMainnet.id]: http('https://rpc.pharos.xyz') },
+  transports: { [pharosMainnet.id]: http('$PHAROS_MAINNET_RPC_URL') },
 })
 
 const queryClient = new QueryClient()
@@ -100,8 +104,8 @@ export const pharosMainnet = defineChain({
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://rpc.pharos.xyz'] },
-    public: { http: ['https://rpc.pharos.xyz'] },
+    default: { http: ['$PHAROS_MAINNET_RPC_URL'] },
+    public: { http: ['$PHAROS_MAINNET_RPC_URL'] },
   },
   blockExplorers: {
     default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
@@ -120,7 +124,7 @@ import { pharosMainnet } from '@/lib/chains/pharos'
 
 const client = createPublicClient({
   chain: pharosMainnet,
-  transport: http('https://rpc.pharos.xyz'),
+  transport: http('$PHAROS_MAINNET_RPC_URL'),
 })
 
 // Balance read (native PHRS)
@@ -182,7 +186,7 @@ import { NextResponse } from 'next/server'
 
 const client = createPublicClient({
   chain: pharosMainnet,
-  transport: http('https://rpc.pharos.xyz'),
+  transport: http('$PHAROS_MAINNET_RPC_URL'),
 })
 
 export async function GET(request: Request) {
@@ -211,7 +215,7 @@ import { pharosMainnet } from '@/lib/chains/pharos'
 
 const client = createPublicClient({
   chain: pharosMainnet,
-  transport: http('https://rpc.pharos.xyz'),
+  transport: http('$PHAROS_MAINNET_RPC_URL'),
 })
 
 export default async function Home() {

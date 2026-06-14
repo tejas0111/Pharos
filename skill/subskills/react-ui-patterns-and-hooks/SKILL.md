@@ -22,13 +22,16 @@ dapp-specific integration patterns (use wagmi-viem-dapp-workflow), or state mana
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
 - **Dependencies**: Run `pnpm install` (or `npm install`) before proceeding.
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
-- **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
+- **RPC endpoint**: Ensure your app's RPC URL points to `$PHAROS_MAINNET_RPC_URL` (mainnet) or `$PHAROS_TESTNET_RPC_URL` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
 ## Pharos-Specific Hook Patterns
 
@@ -57,8 +60,8 @@ const pharosChain = {
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: {
-    public: { http: ['https://rpc.pharos.xyz'] },
-    default: { http: ['https://rpc.pharos.xyz'] },
+    public: { http: ['$PHAROS_MAINNET_RPC_URL'] },
+    default: { http: ['$PHAROS_MAINNET_RPC_URL'] },
   },
   blockExplorers: {
     default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
@@ -69,7 +72,7 @@ export const config = createConfig({
   chains: [pharosChain, mainnet, sepolia],
   connectors: [injected(), metaMask(), walletConnect({ projectId: '...' })],
   transports: {
-    [pharosChain.id]: http('https://rpc.pharos.xyz'),
+    [pharosChain.id]: http('$PHAROS_MAINNET_RPC_URL'),
     [mainnet.id]: http(),
     [sepolia.id]: http(),
   },
@@ -142,12 +145,12 @@ const pharosChain = {
   id: 1672,
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
 }
 
 const publicClient = createPublicClient({
   chain: pharosChain,
-  transport: http('https://rpc.pharos.xyz'),
+  transport: http('$PHAROS_MAINNET_RPC_URL'),
 })
 
 const PHRS_TOKEN_ADDRESS = '0x...PHRS_TOKEN_ADDRESS'
@@ -181,12 +184,12 @@ const pharosTestnet = {
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
+  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
 }
 
 const testnetClient = createPublicClient({
   chain: pharosTestnet,
-  transport: http('https://atlantic.dplabs-internal.com'),
+  transport: http('$PHAROS_TESTNET_RPC_URL'),
 })
 
 export function useTransactionStatus(hash: `0x${string}` | undefined) {
@@ -224,7 +227,7 @@ const pharosMainnet: Chain = {
   id: 1672,
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 }
 
@@ -232,15 +235,15 @@ const pharosTestnet: Chain = {
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
+  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 }
 
 const PharosChainContext = createContext<PharosChainContextType | null>(null)
 
 export function PharosChainProvider({ children }: { children: React.ReactNode }) {
-  const mainnetClient = createPublicClient({ chain: pharosMainnet, transport: http('https://rpc.pharos.xyz') })
-  const testnetClient = createPublicClient({ chain: pharosTestnet, transport: http('https://atlantic.dplabs-internal.com') })
+  const mainnetClient = createPublicClient({ chain: pharosMainnet, transport: http('$PHAROS_MAINNET_RPC_URL') })
+  const testnetClient = createPublicClient({ chain: pharosTestnet, transport: http('$PHAROS_TESTNET_RPC_URL') })
 
   return (
     <PharosChainContext.Provider value={{ mainnet: pharosMainnet, testnet: pharosTestnet, mainnetClient, testnetClient }}>
@@ -336,6 +339,7 @@ export function usePhrsBalance(address: `0x${string}` | undefined) {
 ```
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**

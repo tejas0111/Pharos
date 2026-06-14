@@ -22,14 +22,18 @@ local development environment (use foundry-hardhat-contract-workflow), or produc
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Remix IDE**: Browser-based Solidity IDE at https://remix.ethereum.org with MetaMask connected.
-- **RPC endpoint**: Pharos network configured in MetaMask (`https://atlantic.dplabs-internal.com` or `https://rpc.pharos.xyz`).
+- **RPC endpoint**: Pharos network configured in MetaMask (`$PHAROS_TESTNET_RPC_URL` or `$PHAROS_MAINNET_RPC_URL`).
 - **Private key**: Stored in MetaMask (keep this secret, never commit).
 - **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Verify MetaMask shows the correct Pharos chain ID (1672 mainnet / 688689 testnet).
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -56,7 +60,7 @@ In Remix IDE, select the **Environment** dropdown and choose **Injected Provider
 | Field | Value |
 |-------|-------|
 | Network Name | Pharos Mainnet |
-| RPC URL | https://rpc.pharos.xyz |
+| RPC URL | $PHAROS_MAINNET_RPC_URL |
 | Chain ID | 1672 |
 | Currency Symbol | PHRS |
 
@@ -65,7 +69,7 @@ In Remix IDE, select the **Environment** dropdown and choose **Injected Provider
 | Field | Value |
 |-------|-------|
 | Network Name | Pharos Atlantic Testnet |
-| RPC URL | https://atlantic.dplabs-internal.com |
+| RPC URL | $PHAROS_TESTNET_RPC_URL |
 | Chain ID | 688689 |
 | Currency Symbol | PHRS |
 

@@ -22,7 +22,7 @@ Turn a set of code changes into clear release notes, changelog entries, or PR su
 ### Added
 - Native PHRS staking — no ERC-20 `approve` needed (PHRS is native currency on Pharos)
 - Reward compounding — auto-compound `claimRewards()` into staked balance
-- PharosScan verification gate — mainnet deploys require `--verifier-url https://www.pharosscan.xyz/api`
+- PharosScan verification gate — mainnet deploys require `--verifier-url $PHAROSSCAN_MAINNET_API_URL`
 
 ### Changed
 - Solidity `0.8.20` → `0.8.24`
@@ -53,7 +53,10 @@ Native PHRS staking with auto-compound rewards.
 
 ### Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - `PHAROSSCAN_API_KEY` set in `.env`
 - Safe multisig owner access
@@ -65,18 +68,18 @@ Native PHRS staking with auto-compound rewards.
    forge build --sizes
    forge test --fork-url pharos_testnet
    forge script UpgradeStaking --rpc-url pharos_testnet --broadcast
-   forge verify-contract --chain-id 688689 --verifier-url https://atlantic.pharosscan.xyz/api
+   forge verify-contract --chain-id 688689 --verifier-url $PHAROSSCAN_TESTNET_API_URL
    ```
 
 2. Upgrade on mainnet (1672):
    ```bash
    forge script UpgradeStaking --rpc-url pharos_mainnet --broadcast
-   forge verify-contract --chain-id 1672 --verifier-url https://www.pharosscan.xyz/api
+   forge verify-contract --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL
    ```
 
 3. Sanity check:
    ```bash
-   cast call <staking> "getStakedBalance(address)" <your-address> --rpc-url https://rpc.pharos.xyz
+   cast call <staking> "getStakedBalance(address)" <your-address> --rpc-url $PHAROS_MAINNET_RPC_URL
    ```
 
 ### Migration: OZ 4.9 → 5.0
@@ -110,13 +113,17 @@ Native PHRS staking with auto-compound rewards.
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Project context**: You need the contract names, network targets (1672 mainnet / 688689 testnet), and version numbers relevant to the documentation.
 - **Previous artifacts**: If documenting deployed contracts, you need deployment addresses, ABI files, or changelog history.
 - **Target audience**: Clarify whether this is for developers, end users, or both.
 
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**

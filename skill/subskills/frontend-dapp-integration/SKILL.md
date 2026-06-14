@@ -22,15 +22,19 @@ designing pure UI without contract interaction (use react-ui-patterns-and-hooks 
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Node.js**: >=18. Run `node --version` to verify.
 - **pnpm**: installed. Run `pnpm --version` to verify (or npm/yarn if your project uses those).
 - **Dependencies**: Run `pnpm install` (or `npm install`) before proceeding.
 - **Chain config**: Pharos chain (mainnet 1672 / Atlantic Testnet 688689) must be configured in wagmi or viem. See `packages/shared/src/pharosChain.ts` for the canonical config.
-- **RPC endpoint**: Ensure your app's RPC URL points to `https://rpc.pharos.xyz` (mainnet) or `https://atlantic.dplabs-internal.com` (testnet).
+- **RPC endpoint**: Ensure your app's RPC URL points to `$PHAROS_MAINNET_RPC_URL` (mainnet) or `$PHAROS_TESTNET_RPC_URL` (testnet).
 - **Wallet**: A browser wallet (MetaMask, WalletConnect, etc.) with the Pharos network added for testing.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
@@ -57,8 +61,8 @@ designing pure UI without contract interaction (use react-ui-patterns-and-hooks 
 ## Pharos Configuration
 
 ### Network Details
-- **Pharos Mainnet**: Chain ID 1672, RPC `https://rpc.pharos.xyz`, Explorer https://www.pharosscan.xyz
-- **Pharos Atlantic Testnet**: Chain ID 688689, RPC `https://atlantic.dplabs-internal.com`, Explorer https://atlantic.pharosscan.xyz
+- **Pharos Mainnet**: Chain ID 1672, RPC `$PHAROS_MAINNET_RPC_URL`, Explorer https://www.pharosscan.xyz
+- **Pharos Atlantic Testnet**: Chain ID 688689, RPC `$PHAROS_TESTNET_RPC_URL`, Explorer https://atlantic.pharosscan.xyz
 - **Native currency**: PHRS (mainnet & testnet, 18 decimals)
 
 ### Wallet Connect (wagmi + viem)
@@ -69,7 +73,7 @@ export const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -77,7 +81,7 @@ export const pharosTestnet = defineChain({
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
+  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 ```
@@ -93,7 +97,7 @@ import { pharosMainnet } from './pharosChain' // from the defineChain config abo
 
 const publicClient = createPublicClient({
   chain: pharosMainnet,
-  transport: http('https://rpc.pharos.xyz'),
+  transport: http('$PHAROS_MAINNET_RPC_URL'),
 })
 
 // Example: read ERC20 totalSupply
@@ -137,7 +141,7 @@ const { data: phrsBalance } = useBalance({
 #### PharosScan API for contract state reads
 ```typescript
 // Read contract state via PharosScan explorer API
-const API_URL = 'https://www.pharosscan.xyz/api/v1/contract/query'
+const API_URL = '$PHAROSSCAN_MAINNET_API_URL/v1/contract/query'
 const response = await fetch(API_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -196,7 +200,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { pharosMainnet } from './pharosChain'
 
-const client = createPublicClient({ chain: pharosMainnet, transport: http('https://rpc.pharos.xyz') })
+const client = createPublicClient({ chain: pharosMainnet, transport: http('$PHAROS_MAINNET_RPC_URL') })
 
 export function usePhrsBalanceQuery(address: `0x${string}` | undefined) {
   return useQuery({

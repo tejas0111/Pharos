@@ -53,7 +53,7 @@ export const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
+  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -61,7 +61,7 @@ export const pharosTestnet = defineChain({
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
+  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -116,12 +116,16 @@ working within a single package (use the relevant feature subskill), or adding a
 
 ## Prerequisites
 - **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
-- **Security**: Private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+- **Security**:
+    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
+    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) before attempting any deployment or on-chain action.
+    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
 
 - **Git repository**: `git status` must succeed (run from repo root).
 - **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
 - **Foundry** (if workflows include forge commands): `forge build` must succeed.
 ## Workflow
+- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
 
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
