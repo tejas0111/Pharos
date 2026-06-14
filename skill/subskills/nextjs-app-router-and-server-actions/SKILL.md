@@ -104,7 +104,7 @@ export const pharosMainnet = defineChain({
     public: { http: ['https://rpc.pharos.xyz'] },
   },
   blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
   },
 })
 ```

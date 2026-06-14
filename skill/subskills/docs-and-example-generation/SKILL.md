@@ -102,7 +102,7 @@ forge verify-contract --chain-id 1672 --verifier-url https://www.pharosscan.xyz/
   "slashed_amount": "1000 PHRS",
   "reason": "Missed 6 consecutive checkpoints (threshold: 5)",
   "block": 12345678,
-  "tx": "https://pharosscan.xyz/pharos/tx/0x..."
+  "tx": "https://www.pharosscan.xyz/pharos/tx/0x..."
 }
 ```
 

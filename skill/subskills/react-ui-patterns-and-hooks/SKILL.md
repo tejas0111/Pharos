@@ -61,7 +61,7 @@ const pharosChain = {
     default: { http: ['https://rpc.pharos.xyz'] },
   },
   blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
+    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
   },
 }
 
@@ -225,7 +225,7 @@ const pharosMainnet: Chain = {
   name: 'Pharos Mainnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 }
 
 const pharosTestnet: Chain = {
@@ -233,7 +233,7 @@ const pharosTestnet: Chain = {
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://pharosscan.xyz' } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 }
 
 const PharosChainContext = createContext<PharosChainContextType | null>(null)

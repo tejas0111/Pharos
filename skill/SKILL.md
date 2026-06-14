@@ -4,7 +4,7 @@ description: "Pharos blockchain developer and deployment suite for contract codi
 slash: true
 metadata:
   audience: developer
-  version: 1.1.0
+  version: 1.2.0
   category: workflow
 ---
 

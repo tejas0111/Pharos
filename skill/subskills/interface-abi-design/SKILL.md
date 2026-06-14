@@ -107,7 +107,7 @@ forge verify-contract \
 
 - **Document the target network** on every deployed ABI — Mainnet (1672, PROS) or Atlantic Testnet (688689, PHRS). Use `references/pharos-context.md` to confirm the chain ID before defining the ABI surface.
 - **Token references**: All `value` fields in events or previews must explicitly reference PROS or PHRS, never ETH or generic "native".
-- **Explorer links**: All transaction event data should link to `https://pharosscan.xyz/tx/{txHash}`.
+- **Explorer links**: All transaction event data should link to `https://www.pharosscan.xyz/tx/{txHash}`.
 - **Chain-specific artifacts**: If proxy addresses differ between testnet and mainnet, export separate JSON artifacts per chain ID (e.g., `abi/688689/StakingVault.json`, `abi/1672/StakingVault.json`).
 - **Event signature verification**: Use `cast sig` to confirm event signature selectors match the deployed contract before relying on them in frontend code.
 - **Deployed interface inspection**: Use `cast interface <DEPLOYED_ADDRESS> --rpc-url <rpc>` to dump the full ABI of any deployed Pharos contract.
@@ -126,7 +126,7 @@ writing the full contract implementation (use solidity-authoring), or integratin
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Workflow

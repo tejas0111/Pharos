@@ -93,7 +93,7 @@ Add these networks in MetaMask: Settings > Networks > Add Network > manually.
 After deployment from Remix:
 
 1. Copy the deployed contract address from Remix.
-2. Go to https://pharosscan.xyz and select the correct Pharos network.
+2. Go to https://www.pharosscan.xyz and select the correct Pharos network.
 3. Navigate to the contract address page.
 4. Click **Verify and Publish**.
 5. Enter the contract name, compiler version, and optimization settings matching your Remix compilation.

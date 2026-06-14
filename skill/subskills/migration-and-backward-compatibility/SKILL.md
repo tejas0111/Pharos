@@ -60,7 +60,7 @@ cast call --rpc-url https://atlantic.dplabs-internal.com $PROXY "totalStaked()"
 # 4. Test new V2 functions
 cast send --rpc-url https://atlantic.dplabs-internal.com $PROXY "setLockPeriod(uint256)" 86400
 # 5. Confirm on PharosScan
-open https://pharosscan.xyz/address/$PROXY
+open https://www.pharosscan.xyz/address/$PROXY
 ```
 
 ### Upgrade Test Script
@@ -107,7 +107,7 @@ writing new code without migration concerns (use solidity-authoring), or deployi
 
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 ## Workflow

@@ -18,7 +18,7 @@ Use when the user needs a safe deployment plan for both Pharos networks.
 |------------------|-------------------------|--------------------------|
 | Chain ID         | 1672                    | 688689                   |
 | RPC URL          | https://rpc.pharos.xyz | https://atlantic.dplabs-internal.com |
-| Explorer         | https://pharosscan.xyz   | https://pharosscan.xyz     |
+| Explorer         | https://www.pharosscan.xyz   | https://atlantic.pharosscan.xyz     |
 | Block time       | ~2s                     | ~2s                      |
 | PHRS price       | market                  | faucet (free)            |
 | Deploy risk      | high (real value)       | low (test environment)   |
@@ -30,13 +30,14 @@ Use when the user needs a safe deployment plan for both Pharos networks.
 - **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
 - **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
 - **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
 - **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
 - **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
 
 ```bash
 # .env
 PHAROSSCAN_API_KEY=...
+PRIVATE_KEY=...
 ```
 ## Concrete Deploy Commands
 
@@ -93,7 +94,7 @@ forge script script/DeployPharosStaking.s.sol --rpc-url pharos_testnet --broadca
 forge verify-contract \
   --chain-id 688689 \
   --verifier custom \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(uint256,address)" 1000000 0xRecipient) \
   0xDeployedAddress src/PharosStaking.sol:PharosStaking
@@ -117,7 +118,7 @@ cast send --rpc-url https://rpc.pharos.xyz --chain-id 1672 \
 forge verify-contract \
   --chain-id 1672 \
   --verifier custom \
-  --verifier-url https://pharosscan.xyz/api \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(uint256,address)" 1000000 0xRecipient) \
   0xDeployedAddress src/PharosStaking.sol:PharosStaking
