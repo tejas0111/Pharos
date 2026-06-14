@@ -1,0 +1,26 @@
+interface:
+  display_name: "Pharos Agent Deploy Suite"
+  short_description: "High-risk Pharos deployment suite for OpenAI agents — contract broadcast, simulation, verification, and post-deploy checks on testnet/mainnet."
+  long_description: "Handles deployment operations: Foundry and Hardhat script execution, pre-flight checks (RPC availability, deployer balance, simulation pass), broadcast (with user approval gate per network), post-deploy explorer verification, and rollback guidance for failed or incorrect deployments."
+  default_prompt: "Use $pharos-agent-deploy-suite for Pharos deployment broadcast and verification. For development work, use pharos-agent-dev-suite first."
+  capabilities:
+    - "Contract deployment broadcast"
+    - "Deployment simulation and dry-run"
+    - "Explorer verification"
+    - "Pre-flight and post-deploy checks"
+  deployment_networks:
+    - "pharos-testnet"
+    - "pharos-mainnet"
+  toolchains:
+    - "Foundry (forge script)"
+    - "Hardhat (npx hardhat deploy/verify)"
+
+metadata:
+  audience: developer
+  version: 1.0.0
+  category: workflow
+policy:
+  allow_implicit_invocation: true
+  require_confirmation_for_high_risk: true
+  require_simulation_before_broadcast: true
+  require_network_confirmation: true
