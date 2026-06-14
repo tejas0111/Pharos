@@ -9,7 +9,6 @@ It is designed to behave like a high-signal agent skill suite rather than a gene
 - plan-first execution
 - approval gates for higher-risk work
 - structured output that downstream agents can reuse
-- installation support for Codex, Claude Code, OpenClaw, and other SKILL.md-compatible agents
 
 This package is a comprehensive developer and deployment suite.
 
