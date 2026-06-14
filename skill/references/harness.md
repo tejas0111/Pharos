@@ -149,7 +149,7 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 
 ## What Not To Do
 
-- Do not switch into RPC, balances, or transaction execution — hand off to `pharos-agent-deploy-suite`.
+- Do not switch into RPC, balances, or transaction execution without explicit user approval.
 - Do not guess the stack when the repo already says what it is.
 - Do not make large unrelated refactors while fixing a small issue.
 - Do not treat a risky change as a no-risk change — verify the subskill's risk level in the registry.
@@ -204,5 +204,5 @@ A good response makes it obvious:
 | User asks for a change that spans contract + frontend + deploy | Handle contract first, then frontend, then deploy — sequentially |
 | User provides no detail ("fix this") | Read the failing output or diff, determine the subskill, present a plan |
 | User contradicts the subskill classification | Apologize, re-classify, gather more context, present a revised plan |
-| Deploy handoff: user asks to broadcast during dev session | Hand off to `pharos-agent-deploy-suite` with the prepared script and config |
+| Deploy broadcast: user asks to broadcast during dev session | Execute deployment directly after user approval, then verify on PharosScan |
 | The repo uses an unknown framework | Ask the user: "Which framework/toolchain are you using?" |

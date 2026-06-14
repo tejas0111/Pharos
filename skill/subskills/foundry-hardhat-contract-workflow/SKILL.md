@@ -1,11 +1,11 @@
 ---
 name: pharos-foundry-hardhat-contract-workflow
-description: "Set up Pharos Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs with anvil. Use when configuring Foundry (forge/anvil/cast), Hardhat, forge test, hardhat test, forge script, or contract development workflows for Pharos blockchain. Keywords: Foundry, Hardhat, forge, anvil, cast, Solidity workflow, forge init, hardhat init, forge test, hardhat test, forge script, Pharos, 688689, 1672, Atlantic, Pacific, contract development."
+description: "Set up Pharos Solidity development workflows for Foundry or Hardhat, including tests, scripts, and local runs with anvil. Use when configuring Foundry (forge/anvil/cast), Hardhat, forge test, hardhat test, forge script, or contract development workflows for Pharos blockchain. Keywords: Foundry, Hardhat, forge, anvil, cast, Solidity workflow, forge init, hardhat init, forge test, hardhat test, forge script, Pharos, 688689, 1672, contract development, foundry.toml, hardhat.config, pharos.json, PharosScan, etherscan, deploy script, chain ID."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: tooling
-slash: true
+  slash: true
 ---
 
 # Foundry and Hardhat Contract Workflow
@@ -14,18 +14,30 @@ Set up Solidity development workflows for Foundry or Hardhat, including tests, s
 
 ## When to Use
 
-Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init, hardhat init, forge test, hardhat test
+Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init, hardhat init, forge test, hardhat test, deploy to Pharos
 
 ## When NOT to Use
 
 writing individual contracts (use solidity-authoring), or debugging build failures (use ci-and-build-troubleshooting)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
+- **Hardhat** (optional): `npx hardhat compile` must succeed if using Hardhat.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
+- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
+
 ## Workflow
 
 1. Identify the contract task and the local dev stack.
-2. Choose the smallest Foundry or Hardhat workflow that fits the request.
-3. Show the plan and proceed once it looks right.
-4. Verify the workflow with the smallest useful command or file change.
+2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+3. Choose the smallest Foundry or Hardhat workflow that fits the request.
+4. Show the plan and proceed once it looks right.
+5. Verify the workflow with the smallest useful command or file change.
 
 ## Output
 
@@ -34,16 +46,154 @@ writing individual contracts (use solidity-authoring), or debugging build failur
 - test notes
 - verification command
 
-## Examples
+## Foundry Configuration (foundry.toml)
 
-- "Set up a Foundry workflow for this contract repo"
-- "Create the Hardhat contract workflow for tests and scripts"
-- "Configure Foundry with fuzz testing and gas reporting"
+Add RPC endpoints and PharosScan API for Pharos networks:
+
+```toml
+[rpc_endpoints]
+pharos_mainnet = "https://rpc.pharos.xyz"
+pharos_testnet = "https://atlantic.dplabs-internal.com"
+
+[etherscan]
+pharos_mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://www.pharosscan.xyz/api" }
+pharos_testnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }
+```
+
+## Forge Script Examples
+
+Select a fork before running scripts:
+
+```solidity
+// In your script:
+vm.createSelectFork("pharos_testnet");
+```
+
+Deploy directly:
+
+```bash
+forge script script/Deploy.s.sol --rpc-url pharos_testnet --broadcast
+forge script script/Deploy.s.sol --rpc-url pharos_mainnet --broadcast
+```
+
+## Deploy Script Template
+
+```solidity
+// script/Deploy.s.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {Script} from "forge-std/Script.sol";
+import {MyContract} from "../src/MyContract.sol";
+
+contract DeployScript is Script {
+    function run() external {
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
+
+        MyContract contractInstance = new MyContract();
+
+        vm.stopBroadcast();
+
+        // Log Pharos chain ID for verification
+        uint256 chainId = block.chainid;
+        require(
+            chainId == 1672 || chainId == 688689,
+            string.concat("Unexpected chain ID: ", vm.toString(chainId))
+        );
+    }
+}
+```
+
+## Chain ID Verification
+
+Always verify the target chain ID before broadcasting:
+- Pharos Mainnet: **1672**
+- Pharos Atlantic Testnet: **688689**
+
+```solidity
+require(block.chainid == 688689, "Not Pharos Atlantic Testnet");
+```
+
+## Pharos Config Reference
+
+The repo contains Pharos-specific deployment configs:
+
+```
+config/pharos.json
+```
+
+This file defines Pharos network parameters (RPC URLs, chain IDs, contract addresses) consumed by deploy scripts. Reference it for chain-agnostic deploy logic.
+
+## Hardhat Configuration (hardhat.config.ts)
+
+```typescript
+import { HardhatUserConfig } from "hardhat/config";
+
+const config: HardhatUserConfig = {
+  networks: {
+    pharosMainnet: {
+      url: "https://rpc.pharos.xyz",
+      chainId: 1672,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+    pharosTestnet: {
+      url: "https://atlantic.dplabs-internal.com",
+      chainId: 688689,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      pharosMainnet: process.env.PHAROSSCAN_API_KEY!,
+      pharosTestnet: process.env.PHAROSSCAN_API_KEY!,
+    },
+    customChains: [
+      {
+        network: "pharosMainnet",
+        chainId: 1672,
+        urls: {
+          apiURL: "https://pharosscan.xyz/api",
+          browserURL: "https://pharosscan.xyz",
+        },
+      },
+      {
+        network: "pharosTestnet",
+        chainId: 688689,
+        urls: {
+          apiURL: "https://pharosscan.xyz/api",
+          browserURL: "https://pharosscan.xyz",
+        },
+      },
+    ],
+  },
+};
+```
+
+Deploy with:
+
+```bash
+npx hardhat run scripts/deploy.ts --network pharosTestnet
+npx hardhat run scripts/deploy.ts --network pharosMainnet
+```
 
 ## Verification
 
-forge test or npx hardhat test.
+forge test or npx hardhat test, then confirm chain ID during broadcast.
 
 ## Related
 
-framework-integration (initial setup), solidity-authoring (writing contracts)
+framework-integration (initial setup), solidity-authoring (writing contracts), deployment-and-verification (production deployments)
+
+## Gate
+
+
+Low risk. Present the plan and proceed once the user agrees.
+
+### Anti-Generic Rules (foundry-hardhat-contract-workflow)
+- Every deploy script step MUST name the script path (e.g., `script/Deploy.s.sol:Deploy`).
+- Every forge command MUST include the specific test or script name (e.g., `forge test --match-contract StakingTest -vvv`).
+- Verification MUST name the exact chain ID (688689 for testnet, 1672 for mainnet) and RPC URL.
+- Before broadcast, MUST confirm `cast chain-id --rpc-url <name>` matches the target.
+- Do NOT hardcode private keys — use `$PRIVATE_KEY` env var with explicit warning.
+- Every foundry.toml change MUST name the specific section and fields added.

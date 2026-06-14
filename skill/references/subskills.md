@@ -172,10 +172,10 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 - **Triggers**: "testnet", "mainnet", "deployment", "release", "deploy flow", "network-specific deploy"
 - **Use when**: The user needs to plan deployment to a specific network with environment-specific safeguards.
-- **Do NOT use when**: The user is preparing deploy scripts (use `deployment-and-verification`) or ready to broadcast (hand off to `pharos-agent-deploy-suite`).
+- **Do NOT use when**: The user is preparing deploy scripts (use `deployment-and-verification`) or ready to broadcast (requires explicit approval).
 - **Workflow**: Identify target network and release assumptions → Separate testnet validation from mainnet release → Show plan → Deploy after approval.
 - **Verification**: Network-aware dry run. Confirm the correct RPC, chain ID, and artifact.
-- **Cross-ref**: `deployment-and-verification` (script prep), `contract-testing-for-testnet-and-mainnet` (test counterpart), `pharos-agent-deploy-suite` (broadcast)
+- **Cross-ref**: `deployment-and-verification` (script prep), `contract-testing-for-testnet-and-mainnet` (test counterpart), `post-deploy` (post-deployment ops)
 
 ### dependency-upgrade-management
 
@@ -341,10 +341,10 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 - **Triggers**: "deploy", "verification", "explorer", "release", "publish contract", "deployment prep"
 - **Use when**: The user needs to prepare deployment artifacts, scripts, or checks before the actual broadcast.
-- **Do NOT use when**: The user is ready to broadcast — hand off to `pharos-agent-deploy-suite`.
+- **Do NOT use when**: The user is ready to broadcast — requires explicit approval before execution.
 - **Workflow**: Confirm deployment target and config → Draft deploy/verification steps → Show plan → Prepare artifacts after approval.
 - **Verification**: Dry run or script syntax check. Not a real broadcast.
-- **Cross-ref**: `deployment-for-testnet-and-mainnet` (network planning), `pharos-agent-deploy-suite` (broadcast)
+- **Cross-ref**: `deployment-for-testnet-and-mainnet` (network planning), `post-deploy` (post-deployment ops)
 
 ### migration-and-backward-compatibility
 
@@ -363,7 +363,7 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 - **Triggers**: "release notes", "changelog", "release summary", "pr summary", "shipping notes", "what changed"
 - **Use when**: The user needs release documentation derived from code changes.
-- **Do NOT use when**: The user wants live deployment — use `deployment-and-verification` or `pharos-agent-deploy-suite`.
+- **Do NOT use when**: The user wants live deployment — use `deployment-and-verification` and execute after approval.
 - **Workflow**: Scan changes since last tag → Categorize into features, fixes, chores → Draft entry → Show for review.
 - **Verification**: Visual review. No code change needed.
 - **Cross-ref**: `code-scaffolding-and-generation` (file generation variant)

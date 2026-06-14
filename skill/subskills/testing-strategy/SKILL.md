@@ -1,11 +1,11 @@
 ---
 name: pharos-testing-strategy
-description: "Choose the right test mix, fixtures, and coverage focus for Pharos contracts and dapps before writing tests. Use when planning test strategy, coverage goals, edge cases, test plans, or deciding what to test for Pharos Solidity dapps and frontend integrations. Keywords: test strategy, coverage, fixtures, edge cases, test plan, test approach, Pharos, Solidity, Foundry, Hardhat, wagmi, viem, contract testing, dapp testing, integration testing."
+description: "Design Pharos-specific test pyramid (Foundry unit, testnet fork integration, mainnet fork e2e) with coverage targets per SolAid/PharosScan, edge cases for Pharos chain reorg depth, PHRS gas price volatility, and cross-chain bridge tests. Use when planning test strategy, coverage goals, edge cases, or test plans for Pharos Solidity dapps and frontend integrations. Keywords: test strategy, coverage, fixtures, edge cases, test plan, test approach, Pharos, Solidity, Foundry, Hardhat, wagmi, viem, contract testing, dapp testing, integration testing, reorg, bridge, PHRS, gas price."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: testing
-slash: true
+  slash: true
 ---
 
 # Testing Strategy
@@ -20,12 +20,77 @@ test strategy, coverage, fixtures, edge cases, test plan, what should I test, te
 
 writing concrete tests (use test-generation), or running tests (that's a CI task, not a subskill)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://pharosscan.xyz).
+- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
+- **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
+
+## Pharos-Specific Test Pyramid
+
+1. **Unit (Foundry)** – Test individual contract functions with `forge test`. Use Pharos fixtures (PHRS token addresses, test accounts). Assert chain ID (1672 / 688689), block time ~2s.
+2. **Integration (testnet fork)** – Fork Pharos testnet with `vm.createSelectFork("pharos_testnet")`. Test multi-contract interactions, cross-contract calls, PHRS transfers.
+3. **E2E (mainnet fork)** – Fork Pharos mainnet with `vm.createSelectFork("pharos_mainnet", blockNumber)`. Simulate real user flows, bridge transactions, oracle price feeds.
+
+## Foundry Config for Testing
+
+```toml
+# foundry.toml
+[fuzz]
+runs = 1000
+max_test_rejects = 10000
+
+[invariant]
+runs = 256
+depth = 16
+
+[rpc_endpoints]
+pharos_mainnet = "https://rpc.pharos.xyz"
+pharos_testnet = "https://atlantic.dplabs-internal.com"
+```
+
+```bash
+# Coverage
+forge coverage --fork-url https://atlantic.dplabs-internal.com --report lcov
+# Gas report
+forge test --gas-report --fork-url https://atlantic.dplabs-internal.com
+```
+
+## Pharos Coverage Targets
+
+- SolAid integration: 90%+ branch coverage for core logic
+- PharosScan verification: verify contract source after deploy as part of CI
+- All public/external functions: 100% called in at least one test
+- Revert paths: test all require/assert failures
+
+## Pharos-Specific Edge Cases
+
+### Chain Reorg Depth
+Pharos finality may differ from Ethereum. Test that contract state is resilient to reorg depths of 1-2 blocks. Use `vm.roll()` to simulate reorg scenarios.
+
+### PHRS Gas Price Volatility
+PHRS gas prices can spike. Test that `tx.gasprice` assumptions hold within a realistic range (e.g., 1-100 gwei). Use `vm.txGasPrice()` to set gas price in tests.
+
+### Cross-Chain Bridge Tests
+If your dapp bridges assets, test:
+- Deposit on source chain (fork test)
+- Claim on Pharos (fork test)
+- Relayer failure / timeout recovery
+- Event emission format matches bridge expectations
+
 ## Workflow
 
 1. Identify the contract, UI, or integration risks that matter most.
-2. Choose unit, integration, and regression coverage appropriately.
-3. Present the testing plan with explicit assumptions.
-4. Wait for confirmation before generating tests or fixtures.
+2. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
+3. Choose unit, integration, and regression coverage appropriately.
+4. Map Pharos-specific risks (reorg, gas price, bridge) to test layers.
+5. Present the testing plan with explicit assumptions.
+6. Wait for confirmation before generating tests or fixtures.
 
 ## Output
 
@@ -36,9 +101,10 @@ writing concrete tests (use test-generation), or running tests (that's a CI task
 
 ## Examples
 
-- "Design the test strategy for a token sale contract"
-- "Plan coverage for a multi-step dapp transaction flow"
-- "What should we test in this upgradeable vault contract?"
+- "Design the test strategy for a Pharos staking contract on testnet 688689"
+- "Plan coverage for PHRS stake → claim → unstake flow on Pharos"
+- "Plan test coverage for a Pharos upgradeable vault with reorg-depth and PHRS gas price edge cases"
+- "Plan a Pharos-specific test strategy covering reorg depth and PHRS gas volatility"
 
 ## Verification
 
@@ -47,3 +113,15 @@ Review of the test matrix. No test files yet.
 ## Related
 
 test-generation (execution), contract-testing-for-testnet-and-mainnet (network-aware tests)
+
+## Gate
+
+High risk — two-phase execution required:
+
+**Phase 1 — Plan (present freely):**
+- Draft the full test matrix with unit/fuzz/invariant tiers, file targets, chain IDs, and coverage targets — show the complete strategy
+- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
+
+**Phase 2 — Execute (wait for approval):**
+- Do NOT Generate tests, write test files, or modify test fixtures
+- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions

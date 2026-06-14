@@ -1,59 +1,162 @@
 ---
 name: pharos-production-ops
-description: "Plan and manage Pharos contract production operations: monitoring (Forta/Tenderly), alerting, incident response (Zeroshadow), multi-sig operations, emergency pause, data recovery, RPC rate limits (eth_getLogs: 100 blocks, trace_filter: 500 block limit). Use when. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall. Do NOT use for: deployment (use deployment-and-verification or deploy-suite), contract authoring (use solidity-authoring), or security auditing (use security-audit). See also: deployment-and-verification (post-deploy setup), security-audit (threat model), upgrade-patterns (emergency upgrade path)."
+description: "Plan and manage Pharos contract production operations: Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PHRS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API. Use when setting up monitoring, incident response, or production ops for Pharos contracts. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall, Pharos mainnet, PharosScan."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: operations
 slash: true
 ---
 
 # Production Operations
 
-Plan and manage Pharos contract production operations: monitoring (Forta/Tenderly), alerting, incident response (Zeroshadow), multi-sig operations, emergency pause, data recovery.
+Plan and manage Pharos contract production operations on Pharos mainnet (chain ID 1672): Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PHRS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API.
 
 ## When to Use
 
-production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall
+production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall, chain ID 1672, Pharos mainnet, PharosScan
 
 ## When NOT to Use
 
-- **Deployment** — If the user needs to broadcast a transaction or simulate deployment, use `deployment-and-verification` or `deploy-suite`.
+- **Deployment** — If the user needs to broadcast a transaction or simulate deployment, use `deployment-and-verification` or `deployment-for-testnet-and-mainnet`.
 - **Contract authoring** — If the user is writing or modifying contract code, use `solidity-authoring`.
 - **Security auditing** — If the user wants a formal vulnerability assessment with findings report, use `security-audit`.
 - **One-time setup without ongoing ops** — If the user just needs to deploy a contract and walk away (no monitoring, no incident response), use `deployment-and-verification` plus `post-deploy`.
 - **Frontend monitoring UI** — If the user wants to build a custom monitoring dashboard (not configure Forta/Tenderly), use `frontend-dapp-integration`.
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Git repository**: `git status` must succeed (run from repo root).
+- **CI platform**: GitHub Actions configured (check `.github/workflows/` exists).
+- **CI secrets**: The following secrets must be set in your CI environment: `PHAROS_RPC_URL`, `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`.
+- **Foundry** (if workflows include forge commands): `forge build` must succeed.
+
 ## Workflow
 
-1. Set up monitoring via Forta agents (on-chain threat detection) and Tenderly (transaction monitoring, alerting, debugging).
-2. Configure alerts for: large transfers, ownership changes, pause/unpause events, price oracle deviations, unusual gas spikes.
-3. Establish incident response runbook via Zeroshadow: detection → triage → containment (emergency pause) → recovery → post-mortem.
-4. Prepare multi-sig operations using Pharos Safe (master copy: 0x41675C099F32341bf84BFc5382aF534df5C7461a) with threshold signing.
-5. Implement emergency pause mechanism in contracts with a pause guardian role (multi-sig or time-locked).
-6. Document RPC rate limits: eth_getLogs limited to 100 block range, trace_filter limited to 500 blocks. Plan data recovery strategies for off-chain indexed data.
+1. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+2. Show the plan and ask for approval before implementing.
+
+### 1. Forta Bot — Pharos Mainnet
+
+```typescript
+// agent/src/agent.ts — Forta detection bot for Pharos contract
+import { Finding, FindingSeverity, FindingType, HandleTransaction } from "forta-agent";
+import { ethers } from "ethers";
+
+const CONTRACT_ADDRESS = "0x1234...abcd"; // deployed Pharos contract
+const PHAROS_RPC = "https://rpc.pharos.xyz";
+const provider = new ethers.JsonRpcProvider(PHAROS_RPC, 1672);
+
+export const provideHandleTransaction = (): HandleTransaction => async (txEvent) => {
+  const findings: Finding[] = [];
+  if (txEvent.to !== CONTRACT_ADDRESS) return findings;
+
+  // Monitor PHRS transfers over threshold
+  const phrsTransfers = txEvent.filterLog("Transfer(address,address,uint256)");
+  for (const transfer of phrsTransfers) {
+    if (transfer.args.value.gt(ethers.parseEther("100000"))) {
+      findings.push(Finding.fromObject({
+        name: "Large PHRS Transfer",
+        description: `${ethers.formatEther(transfer.args.value)} PHRS transferred`,
+        alertId: "PHAROS-LARGE-TRANSFER",
+        severity: FindingSeverity.High,
+        type: FindingType.Suspicious,
+      }));
+    }
+  }
+  return findings;
+};
+```
+
+Test locally: `npx forta-agent run --json-rpc https://rpc.pharos.xyz`.
+
+### 2. Tenderly Web3 Action — Pharos Mainnet
+
+```typescript
+// Web3 Action monitoring Pharos contract events
+module.exports = async (event: any) => {
+  const tx = event.transaction;
+  const receipt = event.receipt;
+  const logs = receipt.logs.filter((l: any) => l.address.toLowerCase() === CONTRACT_ADDRESS);
+  if (logs.length === 0) return;
+
+  for (const log of logs) {
+    if (log.topics[0] === ethers.id("Paused()")) {
+      await sendAlert({ message: `⚠️ Pharos contract paused at ${tx.hash}`, severity: "critical" });
+    }
+    if (log.topics[0] === ethers.id("OwnershipTransferred(address,address)")) {
+      await sendAlert({ message: `🔑 Ownership changed on Pharos contract`, severity: "high" });
+    }
+  }
+};
+```
+
+### 3. Alert Thresholds
+
+- PHRS wallet balance < 0.1 (mainnet deployer)
+- Gas price spike > 100 gwei (above Pharos typical 1-10 gwei base fee)
+- Failed transaction rate > 5% over 1 hour
+- Large transfers > 100,000 PHRS (native) or > 100,000 PHRS in ERC-20
+- Ownership changes, pause/unpause events, proxy upgrades
+
+### 4. Incident Response Runbook
+
+Establish via Zeroshadow: detection → triage → containment (emergency pause) → recovery → post-mortem. Include Pharos-specific handling: chain reorg detection (Pharos finality ~12 blocks, monitor for uncle blocks), RPC failover between `https://rpc.pharos.xyz` and backup endpoints.
+
+### 5. Emergency Pause
+
+Multi-sig operations using Pharos Safe (master copy: 0x41675C099F32341bf84BFc5382aF534df5C7461a) with threshold signing. Emergency pause:
+
+```bash
+cast send --rpc-url https://rpc.pharos.xyz --chain-id 1672 $CONTRACT "pause()" --private-key $SIGNER_KEY
+```
+
+For testnet testing:
+```bash
+cast send --rpc-url https://atlantic.dplabs-internal.com --chain-id 688689 $CONTRACT "pause()" --private-key $TEST_KEY
+```
+
+### 6. Data Recovery via PharosScan API
+
+Fetch historical events from old contract:
+
+```bash
+curl -X POST "https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/account_tx" \
+  -H "Content-Type: application/json" \
+  -d '{"address": "0x1234...abcd", "page": 1, "offset": 50}'
+```
+
+Replay events on new contract using recovered data. Document RPC rate limits: `eth_getLogs` limited to 100 block range, `trace_filter` limited to 500 blocks.
 
 ## Output
 
-- monitoring dashboard config (Forta agents, Tenderly alerts)
-- incident response runbook (Zeroshadow)
-- multi-sig operations guide
-- emergency pause plan and contract interface
+- Forta bot config monitoring Pharos RPC
+- Tenderly project configured with Pharos mainnet RPC
+- alert threshold config (PHRS balance, gas price, failed tx rate, large transfers)
+- incident response runbook with Pharos reorg handling and RPC failover
+- emergency pause command and multi-sig operations guide
+- PharosScan API data recovery procedure
 - RPC rate limit cheat sheet
-- data recovery procedure
 
 ## Examples
 
-- **Query:** "Set up Forta monitoring for my Pharos staking contract" → **Action:** Deploy Forta agent with detection logic for stake/unstake events, large delegation changes, ownership transfers; configure alert severity levels and notification channels.
-- **Query:** "Create a Tenderly alert for large withdrawals from the vault" → **Action:** Configure Tenderly Web3 Actions to monitor vault `Withdraw` events above threshold (e.g., 10k PROS), set up Slack/email notification, test with simulated transaction.
-- **Query:** "Design the emergency pause mechanism for the lending protocol" → **Action:** Implement `Pausable` with pause guardian role (multi-sig), define pause-triggering conditions (oracle deviation, abnormal liquidation volume), write unpause procedure with timelock.
-- **Query:** "Write incident response runbook for Zeroshadow integration" → **Action:** Document detection → triage → containment (emergency pause) → recovery → post-mortem steps, assign on-call roles, integrate Zeroshadow alert routing.
+- **Query:** "Set up Forta monitoring for my Pharos staking contract" → **Action:** Deploy Forta detection bot monitoring Pharos RPC with detection logic for stake/unstake events, large delegation changes, ownership transfers; configure alert severity levels and notification channels.
+- **Query:** "Create a Tenderly alert for large withdrawals from the vault on Pharos" → **Action:** Configure Tenderly project with Pharos mainnet RPC (https://rpc.pharos.xyz), create Web3 Action monitoring vault `Withdraw` events above threshold (e.g., 10,000 PHRS), set up Slack/email notification, test with simulated transaction.
+- **Query:** "Design the emergency pause mechanism for the lending protocol on Pharos" → **Action:** Implement `Pausable` with pause guardian role (multi-sig), emergency pause via `cast send --rpc-url https://rpc.pharos.xyz $CONTRACT "pause()"`, define pause-triggering conditions (oracle deviation, abnormal liquidation volume), write unpause procedure with timelock.
+- **Query:** "Write incident response runbook for Zeroshadow with Pharos-specific reorg handling" → **Action:** Document detection → triage → containment (emergency pause) → recovery → post-mortem steps, include Pharos chain reorg detection (finality ~12 blocks), RPC failover between endpoints, assign on-call roles, integrate Zeroshadow alert routing.
 - **Query:** "Plan around Pharos RPC rate limits for indexer" → **Action:** Document limits (`eth_getLogs`: 100 blocks, `trace_filter`: 500 blocks), design pagination/backoff strategy, recommend caching layer and WebSocket subscriptions for real-time data.
+- **Query:** "Recover historical event data after Pharos contract migration" → **Action:** Use PharosScan API to fetch historical events from old contract, replay events on new contract, verify state consistency across both deployments.
 
 ## Verification
 
-Test alert triggers on testnet. Verify emergency pause works end-to-end. Dry-run multi-sig transaction on testnet Safe.
+Test alert triggers on Pharos testnet. Verify emergency pause works end-to-end via multi-sig. Dry-run multi-sig transaction on testnet Safe. Confirm PharosScan shows verified contract. Validate RPC failover by disconnecting primary endpoint.
 
 ## Related
 
 deployment-and-verification (post-deploy setup), security-audit (threat model), upgrade-patterns (emergency upgrade path)
+
+
+## Gate
+Medium risk. Present the monitoring plan and alert thresholds before deploying Forta bots or Tenderly monitors. Do not enable production alerts without user sign-off on severity levels.

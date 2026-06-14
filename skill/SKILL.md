@@ -1,54 +1,81 @@
 ---
-name: pharos-agent-dev-suite
-description: "Pharos blockchain developer skill suite for contract coding, dapp frontend integration, testing, and deployment prep on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or deploying Pharos Solidity dapps with Foundry/Hardhat/wagmi/viem/Next.js, or when onboarding repos, refactoring, upgrading deps, managing monorepos, fixing CI, or generating docs/release notes. Keywords: Pharos, Solidity, contract, dapp, deploy, test, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, changelog, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, anvil, cast, slither, solhint, TypeScript, Next.js, React, ethers, gas optimization, upgrade, proxy, UUPS, ERC-20, ERC-721, ERC-1155, staking, vault, AMM, lending, DeFi, RealFi, tokenomics, multichain, cross-chain, LayerZero, CCTP."
+name: pharos-agent-suite
+description: "Pharos blockchain developer and deployment suite for contract coding, dapp frontend integration, testing, and high-risk deployment on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or broadcasting contracts with Foundry/Hardhat, or when onboarding repos, refactoring, managing monorepos, and configuring CI. Keywords: Pharos, Solidity, contract, dapp, deploy, broadcast, verify, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, cast, PharosScan."
 slash: true
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: workflow
 ---
 
-# Pharos Agent Dev Suite
+# Pharos Agent Suite
 
-Developer skill suite for Pharos blockchain projects. Routes to 43 developer subskills + 3 deployment subskills with plan-first execution and risk-gated approvals.
+The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 43 developer subskills + 3 high-risk deployment subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
 
-## Quick Start
+## Core Workflow: Requirement → Plan → Execute
 
-```
-You: "Map this repo so I can start building"
- → Routes to repo-onboarding (low risk, proceeds on agreement)
- → Returns repo structure, entrypoints, scripts, stack
+To ensure high-fidelity delivery and zero assumptions, follow this lifecycle for EVERY request:
 
-You: "Design the architecture for a staking contract"
- → Routes to contract-architecture (high risk, requires approval)
- → Returns module map, storage plan, access-control plan
+1.  **Requirement Gathering (The "Check"):**
+    - For first-time tasks or complex requests, list all identified requirements.
+    - Ask clarifying questions for any ambiguities.
+    - Offer technical suggestions if a better Pharos-specific pattern exists (e.g., using pull-over-push for PHRS).
+    - **Do not proceed** until the user confirms the requirements are complete.
 
-You: "Write the staking contract"
- → Routes to solidity-authoring (high risk, requires approval)
- → Writes contract after plan approval
+2.  **Mandatory Planning (`PLAN.md`):**
+    - Create or update a `PLAN.md` in the project root (or current directory).
+    - This file MUST contain:
+        - **Goal**: Clear statement of what is being built/fixed.
+        - **Pharos Context**: Network (Atlantic/Pacific), Chain ID, and Currency (PHRS/PROS).
+        - **Technical Strategy**: Architecture, file changes, and logic.
+        - **Testing Plan**: How the change will be verified (Foundry/Hardhat/UI).
+        - **Risk Level**: Low/Medium/High.
+    - Present the plan to the user and wait for explicit "Proceed" or "Approve".
 
-You: "Write tests for the staking contract"
- → Routes to test-generation (medium risk, requires approval)
- → Generates tests after plan approval
-
-You: "Deploy this to testnet"
- → Routes to deployment-and-verification for prep
- → Hand off to pharos-agent-deploy-suite for broadcast
-
-You: "Review this contract for security issues"
- → Routes to contract-review (high risk, requires approval)
- → Returns findings list with severity and evidence
-```
+3.  **Execution (Surgical & Verifiable):**
+    - Implement the changes exactly as outlined in the approved `PLAN.md`.
+    - For High-Risk tasks (Deploy/Broadcast/Critical Security): Prepare everything (scripts, artifacts) but **ASK AGAIN** before the final execution/broadcast.
 
 ## Quick Reference
 
 | Action | Rule |
 |---|---|
-| Always show a plan first | All 43 developer subskills + 3 deployment subskills |
-| Wait for explicit confirmation before edits | High & medium risk subskills (21 total) |
-| Proceed after user agrees | Low risk subskills (14 total) |
-| No RPC, balances, or onchain execution | This suite is developer-only |
-| Hand off deploy broadcast/verification | Use `pharos-agent-deploy-suite` |
+| Requirement Chk | Mandatory for all first-time or complex tasks |
+| `PLAN.md` | Required for every task; must be committed or shared |
+| User Approval | Mandatory before starting execution phase |
+| Risk-Gated Deploy | Simulation + Approval + Final "Ready to Broadcast?" check |
+| Network Truth | Atlantic (688689, PHRS) or Pacific (1672, PROS) |
+| No Assumptions | If in doubt, ASK. Never guess RPCs, addresses, or logic. |
+
+## Quick Start
+
+```
+You: "Design the architecture for a staking contract"
+ → Requirement Gathering: Ask about reward tokens, staking period, and access control.
+ → Plan: Create PLAN.md with the module map and storage layout.
+ → Approval: Wait for "Looks good, proceed."
+ → Execution: Write the Solidity files and tests.
+```
+
+## Routing Decision Tree
+
+Classify the request by asking these questions in order:
+
+1. Is the request about BROADCASTING or DEPLOYING to a network?
+   ├── Testnet / dry-run / simulation?            → testnet-deployment
+   ├── Mainnet / production / go-live?            → mainnet-deployment
+   └── Verification / post-deploy artifacts?       → post-deploy
+
+2. Is the request about writing/designing SOLIDITY or CONTRACT code?
+   ├── System-level design before code?           → contract-architecture
+   ├── Writing or refactoring Solidity?            → solidity-authoring
+   └── Interface/ABI/events/errors?                → interface-abi-design
+
+3. Is the request about FRONTEND/UI code?
+   ├── Wiring UI to contract state?                → frontend-dapp-integration
+   └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
+
+... (rest of the routing tree)
 
 ## When to Use
 
@@ -59,823 +86,106 @@ write/edit/refactor Solidity • contract architecture • interface/ABI design
 protocol integration planning • dapp frontend integration • wallet UI
 transaction preview • testing strategy • test generation • contract review
 audit • debug • bug fix • CI failure • build fix • type error • lint
-deployment prep • repo onboarding • map the repo • docs • examples
-migration • backward compatibility • refactoring • code health
+deployment • broadcast • testnet • mainnet • RPC • explorer • PharosScan
+repo onboarding • map the repo • docs • examples • refactoring
 dependency upgrade • performance optimization • accessibility/a11y
-release notes • changelog • scaffold • boilerplate • state management
-monorepo • workspace • automation • tooling • code review template • PR checklist
-Next.js App Router • server actions • React hooks • component patterns
-wagmi • viem • Foundry • Hardhat • Remix • Tailwind • shadcn/ui
+release notes • changelog • scaffold • boilerplate • monorepo
+Next.js • wagmi • viem • Foundry • Hardhat • Remix • Tailwind
 ```
 
-Do NOT trigger for: RPC reads, balance queries, transaction sending, event watching, or any onchain execution — those belong in `pharos-agent-deploy-suite`.
+## Common Workflows
+
+### 1. "Onboard to a Pharos project"
+Use `repo-onboarding` to map the stack, entrypoints, and local conventions. Detects Foundry vs Hardhat and Pharos network targets automatically.
+
+### 2. "Develop and Test"
+Chain `contract-architecture` → `solidity-authoring` → `testing-strategy` → `test-generation`. Use `bug-finding-and-debugging` for any failures.
+
+### 3. "Secure and Review"
+Use `contract-review` and `security-audit` to identify issues before deployment. Uses the Pharos severity rubric (Critical/High/Med/Low).
+
+### 4. "Deploy to Testnet/Mainnet"
+Use `deployment-and-verification` for prep, then `testnet-deployment` or `mainnet-deployment` for broadcasting. **Simulation is mandatory.**
+
+### 5. "Post-Deploy & Verification"
+Use `post-deploy` to capture artifacts, verify on PharosScan, and update frontend contract addresses/ABIs.
 
 ## Routing Decision Tree
 
 Classify the request by asking these questions in order:
 
 ```
-1. Is the request about writing/designing SOLIDITY or CONTRACT code?
+1. Is the request about BROADCASTING or DEPLOYING to a network?
+   ├── Testnet / dry-run / simulation?            → testnet-deployment
+   ├── Mainnet / production / go-live?            → mainnet-deployment
+   └── Verification / post-deploy artifacts?       → post-deploy
+
+2. Is the request about writing/designing SOLIDITY or CONTRACT code?
    ├── System-level design before code?           → contract-architecture
    ├── Writing or refactoring Solidity?            → solidity-authoring
-   ├── Interface/ABI/events/errors?                → interface-abi-design
-   └── Protocol integration call sequences?        → protocol-integration-planning
+   └── Interface/ABI/events/errors?                → interface-abi-design
 
-2. Is the request about FRONTEND/UI code?
-   ├── Wiring UI to contract reads/writes?         → frontend-dapp-integration
+3. Is the request about FRONTEND/UI code?
+   ├── Wiring UI to contract state?                → frontend-dapp-integration
    └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
 
-3. Is the request about TESTING or REVIEW?
+4. Is the request about TESTING or REVIEW?
    ├── Planning test strategy/coverage?             → testing-strategy
    ├── Writing concrete tests?                      → test-generation
    ├── Reviewing contract security/correctness?     → contract-review
-   ├── Debugging a failure or bug?                  → bug-finding-and-debugging
-   └── Network-aware contract tests?                → contract-testing-for-testnet-and-mainnet
+   └── Debugging a failure or bug?                  → bug-finding-and-debugging
 
-4. Is the request about FRAMEWORK, TOOLING, or INFRA?
-   ├── Mentioning a specific framework by name?     → framework-integration
+5. Is the request about FRAMEWORK, TOOLING, or INFRA?
    ├── Fixing a build, CI, lint, or type error?     → ci-and-build-troubleshooting
    ├── "Map this repo" or "where is X"?             → repo-onboarding
    ├── Upgrading packages or toolchains?            → dependency-upgrade-management
-   ├── Monorepo or workspace changes?               → monorepo-workspace-management
-   ├── Writing scripts or automation?               → repo-automation-and-tooling
-   ├── Creating PR checklists or review rubrics?    → code-review-templates-and-checklists
-   ├── Deployment planning across networks?         → deployment-for-testnet-and-mainnet
-   ├── Next.js App Router or server actions?        → nextjs-app-router-and-server-actions
-   ├── React hooks, context, or component patterns? → react-ui-patterns-and-hooks
-   ├── Wagmi/Viem wallet or contract wiring?        → wagmi-viem-dapp-workflow
-   ├── Foundry/Hardhat workflow setup?              → foundry-hardhat-contract-workflow
-   ├── Remix/browser Solidity?                      → remix-contract-workflow
-   └── Tailwind or shadcn/ui?                       → tailwind-shadcn-ui-workflow
-
-5. Is the request about QUALITY or PERFORMANCE?
-   ├── Refactoring without behavior change?         → refactoring-and-code-health
-   ├── Optimizing slow/bottleneck code?             → performance-optimization
-   ├── Accessibility or a11y review?                → accessibility-review
-   └── State management wiring?                     → state-management-integration
-
-6. Is the request about SHIPPING or DOCS?
-   ├── Preparing deploy scripts/release checks?     → deployment-and-verification
-   ├── Planning upgrade/migration/rollback?         → migration-and-backward-compatibility
-   ├── Writing release notes or changelog?          → release-notes-and-changelog
-   ├── Generating boilerplate or scaffolds?         → code-scaffolding-and-generation
-   ├── Writing docs, README, or examples?           → docs-and-example-generation
-   └── Refining copy, labels, or i18n?              → localization-and-copy
+   └── Monorepo or workspace changes?               → monorepo-workspace-management
 ```
 
-**Classification rule**: Route to the narrowest subskill. If "review this contract" → `contract-review`, not `solidity-authoring`. If multiple subskills match, pick the one that covers the primary request; mention secondary subskills in the plan as follow-up suggestions.
-
-## Context Gathering Protocol
-
-After classifying, gather ONLY the files that change the plan:
-
-| Category | Read these first | Skip |
-|---|---|---|
-| Contract work | `package.json`, `foundry.toml`/`hardhat.config.ts`, contract files in scope, test files | Unrelated frontend code, config files |
-| UI work | `package.json`, `next.config.js`/`vite.config.ts`, component files, wagmi/viem config | Contract internals, unrelated pages |
-| Testing | `package.json`, test framework config, existing test patterns, contracts/UI under test | Deploy scripts, unrelated modules |
-| Framework/tooling | `package.json`, `tsconfig.json`, framework config, CI config (`.github/`, `.gitlab-ci.yml`) | Application business logic |
-| Quality | All files in scope of change, test files, benchmark/audit output | Deploy config, unrelated infra |
-| Shipping/docs | Package entrypoints, README, existing docs, deploy scripts | Contract internals, unrelated modules |
-
-If you cannot determine the stack after reading `package.json` and config files, ask the user.
-
-### Framework Auto-Detection
-
-Detect the stack from these signals:
-
-| Signal | Detected framework |
-|---|---|
-| `"hardhat"` in `package.json` dependencies or `hardhat.config.*` | Hardhat |
-| `"foundry"` in imports or `foundry.toml` present | Foundry |
-| `"wagmi"` in dependencies or `"wagmi"` imports | wagmi |
-| `"viem"` in dependencies or `"viem"` imports | viem |
-| `"next"` in dependencies or `next.config.*` present | Next.js |
-| `"@remix-project/remixd"` in deps or user mentions "Remix" | Remix |
-| `"hardhat"` AND `"@nomicfoundation/hardhat-toolbox"` | Hardhat with toolbox |
-| `"tailwindcss"` in devDependencies | Tailwind |
-| `"@radix-ui"` or `"shadcn"` in imports | shadcn/ui |
-| `"zustand"` or `"@reduxjs/toolkit"` or `"react-query"` | State management tool |
-
-## Subskill Reference
-
-All 43 developer subskills, organized by category with risk level and approval gate:
-
-### Contract Work
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `contract-architecture` | high | confirm | module boundaries, storage, permissions, upgrade stance |
-| `solidity-authoring` | high | confirm | write or refactor Solidity code |
-| `interface-abi-design` | medium | confirm | interfaces, events, errors, typed bindings |
-| `protocol-integration-planning` | medium | confirm | read/write call sequences, approval flow |
-| `upgrade-patterns` | high | confirm | UUPS, Transparent proxy, beacon proxy patterns |
-| `rwa-compliance` | high | confirm | RWA compliance patterns and tokenization |
-
-### UI Work
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `frontend-dapp-integration` | medium | confirm | UI wiring to contract state, transaction previews |
-| `wallet-and-transaction-ui` | medium | confirm | wallet states, preview modals, status, history |
-
-### Testing & Review
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `testing-strategy` | medium | confirm | test scope, fixtures, coverage plan |
-| `test-generation` | medium | confirm | writing concrete tests and fixtures |
-| `contract-review` | high | confirm | security, correctness, gas, design review |
-| `bug-finding-and-debugging` | high | confirm | root-cause analysis, narrow fixes |
-| `contract-testing-for-testnet-and-mainnet` | medium | confirm | network-aware contract tests |
-
-### Framework & Tooling
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `framework-integration` | low | proceed | Next.js, wagmi, viem, ethers, Foundry, Hardhat, Remix |
-| `ci-and-build-troubleshooting` | high | confirm | failing builds, type errors, lint, CI regressions |
-| `repo-onboarding` | low | proceed | mapping codebase, entrypoints, scripts, conventions |
-| `dependency-upgrade-management` | medium | confirm | package updates, toolchain upgrades, version bumps |
-| `monorepo-workspace-management` | medium | confirm | workspace boundaries, shared tooling, packages |
-| `repo-automation-and-tooling` | low | proceed | scripts, task runners, precommit, makefiles |
-| `code-review-templates-and-checklists` | low | proceed | PR checklists, review rubrics, templates |
-| `deployment-for-testnet-and-mainnet` | high | confirm | network-aware deployment planning and release checks |
-| `nextjs-app-router-and-server-actions` | low | proceed | App Router, route handlers, server actions, RSC |
-| `react-ui-patterns-and-hooks` | low | proceed | React hooks, component boundaries, patterns |
-| `wagmi-viem-dapp-workflow` | low | proceed | wallet connect, contract reads/writes, dapp patterns |
-| `foundry-hardhat-contract-workflow` | low | proceed | Solidity dev workflow, forge, anvil, scripts |
-| `remix-contract-workflow` | low | proceed | browser Solidity, quick iteration |
-| `tailwind-shadcn-ui-workflow` | low | proceed | Tailwind, shadcn/ui, design systems |
-
-### Integration
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|---|
-| `cross-chain-bridge` | high | confirm | cross-chain messaging, SPN Mailbox, LayerZero, CCTP |
-| `spn-development` | high | confirm | SPN development and integration |
-
-### Quality & Performance
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `refactoring-and-code-health` | medium | confirm | behavior-preserving cleanup, structure improvements |
-| `performance-optimization` | medium | confirm | runtime, render, bundle, gas-adjacent improvements |
-| `accessibility-review` | medium | confirm | keyboard, semantics, contrast, screen-reader |
-| `state-management-integration` | medium | confirm | query, store, cache, client-state wiring |
-| `gas-optimization` | medium | confirm | SALI patterns, gas optimization techniques |
-| `security-audit` | high | confirm | security audit prep and review |
-
-### Shipping & Docs
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|
-| `deployment-and-verification` | high | confirm | deploy prep, explorer verification, release checks |
-| `migration-and-backward-compatibility` | high | confirm | safe upgrades, data moves, rollback planning |
-| `release-notes-and-changelog` | low | proceed | release notes, changelog entries, PR summaries |
-| `code-scaffolding-and-generation` | low | proceed | boilerplate, starter files, project scaffolds |
-| `docs-and-example-generation` | low | proceed | docs, examples, usage instructions, agent prompts |
-| `localization-and-copy` | low | proceed | copy, strings, tone, i18n structure |
-
-### Operations
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|---|
-| `production-ops` | high | confirm | monitoring, alerting, incident response |
-
-### Workflow
-
-| Subskill | Risk | Gate | When |
-|---|---|---|---|---|
-| `workflow-orchestrator` | low | proceed | orchestration meta-subskill for multi-step workflows |
-
-### Subskill Chaining
-
-Some requests benefit from chaining multiple subskills in sequence:
-
-| Primary subskill | Often followed by |
-|---|---|
-| `contract-architecture` | `solidity-authoring` → `interface-abi-design` |
-| `testing-strategy` | `test-generation` |
-| `contract-review` | `bug-finding-and-debugging`, `solidity-authoring` (for fixes) |
-| `deployment-and-verification` | `deployment-for-testnet-and-mainnet` |
-| `frontend-dapp-integration` | `wallet-and-transaction-ui`, `wagmi-viem-dapp-workflow` |
-| `migration-and-backward-compatibility` | `contract-architecture` (for the new design) |
-
-When chaining, handle one subskill at a time. Complete the first before proposing the next.
-
-## Core Execution Flow
-
-1. **Classify** using the decision tree.
-2. **Gather** context using the protocol above.
-3. **Detect** framework using auto-detection.
-4. **Draft** a concrete plan with steps, files, and verification.
-5. **Present** the plan to the user with the approval gate.
-6. **Gate**: if high/medium risk, stop and wait for explicit confirmation. If low risk, proceed once the user agrees.
-7. **Execute** the smallest useful change.
-8. **Verify** with the narrowest meaningful check.
-9. **Return** structured output.
-10. **Self-verify** your classification (see Self-Verification section).
-
-## Output Contract
-
-Every response must include these 6 fields:
-
-1. **Summary** — one sentence explaining what was done
-2. **Plan** — concrete, sequenced steps taken or proposed
-3. **Assumptions** — explicit decisions or unknowns the user should confirm
-4. **Files or Artifacts** — paths or commands involved
-5. **Verification** — how the result was or will be checked
-6. **Approval Question** — "Is this plan correct?" when gated
-
-### Output Variants by Scenario
-
-**High risk, needs approval:**
-```json
-{
-  "subskill": "contract-review",
-  "risk": "high",
-  "approvalRequired": true,
-  "summary": "Reviewed Solidity vault for access-control issues — found 2 issues",
-  "plan": [
-    "Read Vault.sol and identify trust boundaries",
-    "Found: owner can withdraw any user funds (no timelock)",
-    "Found: reentrancy on line 89 via external call before state update"
-  ],
-  "assumptions": ["The owner role is a trusted multi-sig", "User wants patch suggestions"],
-  "files": ["src/Vault.sol"],
-  "verification": ["forge test --match-path test/Vault.t.sol"],
-  "approvalQuestion": "Review complete. Should I patch the reentrancy issue on line 89?"
-}
-```
-
-**Medium risk, needs approval:**
-```json
-{
-  "subskill": "refactoring-and-code-health",
-  "risk": "medium",
-  "approvalRequired": true,
-  "summary": "Proposed refactor of useWallet hook to separate concerns",
-  "plan": [
-    "Split useWallet into useWalletConnection + useWalletBalance",
-    "Move RPC config to a separate provider",
-    "Update all consumers in pages/ directory"
-  ],
-  "assumptions": ["No behavioral change expected", "Tests cover the current API surface"],
-  "files": ["hooks/useWallet.ts", "hooks/useWalletConnection.ts", "hooks/useWalletBalance.ts"],
-  "verification": ["npm test", "npm run build"],
-  "approvalQuestion": "Proceed with the refactor as described?"
-}
-```
-
-**Low risk, proceed after agreement:**
-```json
-{
-  "subskill": "release-notes-and-changelog",
-  "risk": "low",
-  "approvalRequired": false,
-  "summary": "Drafted changelog entry for v1.2.0",
-  "plan": [
-    "Scanned commits since v1.1.0",
-    "Categorized into features, fixes, chores",
-    "Drafted entry in CHANGELOG.md"
-  ],
-  "assumptions": ["All unreleased commits should be included", "Using keepachangelog format"],
-  "files": ["CHANGELOG.md"],
-  "verification": ["Review the formatted entry visually"],
-  "approvalQuestion": "Does this changelog look right? I'll append it to CHANGELOG.md."
-}
-```
-
-## Self-Verification Checklist
-
-After classifying and before presenting the plan, verify:
-
-- [ ] Does the subskill match the user's primary request keyword?
-- [ ] Did I read the minimum context needed? (Not the whole repo)
-- [ ] Is my plan the smallest credible change?
-- [ ] Did I detect the framework from `package.json`/config, not guess it?
-- [ ] Did I include all 6 output fields in my response?
-- [ ] If high/medium risk: did I stop for explicit confirmation?
-- [ ] If the request is ambiguous: did I ask instead of improvising?
-- [ ] Did I avoid RPC, balances, or onchain execution?
-
-## Operating Rules
-
-- **No RPC.** No balances. No wallet or transaction execution.
-- **Hand off** broadcast/verification work to `pharos-agent-deploy-suite`.
-- **Prefer repo context** (package files, source, tests, local docs, recent diffs) over external references.
-- **Prefer the smallest fix** that solves the actual request.
-- **If ambiguous**, do not improvise. Present the plan and ask for the missing detail.
-- **Verification order**: static check → unit test → targeted integration → build → lint → broader regression only if necessary.
-- **Never guess the stack** — read `package.json` and config files.
-- **One subskill at a time** — handle chaining sequentially, not in parallel.
-
-## Handoff to Deploy Suite
-
-When the user needs to actually broadcast a deployment, follow this handoff protocol:
-
-1. **Prepare**: Use `deployment-and-verification` or `deployment-for-testnet-and-mainnet` to prepare deploy scripts, env var documentation, and verification config.
-2. **Plan**: Draft the complete deployment command with env vars set.
-3. **Hand off**: Tell the user to use `pharos-agent-deploy-suite` for the actual broadcast.
-4. **Provide context**: Include the contract artifact, target network, deploy script path, and required env vars in the handoff message.
-
-Handoff message template:
-
-```
-## Handoff to Pharos Agent Deploy Suite
-
-**Contract**: {contract name}
-**Network**: pharos-testnet (chain ID: 688689) or pharos-mainnet (chain ID: 1672)
-**Script**: `{path/to/deploy/script}`
-**Required env vars**:
-- `PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC_URL`
-- `PRIVATE_KEY`
-- `ETHERSCAN_API_KEY` (if verification is needed)
-
-Run this command via `pharos-agent-deploy-suite`:
-```bash
-{exact deploy command}
-```
-```
-
-## End-to-End Decision Flow
-
-```
-User request arrives
-       │
-       ▼
-  ┌──────────┐
-  │ Classify  │──→ Is this deployment? ──Yes──→ Handoff to deploy suite
-  │ (1-2 sec) │
-  └────┬─────┘
-       │ No
-       ▼
-  ┌──────────┐
-  │ Gather    │──→ Read package.json, existing contracts, test files
-  │ context   │     (minimum context to change the plan)
-  └────┬─────┘
-       │
-       ▼
-  ┌──────────┐
-  │ Plan      │──→ Present structured plan: what, why, how, files, risks
-  │ (review)  │
-  └────┬─────┘
-       │
-       ▼
-  ┌──────────┐
-  │ Gate      │──→ high risk?  ──Yes──→ Get user confirm
-  │ (risk)    │     medium risk? ──Yes──→ Get user confirm
-  └────┬─────┘     low risk?   ──Yes──→ Execute directly
-       │
-       ▼
-  ┌──────────┐
-  │ Execute   │──→ One change at a time, smallest viable scope
-  └────┬─────┘
-       │
-       ▼
-  ┌──────────┐
-  │ Verify    │──→ Narrowest check: compile, test, lint
-  └────┬─────┘
-       │
-       ▼
-  ┌──────────┐
-  │ Report    │──→ Standard payload with diff, files touched, next steps
-  └──────────┘
-       │
-       ▼
-  Await next request
-```
-
-## Communication Templates
-
-When you need to ask the user for clarification:
-
-```
-I see you want [summary]. To build the right plan, I need:
-1. [Missing detail 1]
-2. [Missing detail 2]
-
-I'm considering [subskill name] as the best match. Does that sound right?
-```
-
-When presenting a plan for approval (high/medium risk):
-
-```
-## Plan: [subskill name]
-
-**Summary**: [one sentence]
-
-**Steps**:
-1. [step 1]
-2. [step 2]
-
-**Files**: [file list]
-
-**Verification**: [check command]
-
-**Assumptions**: [explicit unknowns]
-
-**Risk**: [high/medium] — I'll wait for your confirmation before making any changes.
-
-Is this plan correct, or would you like to adjust it?
-```
-
-When presenting a plan for low-risk work:
-
-```
-## Plan: [subskill name]
-
-**Summary**: [one sentence]
-
-**Steps**: [steps]
-
-**Files**: [files]
-
-**Verification**: [check]
-
-Does this approach look right? If so, I'll proceed.
-```
-
-## Pharos Network Reference
-
-Official Pharos network endpoints for configuration and deployment:
-
-| Network | Chain ID | RPC URL | Explorer | Symbol |
-|---|---|---|---|---|
-| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS |
-| Atlantic Testnet (deprecated) | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
-| Testnet v2 | 688688 | `https://testnet.dplabs-internal.com` | https://testnet.pharosscan.xyz | PHRS |
-| Devnet | 50002 | `https://devnet.dplabs-internal.com` | https://pharosscan.xyz | PHRS |
-
-### Alternative RPC Providers
-
-| Provider | Testnet | Mainnet |
-|---|---|---|
-| ZAN | `https://api.zan.top/node/v1/pharos/testnet/{apikey}` | `https://api.zan.top/node/v1/pharos/mainnet/{apikey}` |
-
-### Verification APIs
-
-| Service | URL |
-|---|---|
-| SocialScan (Testnet) | `https://api.socialscan.io/pharos-testnet/v1/explorer/command_api/contract` |
-
-Use these values for `foundry.toml`, `hardhat.config.ts`, `wagmi` config, or any chain setup.
-
-> Ready-to-use config files are in the `config/` directory: `pharos.json` (machine-readable chain data), `chains.ts` (wagmi/viem chain definitions), `foundry.toml`, `hardhat.config.ts`, and `.env.example` (environment template). Copy them into your project and adjust as needed.
-
-```toml
-# foundry.toml
-[rpc_endpoints]
-pharos-mainnet = "https://rpc.pharos.xyz"
-pharos-testnet = "https://atlantic.dplabs-internal.com"
-```
-
-```typescript
-// wagmi config
-import { defineChain } from 'viem';
-
-export const pharosTestnet = defineChain({
-  id: 688689,
-  name: 'Pharos Atlantic Testnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://atlantic.dplabs-internal.com'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' } },
-});
-
-export const pharosMainnet = defineChain({
-  id: 1672,
-  name: 'Pharos Pacific Mainnet',
-  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.pharos.xyz'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
-});
-```
-
-Always use these canonical values. Never guess or invent Pharos RPC URLs, chain IDs, or explorer endpoints.
-
-## Pharos-Specific Development Tips
-
-### Foundry Config Template
-
-```toml
-# foundry.toml
-[profile.default]
-src = "contracts"
-out = "out"
-libs = ["lib"]
-solc_version = "0.8.26"
-evm_version = "cancun"
-
-[rpc_endpoints]
-pharos-mainnet = "https://rpc.pharos.xyz"
-pharos-testnet = "https://atlantic.dplabs-internal.com"
-pharos-testnet-v2 = "https://testnet.dplabs-internal.com"
-pharos-devnet = "https://devnet.dplabs-internal.com"
-
-[etherscan]
-pharos-mainnet = { key = "${ETHERSCAN_API_KEY}" }
-pharos-testnet = { key = "${ETHERSCAN_API_KEY}" }
-pharos-testnet-v2 = { key = "${ETHERSCAN_API_KEY}" }
-```
-
-### Hardhat Config Template
-
-```typescript
-// hardhat.config.ts
-import { HardhatUserConfig } from 'hardhat/config';
-
-const PHAROS_TESTNET_RPC = process.env.PHAROS_TESTNET_RPC_URL || 'https://atlantic.dplabs-internal.com';
-const PHAROS_MAINNET_RPC = process.env.PHAROS_MAINNET_RPC_URL || 'https://rpc.pharos.xyz';
-const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
-
-const config: HardhatUserConfig = {
-  networks: {
-    pharosTestnet: {
-      url: PHAROS_TESTNET_RPC,
-      chainId: 688689,
-      accounts: [PRIVATE_KEY],
-    },
-    pharosMainnet: {
-      url: PHAROS_MAINNET_RPC,
-      chainId: 1672,
-      accounts: [PRIVATE_KEY],
-    },
-    pharosTestnetV2: {
-      url: process.env.PHAROS_TESTNET_V2_RPC_URL || 'https://testnet.dplabs-internal.com',
-      chainId: 688688,
-      accounts: [PRIVATE_KEY],
-    },
-    pharosDevnet: {
-      url: process.env.PHAROS_DEVNET_RPC_URL || 'https://devnet.dplabs-internal.com',
-      chainId: 50002,
-      accounts: [PRIVATE_KEY],
-    },
-  },
-  etherscan: {
-    apiKey: {
-      pharosTestnet: process.env.ETHERSCAN_API_KEY,
-      pharosMainnet: process.env.ETHERSCAN_API_KEY,
-    },
-    customChains: [
-      {
-        network: 'pharosTestnetV2',
-        chainId: 688688,
-        urls: {
-          apiURL: 'https://api.socialscan.io/pharos-testnet/v1/explorer/command_api/contract',
-          browserURL: 'https://testnet.pharosscan.xyz',
-        },
-      },
-      {
-        network: 'pharosTestnet',
-        chainId: 688689,
-        urls: {
-          apiURL: 'https://atlantic.pharosscan.xyz/api',
-          browserURL: 'https://atlantic.pharosscan.xyz',
-        },
-      },
-      {
-        network: 'pharosMainnet',
-        chainId: 1672,
-        urls: {
-          apiURL: 'https://www.pharosscan.xyz/api',
-          browserURL: 'https://www.pharosscan.xyz',
-        },
-      },
-    ],
-  },
-};
-
-export default config;
-```
-
-### Wagmi/Viem Config Template
-
-```typescript
-// config/wagmi.ts
-import { http, createConfig } from 'wagmi';
-import { defineChain } from 'viem';
-
-export const pharosTestnet = defineChain({
-  id: 688_689,
-  name: 'Pharos Atlantic Testnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://atlantic.dplabs-internal.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' },
-  },
-});
-
-export const pharosTestnetV2 = defineChain({
-  id: 688_688,
-  name: 'Pharos Testnet v2',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://testnet.dplabs-internal.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://testnet.pharosscan.xyz' },
-  },
-});
-
-export const pharosDevnet = defineChain({
-  id: 50_002,
-  name: 'Pharos Devnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://devnet.dplabs-internal.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://pharosscan.xyz' },
-  },
-});
-
-export const pharosMainnet = defineChain({
-  id: 1_672,
-  name: 'Pharos Pacific Mainnet',
-  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.pharos.xyz'] },
-  },
-  blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
-  },
-});
-
-export const config = createConfig({
-  chains: [pharosTestnet, pharosTestnetV2, pharosDevnet, pharosMainnet],
-  transports: {
-    [pharosTestnet.id]: http(),
-    [pharosTestnetV2.id]: http(),
-    [pharosDevnet.id]: http(),
-    [pharosMainnet.id]: http(),
-  },
-});
-```
-
-### Solidity on Pharos
-
-- Pharos is EVM-compatible — standard Solidity patterns work out of the box
-- Block time is <1 second — time-based logic (`block.timestamp`, `block.number`) needs adjustment compared to Ethereum. Use `block.timestamp` for absolute time checks, but be aware that multiple blocks can be mined within a second
-- Gas limits on Pharos are higher (2 gigagas/second) — large contract deployments (10MB+ bytecode) are feasible
-- Native currency is PROS (mainnet, 18 decimals) / PHRS (testnet, 18 decimals) — use in `msg.value` checks
-- Pharos supports both EVM and WASM — contracts written for Solidity/EVMs run natively
-- Recommended EVM version: `cancun` (supports transient storage, MCOPY, etc.)
-- Recommended Solidity version: 0.8.20+ (0.8.26 preferred for latest features)
-- Gas estimation: Pharos gas pricing may differ from Ethereum. Always re-estimate gas before mainnet deployment. Use `forge script --gas-estimate` or Hardhat's gas reporter
-
-### Common Pharos Contract Patterns
-
-```solidity
-// PROS/PHRS native currency transfer
-contract Payment {
-    function pay() external payable {
-        // msg.value is in PROS (mainnet) or PHRS (testnet)
-        require(msg.value > 0, "Send native currency");
-        // ... handle payment
-    }
-}
-
-// Time-based logic (block time < 1 second)
-contract TimeLock {
-    uint256 public constant LOCK_DURATION = 86400; // 24 hours in seconds
-    mapping(address => uint256) public locks;
-    
-    function lock() external {
-        locks[msg.sender] = block.timestamp + LOCK_DURATION;
-    }
-    
-    function release() external {
-        require(block.timestamp >= locks[msg.sender], "Still locked");
-        // block.timestamp is reliable, but don't assume minimum time between blocks
-    }
-}
-```
-
-### Testing on Pharos
-
-- Use Foundry's `--fork-url` with the testnet RPC for integration tests against real state
-- Testnet PHRS can be obtained from the Pharos faucet or bridge
-- Gas estimates may differ between testnet and mainnet — always re-estimate before mainnet deploy
-
-### Common Pharos Patterns
-
-- **Token contracts**: Standard ERC-20/721/1155 with PROS/PHRS as native currency
-- **DeFi patterns**: Pharos supports all standard DeFi primitives (AMMs, lending, staking)
-- **Upgradeability**: UUPS and transparent proxies work identically to Ethereum
-- **Cross-chain**: Pharos supports LayerZero, CCTP, and standard bridge patterns
-- **SPNs**: Special Processing Networks for app-specific scaling (advanced)
-
-## Pharos Resources
-
-| Resource | URL |
-|---|---|
-| Official Docs | https://docs.pharos.xyz |
-| PharosScan (Mainnet) | https://www.pharosscan.xyz |
-| PharosScan (Testnet) | https://atlantic.pharosscan.xyz |
-| Testnet Faucet | https://testnet.pharosnetwork.xyz |
-| GitHub | https://github.com/PharosNetwork |
-| Discord | https://discord.com/invite/pharos |
-| RPC Providers | https://docs.pharos.xyz/tooling-and-infrastructure/rpc |
-
-## References
-
-These files live in `skill/references/` and should be read when the task requires deeper guidance:
-
-| File | Read when |
-|---|---|
-| `references/harness.md` | Full decision tree, risk levels, verification order, what counts as context, success standard |
-| `references/output-contract.md` | Detailed response structure with example JSON payload |
-| `references/subskills.md` | Extended descriptions of each subskill with more use-when context |
-| `references/pharos-ecosystem.md` | Comprehensive Pharos ecosystem reference |
-| `references/deployment-patterns.md` | Deployment workflow patterns and CI/CD |
-
-## Example Prompts
-
-- Design the contract architecture for a staking protocol with access control and upgrade boundaries.
-- Review this Solidity contract for security, gas, and correctness issues.
-- Integrate this Next.js app with wagmi and viem for a wallet connect and transaction preview flow.
-- Plan a safe migration path for a contract upgrade without breaking existing users.
-- Map this repo so I can start implementing a frontend dapp integration.
-- Write the tests for this contract and show the plan before generating them.
-- Diagnose this TypeScript build failure and keep the fix narrow.
-- Upgrade the dependencies in this repo and verify the build stays green.
-- Create a code review checklist for contract changes.
-- Improve the accessibility and performance of this wallet preview UI.
-- Design contract tests that cover both testnet and mainnet assumptions.
-- Set up a Foundry workflow for tests and scripts in this repo.
-- Scaffold a starter workspace layout for a new dapp package.
-- Plan the deployment flow for testnet and mainnet with release checks.
-- Build a Tailwind and shadcn/ui flow for a wallet preview modal.
-
-## Common Developer Questions
-
-**Q: How do I configure my wallet for Pharos?**
-A: Add a custom network with the Pharos chain config from the Network Reference table above. Use chain ID 1672 for mainnet (symbol: PROS) or 688689 for testnet (symbol: PHRS).
-
-**Q: How do I get testnet PHRS?**
-A: Use the Pharos testnet faucet at https://testnet.pharosnetwork.xyz or request in the Pharos Discord.
-
-**Q: What's different about Pharos vs Ethereum for Solidity developers?**
-A: Block time is <1 second (vs ~12s on Ethereum), gas limits are higher (2 gigagas/s), and the native currency is PROS/PHRS instead of ETH. EVM compatibility means most Solidity code works unchanged. Time-based logic should account for faster blocks.
-
-**Q: How do I migrate an existing Ethereum dapp to Pharos?**
-A: Contracts: Solidity code compiles as-is. Frontend: update chain config (chain ID, RPC) and native currency symbol. Testing: update fork URLs. Deploy: use the same scripts with Pharos RPC endpoints.
-
-**Q: Does Pharos support The Graph, Ethers.js, Web3.js, or Hardhat?**
-A: Yes — Pharos is fully EVM-compatible. All standard Ethereum tooling works.
-
-**Q: How do I verify a contract on PharosScan?**
-A: For Foundry: add `--verify --etherscan-api-key $ETHERSCAN_API_KEY` to `forge script`. For Hardhat: use `npx hardhat verify --network pharosTestnet <address>`. The explorer URL is https://atlantic.pharosscan.xyz (testnet) or https://www.pharosscan.xyz (mainnet).
-
-**Q: What's the recommended Foundry version for Pharos?**
-A: Latest stable Foundry. Pharos uses EVM version `cancun` — ensure your `foundry.toml` sets `evm_version = "cancun"` and `solc_version = "0.8.26"`.
+## Deploy Protocol
+
+Every broadcast requires explicit approval. No exceptions.
+
+1. **Pre-flight**: Validate RPC, Chain ID (1672/688689), Signer balance, and Compiler version.
+2. **Gate Fix**: Check for and fix any 'gate' issues in the frontend/contract interaction layer before proceeding.
+3. **Simulation**: Run `SIMULATE_ONLY=1` (Foundry) or Hardhat dry-run to confirm success.
+4. **Approval**: Present the final command and env vars (hidden) for explicit user confirmation.
+5. **Broadcast**: Execute only after approval.
+6. **Verify**: Automate explorer verification on PharosScan after success.
 
 ## Troubleshooting
 
 | Problem | Likely cause | Fix |
 |---|---|---|
-| Subskill doesn't match the request | The intent routing regex doesn't cover the phrasing | Add the trigger phrase to routing rules in `src/intent/parse-intent.ts` |
-| Plan is too broad | Using a general subskill instead of a narrow one | Route to the most specific subskill |
-| Agent skipped the plan step | Risk level or approval gate is misconfigured | Check `approvalRequired` in `src/registry/subskills.ts` |
-| Output contract fields are missing | Response not following the 6-field structure | Re-read `references/output-contract.md` |
-| User asked for onchain execution | Wrong skill suite loaded | Direct to `pharos-agent-deploy-suite` |
-| User says plan is wrong direction | Misclassification or missing context | Apologize, re-classify, gather more context, present revised plan |
-| Framework not detected | `package.json` not read or unconventional setup | Read `package.json` explicitly, or ask the user which framework |
-
-## End-to-End Workflow Example
-
-A complete flow from idea to deployed contract on Pharos:
-
-```
-1. "Map this repo"                                → repo-onboarding (low)
-2. "Design the token contract architecture"       → contract-architecture (high)
-3. "Write the token contract"                     → solidity-authoring (high)
-4. "Plan the tests"                               → testing-strategy (medium)
-5. "Write the tests"                              → test-generation (medium)
-6. "Run tests and fix failures"                   → bug-finding-and-debugging (high)
-7. "Review the contract for security"             → contract-review (high)
-8. "Prepare deployment scripts and config"        → deployment-and-verification (high)
-   └──→ Hand off to pharos-agent-deploy-suite
-9. "Deploy to testnet"                            → testnet-deployment (deploy suite)
-10. "Verify the deployment"                       → verify-deployment.sh (deploy suite)
-11. "Update frontend with new address"            → frontend-dapp-integration (medium)
-12. "Deploy to mainnet"                           → mainnet-deployment (deploy suite)
-```
-
-Each step follows the same pattern: classify → gather context → plan → gate (if high/medium) → execute → verify → report.
+| Skill not triggering | Missing keywords or description frontmatter | Add keywords to `description` or `When to Use` |
+| RPC connection failed | Invalid URL or firewall | Verify `PHAROS_RPC_URL` is reachable via `curl` |
+| Simulation reverted | Logical error or state mismatch | Check constructor args and network state fork |
+| Plan is too broad | Using general subskill instead of narrow | Route to most specific subskill (e.g. `contract-review`) |
+| Env var not expanded | Using literal name instead of `${VAR}` | Use `${VAR_NAME}` syntax in config/commands |
+| Mainnet deploy blocked | Safety gate or insufficient funds | Re-run balance check; ensure network is Pacific (1672) |
+| Gate Fix failure | Inconsistent frontend/contract state | Run `gate-fix` diagnostic before re-attempting deploy |
 
 ## Best Practices
 
-- **Route narrowly** — always pick the most specific subskill. Don't use `solidity-authoring` when `contract-review` is the actual request.
-- **Plan first, code second** — never jump into edits without showing the plan.
-- **Context minimum** — gather only what changes the plan. Don't read the entire repo.
-- **One thing at a time** — make the smallest change that solves the request. No scope creep.
-- **Verify after every change** — run the narrowest check that confirms the fix.
-- **Hand off deployment** — when the user needs broadcast or verification, direct to `pharos-agent-deploy-suite`.
-- **Keep the summary short** — one sentence. The structured payload carries the detail.
-- **Don't guess stack** — the repo already says what it uses. Read `package.json` and config files.
-- **Be explicit about unknowns** — list them as assumptions rather than hiding them.
-- **Chain sequentially** — if the request spans multiple subskills, handle them one at a time.
+- **Use Env Var Expansion**: Never hardcode keys. Use `${PRIVATE_KEY}` in config files. Private keys must be added to `.env` and never exposed in prompts or logs.
+- **Route Narrowly**: pick the most specific subskill to avoid context bloat.
+- **Plan First, Code Second**: Never make edits without showing a concrete plan first.
+- **One Change at a Time**: Keep changes surgical and verifiable.
+- **Testnet Rehearsal**: Always deploy to Atlantic Testnet (688689) before Mainnet (1672).
+- **Verify after Every Change**: Run the narrowest check (unit test, then build, then lint).
+
+## Pharos Network Reference
+
+| Network | Chain ID | RPC URL | Explorer | Symbol |
+|---|---|---|---|---|
+| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz`, `https://infra.orginstake.com/pharos/evm` | https://www.pharosscan.xyz | PROS |
+| Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS |
+
+> Full network details, wagmi configs, and Foundry/Hardhat templates are in `references/pharos-context.md` and the `config/` directory.
+
+## Output Contract
+
+Every response must include: **Summary, Plan, Assumptions, Files/Artifacts, Verification, and Approval Question.**
+
+---
+*Pharos Agent Suite — Powering the next generation of Pharos developers.*

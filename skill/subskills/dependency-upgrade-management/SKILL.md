@@ -3,14 +3,65 @@ name: pharos-dependency-upgrade-management
 description: "Upgrade Pharos project packages or toolchains with version-aware compatibility checks and rollback planning. Use when upgrading dependencies, bumping package versions, updating toolchains (Foundry, Hardhat, Node), or managing npm/forge dependency updates for Pharos dapps. Keywords: dependency upgrade, package update, toolchain update, version bump, upgrade dependencies, npm update, Foundry, Hardhat, Pharos, Solidity, monorepo, compatiblity, rollback."
 metadata:
   audience: developer
-  version: 1.0.0
+  version: 1.1.0
   category: tooling
 slash: true
 ---
 
 # Dependency Upgrade Management
 
-Upgrade packages or toolchains with version-aware compatibility checks and rollback planning.
+Upgrade packages or toolchains with version-aware compatibility checks and rollback planning for Pharos projects.
+
+## Common Pharos Upgrade Paths
+
+### OpenZeppelin 4.9 → 5.0 (Breaking Changes)
+
+| Change | OZ 4.9 | OZ 5.0 | Fix |
+|--------|--------|--------|-----|
+| Ownable | `import "@openzeppelin/contracts/access/Ownable.sol"` | Use `OwnableUpgradeable` for UUPS, or `Ownable2Step` | `npm install @openzeppelin/contracts-upgradeable@5.0` |
+| ERC-20 `_transfer` | `_transfer(from, to, amount)` | Renamed to `_update(from, to, amount, mint/burn)` | Replace `_transfer`/`_mint`/`_burn` calls with `_update` |
+| UUPS `_authorizeUpgrade` | Returns void | Added `newImplementation` param | `function _authorizeUpgrade(address) internal override onlyOwner {}` |
+| ReentrancyGuard | ReentrancyGuard | Moved to utils | Update import path |
+| SafeERC20 | `safeTransfer` returns bool | No change | Update import path |
+
+```bash
+# Upgrade
+npm install @openzeppelin/contracts@5.0 @openzeppelin/contracts-upgradeable@5.0
+# Test on Pharos testnet
+forge test --fork-url https://atlantic.dplabs-internal.com --chain-id 688689
+```
+
+### Forge-Std 1.8 → 1.9
+
+```bash
+forge update foundry-rs/forge-std
+```
+
+Check for changed cheatcodes: `vm.assume` → `vm.assume*` variants, `vm.skip` added.
+
+### Solidity Pragma Bump (0.8.20 → 0.8.25+)
+
+```bash
+# Update all pragmas
+find . -name "*.sol" -exec sed -i 's/pragma solidity \^0\.8\.20/pragma solidity ^0.8.25/g' {} +
+# Check for new opcodes (MCOPY in 0.8.24+)
+forge build
+```
+
+### Upgrade Verification on Pharos
+
+```bash
+# 1. Fork test
+anvil --fork-url https://atlantic.dplabs-internal.com --chain-id 688689 &
+forge test --fork-url http://localhost:8545 --chain-id 688689 -vvv
+
+# 2. PharosScan verification
+forge verify-contract \
+  --chain-id 1672 \
+  --verifier-url https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/contract_verify \
+  --etherscan-api-key $PHAROSSCAN_API_KEY \
+  0xNewContract src/Contract.sol:Contract
+```
 
 ## When to Use
 
@@ -20,12 +71,24 @@ dependency upgrade, package update, toolchain update, version bump, upgrade depe
 
 adding a new dependency (use framework-integration), or refactoring code to work with a new version (use refactoring-and-code-health)
 
+## Prerequisites
+- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
+- **Security**: private keys must be stored in `.env` and accessed via `${PRIVATE_KEY}`.
+
+- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
+- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com` or `PHAROS_MAINNET_RPC=https://rpc.pharos.xyz` in your environment or `.env`.
+- **Private key**: Set `PRIVATE_KEY` environment variable (keep this secret, never commit).
+- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification.
+- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
+- **Package manager**: pnpm, npm, or yarn available.
+
 ## Workflow
 
 1. List the packages or toolchain components that need changing.
-2. Check compatibility risk and any required code changes.
-3. Present the upgrade plan and ask for confirmation.
-4. Apply the upgrade and verify the build or tests.
+2. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
+3. Check compatibility risk and any required code changes.
+4. Present the upgrade plan and ask for confirmation.
+5. Apply the upgrade and verify the build or tests.
 
 ## Output
 
@@ -36,14 +99,21 @@ adding a new dependency (use framework-integration), or refactoring code to work
 
 ## Examples
 
-- "Upgrade the dependencies in this repo and keep the change minimal"
-- "Plan the toolchain bump from one TypeScript version to another"
-- "Safely upgrade Solidity pragma from 0.8.20 to 0.8.25 across all contracts"
+- "Upgrade OpenZeppelin from 4.9 to 5.0 in our Pharos staking dapp — handle Ownable2Step and ERC-20 _update"
+- "Plan the forge-std bump from 1.8 to 1.9 across all Pharos contracts"
+- "Safely upgrade Solidity pragma from 0.8.20 to 0.8.25 across all Pharos contracts and verify with forge build"
+- "Upgrade wagmi from 1.x to 2.x for the Pharos frontend and update createConfig"
+- "Update viem from 1.x to 2.x and fix chain definition for Pharos mainnet 1672"
 
 ## Verification
 
-npm install/yarn, then npm run build/npm test.
+npm install/yarn, then npm run build/npm test. For Solidity: forge build && forge test --fork-url https://atlantic.dplabs-internal.com.
 
 ## Related
 
 monorepo-workspace-management (workspace-wide upgrades), framework-integration (adding new dependencies)
+
+## Gate
+
+
+Medium risk. Show the upgrade plan and compatibility notes before changing `package.json`, `foundry.toml`, or lockfiles.
