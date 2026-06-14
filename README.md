@@ -11,20 +11,33 @@ It is designed to behave like a high-signal agent skill suite rather than a gene
 - structured output that downstream agents can reuse
 - installation support for Codex, Claude Code, OpenClaw, and other SKILL.md-compatible agents
 
-This package is intentionally developer-only.
+This package is a comprehensive developer and deployment suite.
 
-- No RPC reads
-- No balances
-- No transaction sending
-- No onchain execution
-- No wallet operations
-
-The skill focuses on contract coding, UI integration, framework setup, testing, review, debugging, deployment prep, repo mapping, and documentation.
-
-For actual contract broadcast and verification work, use the separate deploy-capable skill package in `deploy-skill/`.
-It includes separate testnet and mainnet deployment variants plus Foundry and Hardhat deploy and verify templates.
+- Phased Execution: Requirement → Plan → Execute
+- 46 focused subskills
+- High-risk deployment and verification gating
+- Atlantic Testnet (688689) and Pacific Mainnet (1672) support
+- Installation support for Gemini CLI, Codex, Claude Code, and others
 
 ## What It Covers
+
+The suite covers the entire lifecycle of Pharos development:
+- Contract architecture & Solidity authoring
+- Deployment and Verification (Foundry/Hardhat)
+- Frontend dApp integration (wagmi/viem/Next.js)
+- Security audit and performance optimization
+- Accessibility and localization
+
+## Phase 2: Pharos Pro Agent
+
+This repository now includes the **Pharos Pro Agent** (`.gemini/agents/pharos-pro.md`), an autonomous entity designed to use the Pharos Skill Suite to build, test, and deploy RWA protocols on Pharos.
+
+### Using the Agent
+```bash
+@pharos-pro build me a RWA lending pool on Atlantic testnet.
+```
+
+## Skill Map
 
 - contract architecture
 - Solidity authoring
