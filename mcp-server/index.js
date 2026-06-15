@@ -87,12 +87,34 @@ const SUBLINK = {
   contract_info: "contract-review",
   network_config: "framework-integration",
   diagnose: "framework-integration",
+  get_account: "wallet-and-transaction-ui",
+  gas_estimate: "gas-optimization",
+};
+
+const PHAROS_TIPS = {
+  pharos_network_config: "Atlantic Testnet (688689) uses PHRS. Mainnet (1672) uses PROS. Never confuse them.",
+  pharos_deploy_contract: "PHRS has no 2300 gas stipend — use pull-over-push for native transfers in your contracts.",
+  pharos_verify_contract: "PharosScan verification backs to Hemera SocialScan. Use --verifier blockscout.",
+  pharos_run_security_check: "Pharos-specific: check for 2300 gas assumptions, wrong chain IDs, EIP-1559 assumptions.",
+  pharos_generate_tests: "Test on Atlantic Testnet first (chain 688689). Never test on mainnet directly.",
+  pharos_check_balance: "PHRS (testnet) and PROS (mainnet) both have 18 decimals.",
+  pharos_contract_info: "PharosScan explorer URL format: https://atlantic.pharosscan.xyz/address/{addr}",
+  pharos_transfer_token: "Always verify the target network before sending — mainnet PROS cannot be recovered from testnet.",
+  pharos_deploy_erc20: "ERC-20 deploy on Pharos costs approximately 0.001-0.01 PHRS in gas.",
+  pharos_get_logs: "Pharos RPC limits eth_getLogs to 100 block range — paginate your queries.",
+  pharos_diagnose: "Run this first to verify your environment before any on-chain operation.",
+  pharos_get_account: "eth_getAccount is Pharos-specific — no other chain returns all four fields (balance, nonce, codeHash, storageRoot) in one RPC call.",
+  pharos_gas_estimate: "Pharos burns the base fee (EIP-1559) and pays the priority fee to validators.",
 };
 
 function withSubskill(data, toolKey) {
   const sub = SUBLINK[toolKey];
   data.recommendedSubskill = sub;
   data.nextStep = `For detailed guidance, invoke the \`${sub}\` subskill.`;
+  const fullName = `pharos_${toolKey}`;
+  if (PHAROS_TIPS[fullName]) {
+    data.pharosTip = PHAROS_TIPS[fullName];
+  }
   return data;
 }
 
@@ -132,11 +154,13 @@ function structuredError(err, toolKey) {
     hint = "Unexpected error. Check network config and environment setup. See README.md for details.";
   }
   const sub = SUBLINK[toolKey] || "framework-integration";
+  const fullName = `pharos_${toolKey}`;
+  const pharosTip = PHAROS_TIPS[fullName] || "See the Pharos documentation for network-specific details.";
   return {
     isError: true,
     content: [{
       type: "text",
-      text: JSON.stringify({ error: msg, hint, tool: `pharos_${toolKey}`, recommendedSubskill: sub, nextStep: `For detailed guidance, invoke the \`${sub}\` subskill.` }, null, 2),
+      text: JSON.stringify({ error: msg, hint, tool: fullName, recommendedSubskill: sub, nextStep: `For detailed guidance, invoke the \`${sub}\` subskill.`, pharosTip }, null, 2),
     }],
   };
 }
@@ -556,6 +580,64 @@ async function diagnose(args) {
 }
 
 // ---------------------------------------------------------------------------
+// Tool 12 — pharos_get_account (Pharos-specific RPC)
+// ---------------------------------------------------------------------------
+async function getPharosAccount(args) {
+  const net = getNetwork(args.network);
+  validateAddress(args.address, "address");
+  try {
+    const response = await fetch(net.rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_getAccount",
+        params: [args.address, "latest"],
+        id: 1,
+      }),
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    return safeResult(withSubskill({
+      action: "get_account",
+      network: net.name,
+      address: args.address,
+      balance: data.result.balance,
+      nonce: data.result.nonce,
+      codeHash: data.result.codeHash,
+      storageRoot: data.result.storageRoot,
+    }, "get_account"));
+  } catch (err) { return structuredError(err, "get_account"); }
+}
+
+// ---------------------------------------------------------------------------
+// Tool 13 — pharos_gas_estimate
+// ---------------------------------------------------------------------------
+async function estimateGas(args) {
+  const net = getNetwork(args.network);
+  try {
+    const [gasPrice, maxPriorityFee] = await Promise.all([
+      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_gasPrice", params: [], id: 1 }) })
+        .then(r => r.json()).then(d => d.result),
+      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_maxPriorityFeePerGas", params: [], id: 1 }) })
+        .then(r => r.json()).then(d => d.result),
+    ]);
+    const baseFee = (BigInt(gasPrice) - BigInt(maxPriorityFee)).toString();
+    return safeResult(withSubskill({
+      action: "gas_estimate",
+      network: net.name,
+      gasPriceWei: gasPrice,
+      baseFeeWei: baseFee,
+      priorityFeeWei: maxPriorityFee,
+      estimatedTxCostWei: (BigInt(gasPrice) * 21000n).toString(),
+      estimatedTxCostFormatted: `${formatUnits(BigInt(gasPrice) * 21000n, 18)} ${net.nativeCurrency.symbol}`,
+    }, "gas_estimate"));
+  } catch (err) { return structuredError(err, "gas_estimate"); }
+}
+
+// ---------------------------------------------------------------------------
 // Subskill lookup for tools/list descriptions
 // ---------------------------------------------------------------------------
 const TOOL_META = {
@@ -570,6 +652,8 @@ const TOOL_META = {
   pharos_deploy_erc20: { description: "Deploy a standard PharosERC20 token contract with name, symbol, and initial supply", subskill: "solidity-authoring" },
   pharos_get_logs: { description: "Fetch event logs from a contract address with optional block range", subskill: "protocol-integration-planning" },
   pharos_diagnose: { description: "Diagnose environment: check dependencies (forge, cast, node, git), RPC connectivity, and env vars", subskill: "framework-integration" },
+  pharos_get_account: { description: "Fetch account details (balance, nonce, codeHash, storageRoot) via Pharos-specific eth_getAccount RPC", subskill: "wallet-and-transaction-ui" },
+  pharos_gas_estimate: { description: "Estimate current gas prices and transaction costs on a Pharos network", subskill: "gas-optimization" },
 };
 
 // ---------------------------------------------------------------------------
@@ -667,6 +751,20 @@ const TOOL_SCHEMAS = {
     type: "object",
     properties: {},
   },
+  pharos_get_account: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      address: { type: "string", description: "Wallet address (0x...)" },
+    },
+    required: ["address"],
+  },
+  pharos_gas_estimate: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+    },
+  },
 };
 
 server.setRequestHandler({ method: "tools/list" }, async () => ({
@@ -693,6 +791,8 @@ server.setRequestHandler({ method: "tools/call" }, async (request) => {
       case "pharos_deploy_erc20": return await deployErc20(args);
       case "pharos_get_logs": return await getLogs(args);
       case "pharos_diagnose": return await diagnose(args);
+      case "pharos_get_account": return await getPharosAccount(args);
+      case "pharos_gas_estimate": return await estimateGas(args);
       default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }
   } catch (err) {
@@ -720,4 +820,4 @@ function checkDependencies() {
 checkDependencies();
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("Pharos MCP Server running on stdio — 11 tools");
+console.error("Pharos MCP Server running on stdio — 13 tools");
