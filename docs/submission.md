@@ -106,3 +106,33 @@ npx skills add https://github.com/tejas0111/Pharos
 - **GitHub**: [https://github.com/tejas0111/Pharos](https://github.com/tejas0111/Pharos)
 - **Pharos Docs**: [https://docs.pharos.xyz](https://docs.pharos.xyz)
 - **Pharos Discord**: [https://discord.com/invite/pharos](https://discord.com/invite/pharos)
+
+---
+
+## Why This Wins
+
+| Judging Criterion | How We Deliver |
+|---|---|
+| **Originality & Creativity** | Dual-layer design: 46 instruction subskills + 10 executable MCP tools — the only skill offering both layers for Pharos development |
+| **Technical Quality** | 10 tools that actually execute (forge, viem RPC, explorer API, slither), not just print commands. Private key sanitization. Error handling in every tool. |
+| **Practical Use Case** | Full dev lifecycle coverage: deploy, verify, transfer, security audit, test generation, log fetching, balance checking |
+| **Reusability & Composability** | MCP tools chain together via the MCP protocol. See `agent/token-workflow.sh` for a 3-tool composition demo (deploy ERC-20 → check balance → transfer). |
+| **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All addresses and tx hashes documented in `DEPLOYMENTS.md`. |
+| **Documentation** | 46 subskill READMEs, 250+ line master README, Anvita Flow integration guide, deployment proof, architecture diagram, agent composition demo |
+| **Pharos Vision Alignment** | Anvita Flow ready with x402 micropayments pre-configured. Phase 2 Agent Arena pipeline documented in `ANVITA_FLOW_INTEGRATION.md`. |
+
+## Quick Demo
+
+![Architecture](./screenshots/architecture.png)
+
+See [screenshots/architecture.txt](./screenshots/architecture.txt) for the full architecture diagram.
+
+### 90-Second Demo
+
+1. **Open the explorer**: https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e
+2. **Run the agent**: `bash agent/token-workflow.sh`
+3. **Inspect the code**: Browse the skill suite at `skill/subskills/*/SKILL.md`
+
+### Screenshots
+
+See [screenshots/README.md](./screenshots/README.md) for screenshot instructions and placeholder images.

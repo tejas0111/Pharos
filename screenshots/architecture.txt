@@ -1,0 +1,42 @@
+┌──────────────────────────────────────────────────────────────────┐
+│                    PHAROS AGENT DEV SUITE                         │
+│          46 Instruction Subskills + 10 Executable MCP Tools       │
+├─────────────────────────────┬────────────────────────────────────┤
+│                             │                                     │
+│   LAYER 1: SKILLS           │   LAYER 2: MCP TOOLS               │
+│   46 Prompt-Only Subskills  │   10 Executable Tools               │
+│                             │                                     │
+│   • contract-architecture   │   • pharos_deploy_contract         │
+│   • solidity-authoring      │   • pharos_deploy_erc20            │
+│   • contract-review         │   • pharos_verify_contract         │
+│   • security-audit          │   • pharos_transfer_token          │
+│   • deployment-and-verify   │   • pharos_check_balance           │
+│   • test-generation         │   • pharos_get_logs                │
+│   • gas-optimization        │   • pharos_contract_info           │
+│   • cross-chain-bridge      │   • pharos_run_security_check      │
+│   • upgrade-patterns        │   • pharos_generate_tests          │
+│   • ...37 more              │   • pharos_network_config          │
+│                             │                                     │
+├─────────────────────────────┴────────────────────────────────────┤
+│                                                                   │
+│   AGENT COMPOSITION  (agent/token-workflow.sh)                    │
+│                                                                   │
+│   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────┐ │
+│   │ Deploy ERC-20    │ → │ Check Balance    │ → │ Transfer     │ │
+│   │ (forge create)   │   │ (cast call)      │   │ (cast send)  │ │
+│   └──────────────────┘   └──────────────────┘   └──────────────┘ │
+│                                                                   │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│   LIVE ON-CHAIN PROOF — Atlantic Testnet (688689)                 │
+│                                                                   │
+│   • Counter     0x55ec4b1e32537b6f72aa20153735709837488e4e       │
+│   • Storage     0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0       │
+│   • PharosERC20 0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD       │
+│                                                                   │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│   ANVITA FLOW READY — Phase 2 Agent Arena                         │
+│   x402 Micropayments | MCP Protocol | Agent Discovery             │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
