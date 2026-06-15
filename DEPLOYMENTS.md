@@ -14,7 +14,17 @@
 
 ### Verification
 
-Source verification on PharosScan can be done manually through the explorer UI for each contract address above.
+| Contract | Status |
+|----------|--------|
+| **Counter** | 🔍 Pending — requires `PHAROSSCAN_API_KEY` or manual submission via explorer UI |
+| **Storage** | 🔍 Pending — requires `PHAROSSCAN_API_KEY` or manual submission via explorer UI |
+| **PharosERC20** | 🔍 Pending — requires `PHAROSSCAN_API_KEY` or manual submission via explorer UI |
+
+To verify via CLI:
+```bash
+export PHAROSSCAN_API_KEY=your_key_here
+forge verify-contract --chain-id 688689 --verifier-url https://atlantic.pharosscan.xyz/api --etherscan-api-key $PHAROSSCAN_API_KEY <ADDRESS> <CONTRACT_PATH> --num-of-optimizations 200
+```
 
 ### Explorer Links
 

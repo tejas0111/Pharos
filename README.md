@@ -30,6 +30,15 @@ For autonomous AI agents that execute real on-chain operations:
 | **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
 | **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) |
 
+### Uniquely Pharos
+
+Two capabilities in this skill exist for **NO other blockchain**:
+
+| Feature | Subskill | Why It Matters |
+|---------|----------|----------------|
+| **SPN (Subnet Processing Network)** | `spn-development` | Pharos-native L2 subnets for dedicated compute — no other L1 offers this |
+| **RWA Compliance** | `rwa-compliance` | Real-world asset tokenization with regulatory checks — Pharos's core focus |
+
 ### Anvita Flow Ready
 
 This skill is pre-configured for deployment on **Anvita Flow** (Ant Group's AI Agent platform with x402 micropayments). See [ANVITA_FLOW_INTEGRATION.md](./ANVITA_FLOW_INTEGRATION.md) for Phase 2 readiness.
@@ -38,6 +47,14 @@ This skill is pre-configured for deployment on **Anvita Flow** (Ant Group's AI A
 
 ```bash
 npx skills add https://github.com/tejas0111/Pharos
+```
+
+> **OpenClaw users:** `npx clawhub install https://github.com/tejas0111/Pharos`
+
+### OpenClaw (Pharos-native)
+
+```bash
+clawhub install https://github.com/tejas0111/Pharos
 ```
 
 ### Manual Setup
