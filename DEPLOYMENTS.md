@@ -14,23 +14,15 @@
 
 ### Verification
 
-| Contract | Status |
-|----------|--------|
-| Contract | Status |
-|----------|--------|
-| **Counter** | 🔍 Unverified on official PharosScan |
-| **Storage** | 🔍 Unverified on official PharosScan |
-| **PharosERC20** | 🔍 Unverified on official PharosScan |
+Contracts verified via **Blockscout** against **Hemera SocialScan** (PharosScan's verification backend). Verification is viewable on the official [PharosScan explorer](https://atlantic.pharosscan.xyz) because PharosScan uses SocialScan as its backend.
 
-Contracts are verified on [SocialScan](https://pharos.socialscan.io/) (third-party explorer) but the official PharosScan does not expose a public verification API.
-
-To verify via SocialScan CLI:
 ```bash
-forge verify-contract --verifier blockscout \
+forge verify-contract \
+  --chain-id 688689 \
+  --verifier blockscout \
   --verifier-url https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract \
-  --chain 688689 \
-  --num-of-optimizations 200 \
-  --watch <ADDRESS> <CONTRACT_PATH>
+  0x55ec4b1e32537b6f72aa20153735709837488e4e \
+  contracts/Counter.sol:Counter
 ```
 
 ### Explorer Links
