@@ -11,12 +11,14 @@ contract PharosERC20 {
     error PharosERC20__InsufficientBalance();
     error PharosERC20__InsufficientAllowance();
     error PharosERC20__ZeroAddress();
+    error PharosERC20__NotOwner();
 
     // --- Events ---
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
     // --- State ---
+    address private immutable i_owner;
     string private s_name;
     string private s_symbol;
     uint8 private s_decimals;
@@ -24,10 +26,17 @@ contract PharosERC20 {
     mapping(address => uint256) private s_balances;
     mapping(address => mapping(address => uint256)) private s_allowances;
 
+    // --- Modifiers ---
+    modifier onlyOwner() {
+        if (msg.sender != i_owner) revert PharosERC20__NotOwner();
+        _;
+    }
+
     // --- Constructor ---
     constructor(string memory _name, string memory _symbol, uint256 _initialSupply) {
         if (bytes(_name).length == 0) revert PharosERC20__InvalidTransfer();
         if (bytes(_symbol).length == 0) revert PharosERC20__InvalidTransfer();
+        i_owner = msg.sender;
         s_name = _name;
         s_symbol = _symbol;
         s_decimals = 18;
@@ -74,8 +83,11 @@ contract PharosERC20 {
         return true;
     }
 
-    // --- Mint (only for testnet convenience) ---
-    function mint(address to, uint256 value) external {
+    // --- Owner ---
+    function owner() external view returns (address) { return i_owner; }
+
+    // --- Mint (owner only) ---
+    function mint(address to, uint256 value) external onlyOwner {
         if (to == address(0)) revert PharosERC20__ZeroAddress();
         s_totalSupply += value;
         s_balances[to] += value;
