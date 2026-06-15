@@ -1,0 +1,129 @@
+name: Pharos Deploy Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "contracts/**"
+      - "script/**"
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Target network"
+        required: true
+        default: "testnet"
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      simulate_only:
+        description: "Simulate only (no broadcast)"
+        required: true
+        default: true
+        type: boolean
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Check formatting
+        run: forge fmt --check
+        continue-on-error: true
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Run tests
+        run: forge test -vvv
+
+  deploy-testnet:
+    needs: lint-and-test
+    if: github.event_name == 'workflow_dispatch' && inputs.network == 'testnet'
+    runs-on: ubuntu-latest
+    environment: testnet
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Deploy to Pharos Atlantic Testnet
+        env:
+          PHAROS_TESTNET_RPC_URL: ${{ secrets.PHAROS_TESTNET_RPC_URL }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          if [ "${{ inputs.simulate_only }}" = "true" ]; then
+            echo "=== SIMULATION ONLY ==="
+            forge script script/Deploy.s.sol:DeployCounter \
+              --rpc-url pharos_testnet \
+              -vvvv
+          else
+            echo "=== DEPLOYING TO TESTNET ==="
+            forge script script/Deploy.s.sol:DeployCounter \
+              --rpc-url pharos_testnet \
+              --broadcast \
+              -vvvv
+          fi
+
+  deploy-mainnet:
+    needs: lint-and-test
+    if: github.event_name == 'workflow_dispatch' && inputs.network == 'mainnet'
+    runs-on: ubuntu-latest
+    environment: mainnet
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Verify mainnet intent
+        run: |
+          echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+          echo "!!     PHAROS PACIFIC MAINNET DEPLOY      !!"
+          echo "!!  This deploys a REAL contract with     !!"
+          echo "!!  REAL value. Confirm by setting the    !!"
+          echo "!!  MAINNET_CONFIRM environment variable. !!"
+          echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+          if [ -z "$MAINNET_CONFIRM" ]; then
+            echo "ERROR: Set MAINNET_CONFIRM=yes to proceed"
+            exit 1
+          fi
+
+      - name: Deploy to Pharos Pacific Mainnet
+        env:
+          PHAROS_MAINNET_RPC_URL: ${{ secrets.PHAROS_MAINNET_RPC_URL }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          MAINNET_CONFIRM: ${{ secrets.MAINNET_CONFIRM }}
+        run: |
+          forge script script/Deploy.s.sol:DeployCounter \
+            --rpc-url pharos_mainnet \
+            --broadcast \
+            --verify \
+            --slow \
+            -vvvv

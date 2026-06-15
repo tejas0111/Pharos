@@ -1,0 +1,21 @@
+{
+  "name": "@pharos/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Pharos blockchain operations — deploy, verify, check balances, security review, and more",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "viem": "^2.0.0"
+  },
+  "keywords": ["pharos", "mcp", "blockchain", "agent-tools"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "_note": "fetch is native in Node 18+ — no node-fetch dependency needed"
+}

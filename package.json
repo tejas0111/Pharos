@@ -1,0 +1,12 @@
+{
+  "name": "pharos-agent-dev-suite",
+  "version": "1.2.0",
+  "description": "AI agent skill package for Pharos blockchain development — 46 subskills, on-chain deployment proof, MCP server",
+  "private": true,
+  "scripts": {
+    "compile": "forge build",
+    "test": "forge test",
+    "deploy:testnet": "bash skill/scripts/deploy-testnet.sh"
+  },
+  "keywords": ["pharos", "blockchain", "solidity", "agent-skills", "ai-codeda"]
+}

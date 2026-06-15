@@ -3,3 +3,16 @@ dist
 .env
 .env.*
 coverage
+
+# ML artifacts
+runs/
+
+# Build artifacts
+out/
+cache/
+artifacts/
+typechain-types/
+
+# Deploy artifacts
+deployments/localhost/
+broadcast/

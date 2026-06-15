@@ -1,0 +1,46 @@
+{
+  "networks": {
+    "atlanticTestnet": {
+      "name": "Atlantic Testnet",
+      "chainId": 688689,
+      "currency": {
+        "name": "PHRS",
+        "symbol": "PHRS",
+        "decimals": 18
+      },
+      "rpc": {
+        "default": "https://atlantic.dplabs-internal.com"
+      },
+      "explorer": {
+        "name": "PharosScan",
+        "url": "https://atlantic.pharosscan.xyz",
+        "apiUrl": "https://atlantic.pharosscan.xyz/api"
+      },
+      "faucet": "https://testnet.pharosnetwork.xyz",
+      "testnet": true
+    },
+    "pacificMainnet": {
+      "name": "Pacific Mainnet",
+      "chainId": 1672,
+      "currency": {
+        "name": "PROS",
+        "symbol": "PROS",
+        "decimals": 18
+      },
+      "rpc": {
+        "default": "https://rpc.pharos.xyz",
+        "fallback": "https://infra.orginstake.com/pharos/evm"
+      },
+      "explorer": {
+        "name": "PharosScan",
+        "url": "https://www.pharosscan.xyz",
+        "apiUrl": "https://www.pharosscan.xyz/api"
+      },
+      "testnet": false
+    }
+  },
+  "defaults": {
+    "development": "atlanticTestnet",
+    "production": "pacificMainnet"
+  }
+}

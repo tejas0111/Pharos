@@ -44,7 +44,7 @@ The plan must be:
 
 ### Step 6: Determine the Gate
 
-Look up `approvalRequired` and `risk` in the registry (`src/registry/subskills.ts`):
+Look up `approvalRequired` and `risk` in the [Risk Levels table](#risk-levels-registry-source-of-truth) below:
 
 | risk | approvalRequired | Behavior |
 |---|---|---|

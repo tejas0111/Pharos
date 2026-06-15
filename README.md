@@ -1,11 +1,38 @@
 # Pharos Agent Dev Suite
 
-Developer skill package for AI agents building on Pharos (Atlantic Testnet 688689 / Pacific Mainnet 1672).
+**A dual-layer Pharos Skill — 46 instruction subskills for human developers + 10 executable MCP tools for autonomous AI agents.**
 
+Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific Mainnet 1672).
+
+### Layer 1: 46 Prompt-Only Subskills
+
+For human developers using AI coding assistants (Codex, Claude Code, OpenCode, Gemini CLI):
 - **46 focused subskills** — architecture, Solidity, deployment, frontend, security, and more
 - **Plan-first execution** — agents draft a plan before touching code
 - **Approval gates** — higher-risk work requires explicit confirmation
 - **Structured output** — downstream agents can reuse results
+
+### Layer 2: 10 Executable MCP Tools
+
+For autonomous AI agents that execute real on-chain operations:
+- **Deploy**, **verify**, and **transfer** on Pharos networks
+- **Check balances**, **fetch logs**, and **run security checks**
+- **Generate tests** and **get contract info** from PharosScan
+- **Deploy ERC-20 tokens** with custom name/symbol/supply
+
+### Live On-Chain Proof
+
+3 contracts deployed on Pharos Atlantic Testnet (688689):
+
+| Contract | Address | Explorer |
+|----------|---------|----------|
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) |
+
+### Anvita Flow Ready
+
+This skill is pre-configured for deployment on **Anvita Flow** (Ant Group's AI Agent platform with x402 micropayments). See [ANVITA_FLOW_INTEGRATION.md](./ANVITA_FLOW_INTEGRATION.md) for Phase 2 readiness.
 
 ## Install
 
@@ -134,16 +161,105 @@ The agent classifies your request, routes to the appropriate subskill, presents 
 
 ```
 skill/
-  SKILL.md              # master skill — routing and orchestration
+  SKILL.md              # master skill -- routing and orchestration
   subskills/*/SKILL.md  # 46 focused subskills
-  references/*.md       # workflow and output guidance
-  scripts/*.sh          # deploy and verify scripts
+  references/*.md       # network context, deployment patterns, harness
+  scripts/*.sh          # deploy and verify scripts (Foundry and Hardhat)
+contracts/              # example Solidity contracts (3 deployed on testnet)
+test/                   # Foundry tests (15 passing)
+script/                 # Forge deploy scripts
+config/                 # Pharos network configuration
+packages/               # shared TypeScript types (viem defineChain)
+mcp-server/             # MCP server with 10 executable tools for AI agents
+.github/workflows/      # CI/CD deploy pipeline
+foundry.toml            # Foundry config with Pharos RPC endpoints
+hardhat.config.js       # Hardhat config with Pharos network definitions
 .env.example            # environment variable template
+LICENSE                 # MIT licensed
+DEPLOYMENTS.md          # live on-chain deployment proof
+ANVITA_FLOW_INTEGRATION.md  # Phase 2 readiness documentation
 ```
+
+## On-Chain Deployment
+
+3 contracts deployed and confirmed on Pharos Atlantic Testnet (688689):
+
+| Contract | Address | Tx Hash | Explorer |
+|----------|---------|---------|----------|
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) |
+
+See [DEPLOYMENTS.md](./DEPLOYMENTS.md) for full details.
+
+To deploy your own:
+
+```bash
+cp .env.example .env   # add PRIVATE_KEY
+forge build
+forge test
+SIMULATE_ONLY=1 bash skill/scripts/deploy-testnet.sh   # simulate first
+bash skill/scripts/deploy-testnet.sh                    # broadcast
+```
+
+Get testnet PHRS from the [Pharos Faucet](https://testnet.pharosnetwork.xyz).
+
+## MCP Server
+
+The Pharos MCP Server exposes **10 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
+
+| # | Tool | Description | Executes? |
+|---|------|-------------|-----------|
+| 1 | `pharos_network_config` | Get network configuration (RPC, chain ID, explorer) | Static |
+| 2 | `pharos_deploy_contract` | Deploy a compiled contract via `forge script` | Yes |
+| 3 | `pharos_verify_contract` | Verify contract on PharosScan via explorer API | Yes |
+| 4 | `pharos_run_security_check` | Run `slither` + structured security review | Yes |
+| 5 | `pharos_generate_tests` | Write Foundry test file to disk | Yes |
+| 6 | `pharos_check_balance` | Check PHRS/PROS balance via RPC | Yes |
+| 7 | `pharos_contract_info` | Fetch contract metadata from explorer API | Yes |
+| 8 | `pharos_transfer_token` | Send PHRS/PROS using walletClient | Yes |
+| 9 | `pharos_deploy_erc20` | Deploy ERC-20 token via `forge create` | Yes |
+| 10 | `pharos_get_logs` | Fetch event logs with block range | Yes |
+
+### Quick Start
+
+```bash
+cd mcp-server
+npm install
+export PRIVATE_KEY=0x...
+export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
+node index.js
+```
+
+### Security Warning
+
+**Never hardcode your PRIVATE_KEY in any config file.** Always use environment variables or a secrets manager. The MCP server reads `PRIVATE_KEY` from the environment only and NEVER exposes it in tool output.
+
+### Claude Desktop Integration
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "pharos": {
+      "command": "node",
+      "args": ["/path/to/mcp-server/index.js"],
+      "env": {
+        "PRIVATE_KEY": "${PRIVATE_KEY}",
+        "PHAROS_TESTNET_RPC_URL": "https://atlantic.dplabs-internal.com",
+        "PHAROS_MAINNET_RPC_URL": "https://rpc.pharos.xyz"
+      }
+    }
+  }
+}
+```
+
+See [mcp-server/README.md](./mcp-server/README.md) for full documentation.
 
 ## Pharos Networks
 
-| Network | Chain ID | Explorer |
-|---|---|---|
-| Atlantic Testnet | 688689 | [atlantic.pharosscan.xyz](https://atlantic.pharosscan.xyz) |
-| Pacific Mainnet | 1672 | [pharosscan.xyz](https://pharosscan.xyz) |
+| Network | Chain ID | Explorer | Faucet |
+|---|---|---|---|
+| Atlantic Testnet | 688689 | [atlantic.pharosscan.xyz](https://atlantic.pharosscan.xyz) | [faucet](https://testnet.pharosnetwork.xyz) |
+| Pacific Mainnet | 1672 | [pharosscan.xyz](https://pharosscan.xyz) | -- |
