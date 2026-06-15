@@ -107,6 +107,12 @@ function safeResult(data) {
   return { content: [{ type: "text", text: JSON.stringify(sanitized, null, 2) }] };
 }
 
+function validateAddress(address, label) {
+  if (typeof address !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    throw new Error(`${label}: invalid Ethereum address (must be 0x + 40 hex chars)`);
+  }
+}
+
 function structuredError(err, toolKey) {
   const msg = err.message || String(err);
   let hint;
@@ -182,6 +188,7 @@ async function deployContract(args) {
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
+      stdio: ["pipe", "pipe", "pipe"],
     });
 
     const addressMatch = output.match(/deployed at: (0x[a-fA-F0-9]{40})/);
@@ -207,6 +214,7 @@ async function deployContract(args) {
 async function verifyContract(args) {
   try {
     const net = getNetwork(args.network);
+    validateAddress(args.address, "verifyContract address");
     const address = args.address;
     const contract = args.contract || "Counter";
     const constructorArgs = args.constructorArgs || "";
@@ -341,6 +349,7 @@ contract ${contract}Test is Test {
 async function checkBalance(args) {
   try {
     const net = getNetwork(args.network);
+    validateAddress(args.address, "checkBalance address");
     const client = getClient(args.network);
     const balance = await client.getBalance({ address: args.address });
     const formatted = formatUnits(balance, net.nativeCurrency.decimals);
@@ -364,6 +373,7 @@ async function checkBalance(args) {
 async function contractInfo(args) {
   try {
     const net = getNetwork(args.network);
+    validateAddress(args.address, "contractInfo address");
     const address = args.address;
 
     let sourceCode = null;
@@ -395,6 +405,7 @@ async function contractInfo(args) {
 async function transferToken(args) {
   try {
     const net = getNetwork(args.network);
+    validateAddress(args.toAddress, "transferToken toAddress");
     if (!process.env.PRIVATE_KEY) {
       return structuredError(new Error("PRIVATE_KEY not set in environment"), "transfer_token");
     }
@@ -452,6 +463,7 @@ async function deployErc20(args) {
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
+      stdio: ["pipe", "pipe", "pipe"],
     });
 
     const addressMatch = output.match(/Deployed to: (0x[a-fA-F0-9]{40})/);
@@ -478,6 +490,7 @@ async function deployErc20(args) {
 async function getLogs(args) {
   try {
     const net = getNetwork(args.network);
+    validateAddress(args.address, "getLogs address");
     const client = getClient(args.network);
     const address = args.address;
     const fromBlock = args.fromBlock ? BigInt(args.fromBlock) : undefined;
@@ -524,7 +537,7 @@ async function diagnose(args) {
   }
 
   try {
-    const chainId = execSync("cast chain-id --rpc-url https://atlantic.dplabs-internal.com 2>/dev/null", { encoding: "utf8" }).trim();
+    const chainId = execSync("cast chain-id --rpc-url https://atlantic.dplabs-internal.com 2>/dev/null", { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] }).trim();
     results.rpc = chainId === "688689" ? `reachable (chain ${chainId})` : `wrong chain: ${chainId}`;
   } catch {
     results.rpc = "unreachable";

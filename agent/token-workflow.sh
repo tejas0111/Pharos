@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Dependency check
+for cmd in forge cast jq; do
+  if ! command -v $cmd &>/dev/null; then
+    echo "ERROR: $cmd not found. Install it first."
+    echo "  forge/cast: curl -L https://foundry.paradigm.xyz | bash && foundryup"
+    echo "  jq: sudo apt-get install jq (or brew install jq)"
+    exit 1
+  fi
+done
+
 # ============================================================================
 # Token Launch & Distribute Agent
 # ============================================================================
