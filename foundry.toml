@@ -11,5 +11,5 @@ pharos_testnet = "${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-internal.com
 pharos_mainnet = "${PHAROS_MAINNET_RPC_URL:-https://rpc.pharos.xyz}"
 
 [etherscan]
-pharos_testnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract" }
-pharos_mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://api.socialscan.io/pharos-mainnet/v1/explorer/command_api/contract" }
+pharos_testnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }
+pharos_mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "https://www.pharosscan.xyz/api" }

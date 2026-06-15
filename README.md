@@ -26,9 +26,9 @@ For autonomous AI agents that execute real on-chain operations:
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | [View](https://pharos.socialscan.io/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) ✅ Verified |
-| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://pharos.socialscan.io/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) ✅ Verified |
-| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | [View](https://pharos.socialscan.io/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) ✅ Verified |
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) |
 
 ### Uniquely Pharos
 
@@ -203,9 +203,9 @@ ANVITA_FLOW_INTEGRATION.md  # Phase 2 readiness documentation
 
 | Contract | Address | Tx Hash | Explorer |
 |----------|---------|---------|----------|
-| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | [View](https://pharos.socialscan.io/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) | ✅ |
-| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | [View](https://pharos.socialscan.io/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) | ✅ |
-| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | [View](https://pharos.socialscan.io/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) | ✅ |
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) |
 
 See [DEPLOYMENTS.md](./DEPLOYMENTS.md) for full details.
 
