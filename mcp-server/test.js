@@ -70,6 +70,8 @@ test("All 13 tools registered in source", () => {
     "pharos_diagnose",
     "pharos_get_account",
     "pharos_gas_estimate",
+    "pharos_trace_transaction",
+    "pharos_network_status",
   ];
   for (const name of toolNames) {
     assert(content.includes('"' + name + '"') || content.includes("'" + name + "'"), "Missing tool reference: " + name);
@@ -90,7 +92,8 @@ test("TOOL_SCHEMAS has all 13 tool entries", () => {
     "pharos_network_config", "pharos_deploy_contract", "pharos_verify_contract",
     "pharos_run_security_check", "pharos_generate_tests", "pharos_check_balance",
     "pharos_contract_info", "pharos_transfer_token", "pharos_deploy_erc20",
-    "pharos_get_logs", "pharos_diagnose", "pharos_get_account", "pharos_gas_estimate"
+    "pharos_get_logs", "pharos_diagnose", "pharos_get_account", "pharos_gas_estimate",
+    "pharos_trace_transaction", "pharos_network_status"
   ];
   for (const key of schemaKeys) {
     assert(content.includes(key), "Missing TOOL_SCHEMAS key: " + key);
@@ -103,7 +106,8 @@ test("SUBLINK map has all 13 tool entries", () => {
   const sublinkKeys = [
     "deploy_contract", "deploy_erc20", "verify_contract", "transfer_token",
     "check_balance", "security_check", "generate_tests", "get_logs",
-    "contract_info", "network_config", "diagnose", "get_account", "gas_estimate"
+    "contract_info", "network_config", "diagnose", "get_account", "gas_estimate",
+    "trace_transaction", "network_status"
   ];
   for (const key of sublinkKeys) {
     assert(content.includes('"' + key + '"') || content.includes("'" + key + "'"), "Missing SUBLINK key: " + key);
@@ -114,7 +118,7 @@ test("SUBLINK map has all 13 tool entries", () => {
 test("withSubskill function wired to all tools", () => {
   const content = readFileSync(INDEX(), "utf8");
   const callCount = (content.match(/withSubskill\(/g) || []).length;
-  assert(callCount >= 13, "Expected 13+ withSubskill calls, found " + callCount);
+  assert(callCount >= 15, "Expected 15+ withSubskill calls, found " + callCount);
 });
 
 // 10. Structured error hints present
@@ -155,20 +159,31 @@ test("pharos_gas_estimate tool exists", () => {
   assert(content.includes("eth_gasPrice"), "eth_gasPrice RPC method not found");
 });
 
-// 15. PHAROS_TIPS object exists with all 13 tools
-test("PHAROS_TIPS has all 13 tool entries", () => {
+// 15. contextualTip function exists with tips for key tools
+test("contextualTip function provides tips", () => {
   const content = readFileSync(INDEX(), "utf8");
-  const tipKeys = [
-    "pharos_network_config", "pharos_deploy_contract", "pharos_verify_contract",
-    "pharos_run_security_check", "pharos_generate_tests", "pharos_check_balance",
-    "pharos_contract_info", "pharos_transfer_token", "pharos_deploy_erc20",
-    "pharos_get_logs", "pharos_diagnose", "pharos_get_account", "pharos_gas_estimate"
-  ];
-  for (const key of tipKeys) {
-    assert(content.includes(key), "Missing PHAROS_TIPS key: " + key);
-  }
+  assert(content.includes("contextualTip"), "contextualTip function not found");
+  assert(content.includes("eth_getAccount is Pharos-specific"), "Pharos get_account tip missing");
+  assert(content.includes("debug_traceTransaction"), "trace tip missing");
+  assert(content.includes("finalized"), "finalized tag tip missing");
+});
+
+// 16. pharos_trace_transaction tool exists
+test("pharos_trace_transaction tool exists", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  assert(content.includes('"pharos_trace_transaction"') || content.includes("pharos_trace_transaction"), "pharos_trace_transaction not found");
+  assert(content.includes("debug_traceTransaction"), "debug_traceTransaction RPC method not found");
+  assert(content.includes("callTracer"), "callTracer not found");
+});
+
+// 17. pharos_network_status tool exists
+test("pharos_network_status tool exists", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  assert(content.includes('"pharos_network_status"') || content.includes("pharos_network_status"), "pharos_network_status not found");
+  assert(content.includes('"safe"') || content.includes("'safe'"), "safe block tag not found");
+  assert(content.includes('"finalized"') || content.includes("'finalized'"), "finalized block tag not found");
 });
 
 console.log("\nResults: " + passed + " passed, " + failed + " failed\n");
-console.log("Tools: 13 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate)");
+console.log("Tools: 15 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate, trace_transaction, network_status)");
 process.exit(failed > 0 ? 1 : 0);

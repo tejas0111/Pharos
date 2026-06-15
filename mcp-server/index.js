@@ -89,32 +89,40 @@ const SUBLINK = {
   diagnose: "framework-integration",
   get_account: "wallet-and-transaction-ui",
   gas_estimate: "gas-optimization",
+  trace_transaction: "bug-finding-and-debugging",
+  network_status: "production-ops",
 };
 
-const PHAROS_TIPS = {
-  pharos_network_config: "Atlantic Testnet (688689) uses PHRS. Mainnet (1672) uses PROS. Never confuse them.",
-  pharos_deploy_contract: "PHRS has no 2300 gas stipend — use pull-over-push for native transfers in your contracts.",
-  pharos_verify_contract: "PharosScan verification backs to Hemera SocialScan. Use --verifier blockscout.",
-  pharos_run_security_check: "Pharos-specific: check for 2300 gas assumptions, wrong chain IDs, EIP-1559 assumptions.",
-  pharos_generate_tests: "Test on Atlantic Testnet first (chain 688689). Never test on mainnet directly.",
-  pharos_check_balance: "PHRS (testnet) and PROS (mainnet) both have 18 decimals.",
-  pharos_contract_info: "PharosScan explorer URL format: https://atlantic.pharosscan.xyz/address/{addr}",
-  pharos_transfer_token: "Always verify the target network before sending — mainnet PROS cannot be recovered from testnet.",
-  pharos_deploy_erc20: "ERC-20 deploy on Pharos costs approximately 0.001-0.01 PHRS in gas.",
-  pharos_get_logs: "Pharos RPC limits eth_getLogs to 100 block range — paginate your queries.",
-  pharos_diagnose: "Run this first to verify your environment before any on-chain operation.",
-  pharos_get_account: "eth_getAccount is Pharos-specific — no other chain returns all four fields (balance, nonce, codeHash, storageRoot) in one RPC call.",
-  pharos_gas_estimate: "Pharos burns the base fee (EIP-1559) and pays the priority fee to validators.",
-};
+function contextualTip(toolName, args, result) {
+  const tips = {
+    pharos_check_balance: (args, result) => {
+      if (result?.balanceFormatted === "0") return "Zero balance. Get free testnet PHRS at https://testnet.pharosnetwork.xyz";
+      if (args?.network === "atlanticTestnet") return "This is Atlantic Testnet (688689). Balance is in PHRS, not PROS.";
+      return "Pharos burns base fee (EIP-1559). Actual tx cost = gasUsed × (baseFee + priorityFee).";
+    },
+    pharos_deploy_contract: () => "PHRS has no 2300 gas stipend. Your contracts must use pull-over-push for native transfers, not .transfer() or .send().",
+    pharos_transfer_token: (args) => args?.network === "pacificMainnet"
+      ? "⚠️ MAINNET transfer. PROS cannot be recovered if sent to wrong network. Verify the address twice."
+      : "Testnet transfer. Use small amounts first, then verify on explorer before mainnet.",
+    pharos_get_logs: () => "Pharos RPC limits eth_getLogs to 100 blocks per request. Use pagination for larger ranges.",
+    pharos_get_account: () => "eth_getAccount is Pharos-specific — no other chain returns all four fields (balance, nonce, codeHash, storageRoot) in one call.",
+    pharos_gas_estimate: (args, result) => {
+      const cost = result?.estimatedTxCostFormatted || "unknown";
+      return `A simple transfer costs ~${cost} in gas (base fee burned + priority fee to validators).`;
+    },
+    pharos_trace_transaction: () => "debug_traceTransaction is publicly enabled on Pharos — use it to debug reverts and optimize gas.",
+    pharos_network_status: (args, result) => `Chain is ${result?.blocksToFinalized || "?"} blocks from finality. Use "finalized" tag for production reads.`,
+  };
+  const fn = tips[toolName];
+  return fn ? fn(args, result) : "💡 Pharos uses EIP-1559 — base fee burned, priority fee to validators.";
+}
 
-function withSubskill(data, toolKey) {
+function withSubskill(data, toolKey, args) {
   const sub = SUBLINK[toolKey];
   data.recommendedSubskill = sub;
   data.nextStep = `For detailed guidance, invoke the \`${sub}\` subskill.`;
   const fullName = `pharos_${toolKey}`;
-  if (PHAROS_TIPS[fullName]) {
-    data.pharosTip = PHAROS_TIPS[fullName];
-  }
+  data.pharosTip = contextualTip(fullName, args, data);
   return data;
 }
 
@@ -155,7 +163,7 @@ function structuredError(err, toolKey) {
   }
   const sub = SUBLINK[toolKey] || "framework-integration";
   const fullName = `pharos_${toolKey}`;
-  const pharosTip = PHAROS_TIPS[fullName] || "See the Pharos documentation for network-specific details.";
+  const pharosTip = contextualTip(fullName);
   return {
     isError: true,
     content: [{
@@ -638,6 +646,75 @@ async function estimateGas(args) {
 }
 
 // ---------------------------------------------------------------------------
+// Tool 14 — pharos_trace_transaction (Pharos enables debug_traceTransaction)
+// ---------------------------------------------------------------------------
+async function traceTransaction(args) {
+  const net = getNetwork(args.network);
+  if (typeof args.txHash !== "string" || !/^0x[a-fA-F0-9]{64}$/.test(args.txHash)) {
+    throw new Error("txHash: invalid transaction hash (must be 0x + 64 hex chars)");
+  }
+  try {
+    const response = await fetch(net.rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "debug_traceTransaction",
+        params: [args.txHash, { tracer: "callTracer" }],
+        id: 1,
+      }),
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    return safeResult(withSubskill({
+      action: "trace_transaction",
+      network: net.name,
+      txHash: args.txHash,
+      trace: data.result,
+      explorerUrl: `${net.explorer}/tx/${args.txHash}`,
+    }, "trace_transaction", args));
+  } catch (err) { return structuredError(err, "trace_transaction"); }
+}
+
+// ---------------------------------------------------------------------------
+// Tool 15 — pharos_network_status (safe + finalized block tags are Pharos-specific)
+// ---------------------------------------------------------------------------
+async function networkStatus(args) {
+  const net = getNetwork(args.network);
+  try {
+    const rpc = (method, params) =>
+      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }) })
+        .then(r => r.json()).then(d => { if (d.error) throw new Error(d.error.message); return d.result; });
+
+    const [latest, safe, finalized, gasPrice] = await Promise.all([
+      rpc("eth_getBlockByNumber", ["latest", false]),
+      rpc("eth_getBlockByNumber", ["safe", false]),
+      rpc("eth_getBlockByNumber", ["finalized", false]),
+      rpc("eth_gasPrice", []),
+    ]);
+
+    const latestNum = BigInt(latest.number);
+    const safeNum = BigInt(safe.number);
+    const finalizedNum = BigInt(finalized.number);
+
+    return safeResult(withSubskill({
+      action: "network_status",
+      network: net.name,
+      chainId: net.id,
+      latestBlock: latestNum.toString(),
+      safeBlock: safeNum.toString(),
+      finalizedBlock: finalizedNum.toString(),
+      blocksToSafe: (latestNum - safeNum).toString(),
+      blocksToFinalized: (latestNum - finalizedNum).toString(),
+      gasPriceWei: gasPrice,
+      gasPriceGwei: (BigInt(gasPrice) / 1000000000n).toString(),
+      currency: net.nativeCurrency.symbol,
+    }, "network_status", args));
+  } catch (err) { return structuredError(err, "network_status"); }
+}
+
+// ---------------------------------------------------------------------------
 // Subskill lookup for tools/list descriptions
 // ---------------------------------------------------------------------------
 const TOOL_META = {
@@ -654,6 +731,8 @@ const TOOL_META = {
   pharos_diagnose: { description: "Diagnose environment: check dependencies (forge, cast, node, git), RPC connectivity, and env vars", subskill: "framework-integration" },
   pharos_get_account: { description: "Fetch account details (balance, nonce, codeHash, storageRoot) via Pharos-specific eth_getAccount RPC", subskill: "wallet-and-transaction-ui" },
   pharos_gas_estimate: { description: "Estimate current gas prices and transaction costs on a Pharos network", subskill: "gas-optimization" },
+  pharos_trace_transaction: { description: "Trace a transaction using debug_traceTransaction with callTracer — enabled on Pharos (most chains disable this)", subskill: "bug-finding-and-debugging" },
+  pharos_network_status: { description: "Check network status: safe & finalized block numbers, gas prices — Pharos has unique safe/finalized block tags", subskill: "production-ops" },
 };
 
 // ---------------------------------------------------------------------------
@@ -765,6 +844,20 @@ const TOOL_SCHEMAS = {
       network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
     },
   },
+  pharos_trace_transaction: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"] },
+      txHash: { type: "string", description: "Transaction hash to trace (0x...)" },
+    },
+    required: ["txHash"],
+  },
+  pharos_network_status: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+    },
+  },
 };
 
 server.setRequestHandler({ method: "tools/list" }, async () => ({
@@ -793,6 +886,8 @@ server.setRequestHandler({ method: "tools/call" }, async (request) => {
       case "pharos_diagnose": return await diagnose(args);
       case "pharos_get_account": return await getPharosAccount(args);
       case "pharos_gas_estimate": return await estimateGas(args);
+      case "pharos_trace_transaction": return await traceTransaction(args);
+      case "pharos_network_status": return await networkStatus(args);
       default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }
   } catch (err) {
@@ -820,4 +915,4 @@ function checkDependencies() {
 checkDependencies();
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("Pharos MCP Server running on stdio — 13 tools");
+console.error("Pharos MCP Server running on stdio — 15 tools");
