@@ -177,13 +177,7 @@ function withSubskill(data, toolKey, args) {
 }
 
 function safeResult(data) {
-  const sanitized = JSON.parse(JSON.stringify(data), (key, value) => {
-    if (typeof value === "string" && value.length > 60 && value.includes("0x")) {
-      const pkMatch = value.match(/0x[a-fA-F0-9]{64}/);
-      if (pkMatch) return value.replace(pkMatch[0], "0x...REDACTED...");
-    }
-    return value;
-  });
+  const sanitized = JSON.parse(JSON.stringify(data));
   return { content: [{ type: "text", text: JSON.stringify(sanitized, null, 2) }] };
 }
 

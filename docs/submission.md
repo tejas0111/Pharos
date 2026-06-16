@@ -188,4 +188,4 @@ See [screenshots/architecture.txt](./screenshots/architecture.txt) for the archi
 2. **Run the agent**: `node agent/mcp-demo.mjs`
 3. **Inspect the code**: Browse the skill suite at `skill/subskills/*/SKILL.md`
 
-> **Demo video**: [Link to your 90-second demo video](https://youtu.be/) — show the MCP server starting, tools being called, and the on-chain result.
+> **Demo video**: [Link to your 90-second demo](https://youtu.be/) — shows MCP server calling 6 tools live, explorer with deployed contracts, and the dual-layer architecture.

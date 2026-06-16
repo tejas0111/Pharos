@@ -57,28 +57,6 @@ You: "Design the architecture for a staking contract"
  → Execution: Write the Solidity files and tests.
 ```
 
-## Routing Decision Tree
-
-Classify the request by asking these questions in order:
-
-1. Is the request about BROADCASTING or DEPLOYING to a network?
-   ├── Testnet / dry-run / simulation?            → testnet-deployment
-   ├── Mainnet / production / go-live?            → mainnet-deployment
-   └── Verification / post-deploy artifacts?       → post-deploy
-
-2. Is the request about writing/designing SOLIDITY or CONTRACT code?
-   ├── System-level design before code?           → contract-architecture
-   ├── Writing or refactoring Solidity?            → solidity-authoring
-   └── Interface/ABI/events/errors?                → interface-abi-design
-
-3. Is the request about FRONTEND/UI code?
-    ├── Wiring UI to contract state?                → frontend-dapp-integration
-    ├── Building dapp UI components and pages?      → dapp-ui-workflow
-    ├── Dapp quality (a11y, i18n, state mgmt)?      → dapp-quality
-    └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
-
-... (rest of the routing tree)
-
 ## When to Use
 
 Trigger when the user says any of:

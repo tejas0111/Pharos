@@ -44,7 +44,7 @@ async function main() {
     const tokArgs = {
       network: "atlanticTestnet",
       name: "PharosToken", symbol: "PHT",
-      totalSupply: "1000000000000000000000000",
+      initialSupply: "1000000000000000000000000",
       simulate: !hasKey,
     };
     if (!hasKey) print("Simulation", "Deploy would create PharosToken (PHT) with 1,000,000 supply");
@@ -67,8 +67,7 @@ async function main() {
     const transferArgs = {
       network: "atlanticTestnet",
       toAddress: "0x0000000000000000000000000000000000001234",
-      amount: "100", token: "PHRS",
-      simulate: !hasKey,
+      amount: "100", unit: "ether",
     };
     if (!hasKey) print("Simulation", "Transfer would send 100 PHRS to 0x0000...1234");
     const transfer = await safeCall(server, client, "pharos_transfer_token", transferArgs,
