@@ -1,6 +1,10 @@
 # Pharos MCP Server
 
-MCP server for AI agents to interact with the Pharos blockchain. Exposes **10 executable tools** for deployment, verification, transfers, security checks, and more.
+[![tests](https://img.shields.io/badge/tests-21%20passing-brightgreen)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-15-purple)]()
+[![license](https://img.shields.io/badge/license-MIT-green)]()
+
+MCP server for AI agents to interact with the Pharos blockchain. Exposes **15 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, and more.
 
 ## Tools
 
@@ -16,6 +20,11 @@ MCP server for AI agents to interact with the Pharos blockchain. Exposes **10 ex
 | 8 | `pharos_transfer_token` | Send PHRS/PROS using viem walletClient | ✅ Yes |
 | 9 | `pharos_deploy_erc20` | Deploy ERC-20 token via `forge create` | ✅ Yes |
 | 10 | `pharos_get_logs` | Fetch event logs with block range | ✅ Yes |
+| 11 | `pharos_diagnose` | Check environment: deps, RPC, env vars | ✅ Yes |
+| 12 | `pharos_get_account` | Get account state via Pharos-specific `eth_getAccount` RPC | ✅ Yes |
+| 13 | `pharos_gas_estimate` | Estimate gas prices with EIP-1559 breakdown | ✅ Yes |
+| 14 | `pharos_trace_transaction` | Trace a tx with `debug_traceTransaction` (Pharos enables this) | ✅ Yes |
+| 15 | `pharos_network_status` | Check safe/finalized block numbers and gas prices | ✅ Yes |
 
 ## Security
 
