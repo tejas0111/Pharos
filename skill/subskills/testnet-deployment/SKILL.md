@@ -70,6 +70,53 @@ Post-deploy: query getCode on the address, check explorer for verification, conf
 
 mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)
 
+## Pharos-Specific
+
+### Network Configuration
+
+Atlantic Testnet runs on chain ID `688689` with fast ~2s block times. Unlike Ethereum, PHRS transfers do **not** provide a 2300 gas stipend — your contracts must never use `.transfer()` or `.send()`.
+
+```bash
+# RPC (rate-limited: ~30 req/s sustained, ~100 req/s burst)
+PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
+
+# Forge deployment (use --delay 1000 between broadcast batches)
+forge script script/Deploy.s.sol \
+  --rpc-url $PHAROS_TESTNET_RPC_URL \
+  --chain-id 688689 \
+  --broadcast \
+  --delay 1000
+```
+
+### Verification
+
+PharosScan uses Blockscout under the hood. No API key needed for testnet:
+
+```bash
+forge verify-contract <ADDRESS> <CONTRACT> \
+  --chain 688689 \
+  --verifier blockscout \
+  --verifier-url https://atlantic.pharosscan.xyz/api
+```
+
+### Rate Limits & Block Range
+
+- `eth_getLogs` limited to **100 block range** per request
+- Use `safe` and `finalized` block tags for production reads (Pharos-specific RPC tags)
+- `eth_getAccount` is a Pharos-native RPC that returns balance, nonce, codeHash, and storageRoot in one call
+
+### Example: Deploy + Verify in One Command
+
+```bash
+forge script script/Deploy.s.sol \
+  --rpc-url https://atlantic.dplabs-internal.com \
+  --chain-id 688689 \
+  --broadcast \
+  --verify \
+  --verifier blockscout \
+  --verifier-url https://atlantic.pharosscan.xyz/api
+```
+
 ## Gate
 
 High risk — two-phase execution required:

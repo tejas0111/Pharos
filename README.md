@@ -1,6 +1,6 @@
 # Pharos Agent Dev Suite
 
-[![tests](https://img.shields.io/badge/tests-36%20passing-brightgreen)]()
+[![tests](https://img.shields.io/badge/tests-30%20passing-brightgreen)]()
 [![contracts](https://img.shields.io/badge/contracts-4%20verified-blue)]()
 [![tools](https://img.shields.io/badge/MCP%20tools-15-purple)]()
 [![subskills](https://img.shields.io/badge/subskills-46-orange)]()
@@ -10,6 +10,9 @@
 **A dual-layer Pharos Skill — 46 instruction subskills for human developers + 15 executable MCP tools for autonomous AI agents.**
 
 Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific Mainnet 1672).
+
+> ### The Cascade
+> An AI agent reads Pharos subskills in **Layer 1**, learns what to do, then calls **Layer 2** MCP tools to execute on-chain. See the full walkthrough in [`CASCADE.md`](./CASCADE.md).
 
 ### Layer 1: 46 Prompt-Only Subskills
 
@@ -231,7 +234,7 @@ skill/
   references/*.md       # network context, deployment patterns, harness
   scripts/*.sh          # deploy and verify scripts (Foundry and Hardhat)
 contracts/              # example Solidity contracts (3 deployed on testnet)
-test/                   # Foundry tests (36 passing)
+test/                   # Foundry tests (30 passing)
 script/                 # Forge deploy scripts
 config/                 # Pharos network configuration
 packages/               # shared TypeScript types (viem defineChain)

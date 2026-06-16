@@ -91,6 +91,66 @@ Check explorer shows ✅ Verified. Confirm Safe transaction queue shows the owne
 
 testnet-deployment (deploy action), mainnet-deployment (deploy action), production-ops (ongoing ops)
 
+## Pharos-Specific
+
+### PharosScan Verification
+
+PharosScan (powered by Blockscout) requires matching compiler settings exactly:
+
+```bash
+# Verify after deployment
+forge flatten contracts/MyContract.sol > flattened.sol
+
+# Submit via Blockscout API
+forge verify-contract <ADDRESS> MyContract \
+  --chain 688689 \
+  --verifier blockscout \
+  --verifier-url https://atlantic.pharosscan.xyz/api \
+  --constructor-args $(cast abi-encode "constructor(uint256,string)" 1000 "hello")
+```
+
+### Multi-Sig on Pharos
+
+Pharos Safe master copy: `0x41675C099F32341bf84BFc5382aF534df5C7461a`
+
+After deployment, transfer ownership to the Safe:
+
+```bash
+# Transfer ownership (OpenZeppelin Ownable)
+cast send $CONTRACT \
+  "transferOwnership(address)" \
+  $SAFE_ADDRESS \
+  --rpc-url $PHAROS_MAINNET_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+### Monitoring on Pharos
+
+Pharos supports `safe` and `finalized` block tags for production monitoring:
+
+```bash
+# Check finalized block (Pharos-specific)
+cast block finalized --rpc-url $PHAROS_TESTNET_RPC_URL
+
+# Monitor specific events
+cast logs --rpc-url $PHAROS_TESTNET_RPC_URL \
+  --from-block finalized-100 \
+  --to-block finalized \
+  --address $CONTRACT \
+  "Transfer(address indexed from, address indexed to, uint256 value)"
+```
+
+### Integration Tests Against Live Deployment
+
+Use fork tests pointing at real Pharos RPC:
+
+```bash
+forge test --fork-url $PHAROS_TESTNET_RPC_URL \
+  --match-contract IntegrationTest \
+  --chain-id 688689 \
+  -vvv
+```
+
 ## Gate
 
 High risk — two-phase execution required:

@@ -72,6 +72,55 @@ Post-deploy: query getCode on the address, check explorer for verification, conf
 
 testnet-deployment (testnet rehearsal), pharos-agent-dev-suite/deployment-and-verification (prep work)
 
+## Pharos-Specific
+
+### Network Configuration
+
+Pacific Mainnet runs on chain ID `1672` with currency **PROS** (not PHRS). PROS has real value — always simulate first and double-check gas budgets.
+
+```bash
+# RPC
+PHAROS_MAINNET_RPC_URL=https://pacific.dplabs-internal.com
+
+# Forge deployment with gas price control
+forge script script/Deploy.s.sol \
+  --rpc-url $PHAROS_MAINNET_RPC_URL \
+  --chain-id 1672 \
+  --broadcast \
+  --with-gas-price 1000000000 \
+  --delay 2000
+```
+
+### Verification (Requires API Key)
+
+Unlike testnet, mainnet verification on PharosScan requires `PHAROSSCAN_API_KEY`:
+
+```bash
+forge verify-contract <ADDRESS> <CONTRACT> \
+  --chain 1672 \
+  --verifier blockscout \
+  --verifier-url https://pharosscan.xyz/api \
+  --api-key $PHAROSSCAN_API_KEY
+```
+
+### Key Differences from Testnet
+
+| Aspect | Atlantic Testnet (688689) | Pacific Mainnet (1672) |
+|---|---|---|
+| Currency | PHRS (testnet, no value) | PROS (real value) |
+| Verification | Blockscout, no API key | Blockscout, API key required |
+| Gas price | Use default | Use `--with-gas-price 1 gwei` |
+| Multi-sig | Optional | Strongly recommended |
+| Rehearsal | First deployment | Deploy to testnet first |
+
+### Production Checklist
+
+- [ ] Testnet rehearsal completed and verified on Atlantic
+- [ ] Deployer has sufficient PROS balance (check with `pharos_check_balance`)
+- [ ] Multi-sig approval obtained (Pharos Safe: `0x41675C099F32341bf84BFc5382aF534df5C7461a`)
+- [ ] Emergency rollback plan ready (previous version's deploy artifacts)
+- [ ] Integration tests pass against testnet deployment before mainnet broadcast
+
 ## Gate
 
 High risk — two-phase execution required:
