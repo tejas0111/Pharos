@@ -92,14 +92,6 @@ p{font-size:.85rem;color:var(--gray);line-height:1.8;margin-bottom:1.5rem;max-wi
 .tool-card .arrow{font-size:.8rem;margin-top:auto;text-align:right;opacity:.3}
 .tool-card:hover .arrow{opacity:1}
 
-/* SCREENSHOTS */
-.screenshot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--gray-dark);border:1px solid var(--gray-dark)}
-@media(max-width:768px){.screenshot-grid{grid-template-columns:1fr}}
-.screenshot-card{background:var(--black);overflow:hidden;transition:opacity .4s}
-.screenshot-card img{width:100%;height:auto;display:block;filter:grayscale(100%) contrast(1.2);transition:filter .6s}
-.screenshot-card:hover img{filter:grayscale(0%) contrast(1)}
-.screenshot-card .cap{padding:.75rem 1rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray-mid);border-top:1px solid var(--gray-dark)}
-
 /* WHY */
 .why-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--gray-dark);border:1px solid var(--gray-dark)}
 @media(max-width:768px){.why-grid{grid-template-columns:1fr}}
@@ -222,27 +214,6 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   </div>
 </section>
 
-<section id="proof">
-  <div class="section-inner">
-    <div class="section-label reveal"><span class="num">03</span> / Proof</div>
-    <h2 class="reveal">On-Chain <span class="light">Proof</span></h2>
-    <div class="screenshot-grid reveal reveal-delay-1">
-      <div class="screenshot-card">
-        <img src="../screenshots/1-pharos.png" alt="ERC-20 on Atlantic Testnet" loading="lazy">
-        <div class="cap">ERC-20 on Atlantic Testnet</div>
-      </div>
-      <div class="screenshot-card">
-        <img src="../screenshots/2-pharos.png" alt="Contract verification" loading="lazy">
-        <div class="cap">Verified Contract</div>
-      </div>
-      <div class="screenshot-card">
-        <img src="../screenshots/3-pharos.png" alt="Transfer event log" loading="lazy">
-        <div class="cap">Transfer Event Log</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section id="why">
   <div class="section-inner">
     <div class="section-label reveal"><span class="num">04</span> / Rationale</div>
@@ -301,7 +272,7 @@ if (!('ontouchstart' in window)) {
     requestAnimationFrame(smooth);
   };
   smooth();
-  document.querySelectorAll('a, button, .tool-card, .cta, .screenshot-card').forEach(el => {
+  document.querySelectorAll('a, button, .tool-card, .cta').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
