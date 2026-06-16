@@ -1,6 +1,13 @@
 # Pharos Agent Dev Suite
 
-**A dual-layer Pharos Skill — 46 instruction subskills for human developers + 10 executable MCP tools for autonomous AI agents.**
+[![tests](https://img.shields.io/badge/tests-36%20passing-brightgreen)]()
+[![contracts](https://img.shields.io/badge/contracts-4%20verified-blue)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-15-purple)]()
+[![subskills](https://img.shields.io/badge/subskills-46-orange)]()
+[![license](https://img.shields.io/badge/license-MIT-green)]()
+[![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)]()
+
+**A dual-layer Pharos Skill — 46 instruction subskills for human developers + 15 executable MCP tools for autonomous AI agents.**
 
 Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific Mainnet 1672).
 
@@ -12,13 +19,16 @@ For human developers using AI coding assistants (Codex, Claude Code, OpenCode, G
 - **Approval gates** — higher-risk work requires explicit confirmation
 - **Structured output** — downstream agents can reuse results
 
-### Layer 2: 10 Executable MCP Tools
+### Layer 2: 15 Executable MCP Tools
 
 For autonomous AI agents that execute real on-chain operations:
 - **Deploy**, **verify**, and **transfer** on Pharos networks
-- **Check balances**, **fetch logs**, and **run security checks**
-- **Generate tests** and **get contract info** from PharosScan
-- **Deploy ERC-20 tokens** with custom name/symbol/supply
+- **Check balances**, **fetch logs**, and **trace transactions** with `debug_traceTransaction`
+- **Get account state** via Pharos-specific `eth_getAccount` RPC
+- **Monitor network status** with safe/finalized block tags
+- **Estimate gas** with EIP-1559 breakdown
+- **Run security checks** and **generate tests**
+- **Diagnose your environment** before on-chain actions
 
 ### Live On-Chain Proof
 
@@ -39,6 +49,17 @@ Two capabilities in this skill exist for **NO other blockchain**:
 | **SPN (Subnet Processing Network)** | `spn-development` | Pharos-native L2 subnets for dedicated compute — no other L1 offers this |
 | **RWA Compliance** | `rwa-compliance` | Real-world asset tokenization with regulatory checks — Pharos's core focus |
 
+### Why This Entry
+
+| Dimension | This Entry | Typical Entry |
+|---|---|---|
+| Format | **Dual-layer**: subskills + MCP tools | Single format only |
+| On-chain proof | **3 verified contracts** on Atlantic testnet | No deployment or code only |
+| Tool count | **46 subskills + 15 MCP tools** | Under 10 skills |
+| Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas patterns | Generic EVM advice |
+| Live demo | `token-workflow.sh` composes 4 tools end-to-end | No demo or single command |
+| Phase 2 ready | Anvita Flow integration (x402 micropayments) documented | No forward planning |
+
 ### Anvita Flow Ready
 
 This skill is pre-configured for deployment on **Anvita Flow** (Ant Group's AI Agent platform with x402 micropayments). See [ANVITA_FLOW_INTEGRATION.md](./ANVITA_FLOW_INTEGRATION.md) for Phase 2 readiness.
@@ -49,60 +70,27 @@ This skill is pre-configured for deployment on **Anvita Flow** (Ant Group's AI A
 npx skills add https://github.com/tejas0111/Pharos
 ```
 
-> **OpenClaw users:** `npx clawhub install https://github.com/tejas0111/Pharos`
-
-### OpenClaw (Pharos-native)
-
-```bash
-clawhub install https://github.com/tejas0111/Pharos
-```
-
-### Manual Setup
-
 <details>
-<summary><b>Codex</b></summary>
+<summary><b>Installation Details (expand for your AI tool)</b></summary>
 
-```bash
-mkdir -p ~/.codex/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.codex/skills/pharos-agent-dev-suite/
-```
+| Tool | Command |
+|------|---------|
+| OpenClaw | `npx clawhub install https://github.com/tejas0111/Pharos` |
+| Codex | `mkdir -p ~/.codex/skills/pharos-agent-dev-suite && cp -R skill/* ~/.codex/skills/pharos-agent-dev-suite/` |
+| Claude Code | `mkdir -p ~/.claude/skills/pharos-agent-dev-suite && cp -R skill/* ~/.claude/skills/pharos-agent-dev-suite/` |
+| OpenCode | Add `{"skills": ["skill/"]}` to `opencode.json` |
+| Gemini CLI | `mkdir -p ~/.gemini/skills/pharos-agent-dev-suite && cp -R skill/* ~/.gemini/skills/pharos-agent-dev-suite/` |
 </details>
 
-<details>
-<summary><b>Claude Code</b></summary>
+## Try It Now
 
 ```bash
-mkdir -p ~/.claude/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.claude/skills/pharos-agent-dev-suite/
+# 1. Check your environment (no PRIVATE_KEY needed)
+npx @pharos/mcp-server
+
+# 2. Or deploy to testnet in 30 seconds (requires PRIVATE_KEY in .env)
+forge script script/Counter.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast
 ```
-</details>
-
-<details>
-<summary><b>OpenCode</b></summary>
-
-Add to `opencode.json`:
-
-```json
-{
-  "skills": ["skill/"]
-}
-```
-
-Or symlink:
-
-```bash
-ln -s "$PWD/skill" ~/.opencode/skills/pharos-agent-dev-suite
-```
-</details>
-
-<details>
-<summary><b>Gemini CLI</b></summary>
-
-```bash
-mkdir -p ~/.gemini/skills/pharos-agent-dev-suite
-cp -R skill/* ~/.gemini/skills/pharos-agent-dev-suite/
-```
-</details>
 
 ## Usage
 
@@ -113,6 +101,64 @@ Reference a subskill in your prompt:
 ```
 
 The agent classifies your request, routes to the appropriate subskill, presents a plan, and executes with verification.
+
+## MCP Server
+
+The Pharos MCP Server exposes **15 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
+
+| # | Tool | Description | Executes? |
+|---|------|-------------|-----------|
+| 1 | `pharos_network_config` | Get network configuration (RPC, chain ID, explorer) | Static |
+| 2 | `pharos_deploy_contract` | Deploy a compiled contract via `forge script` | Yes |
+| 3 | `pharos_verify_contract` | Verify contract on PharosScan via explorer API | Yes |
+| 4 | `pharos_run_security_check` | Run `slither` + structured security review | Yes |
+| 5 | `pharos_generate_tests` | Write Foundry test file to disk | Yes |
+| 6 | `pharos_check_balance` | Check PHRS/PROS balance via RPC | Yes |
+| 7 | `pharos_contract_info` | Fetch contract metadata from explorer API | Yes |
+| 8 | `pharos_transfer_token` | Send PHRS/PROS using walletClient | Yes |
+| 9 | `pharos_deploy_erc20` | Deploy ERC-20 token via `forge create` | Yes |
+| 10 | `pharos_get_logs` | Fetch event logs with block range | Yes |
+| 11 | `pharos_diagnose` | Check environment: deps, RPC, env vars | Yes |
+| 12 | `pharos_get_account` | Get account state via Pharos-specific `eth_getAccount` RPC | Yes |
+| 13 | `pharos_gas_estimate` | Estimate gas prices with EIP-1559 breakdown | Yes |
+| 14 | `pharos_trace_transaction` | Trace a tx with `debug_traceTransaction` (Pharos enables this) | Yes |
+| 15 | `pharos_network_status` | Check safe/finalized block numbers and gas prices | Yes |
+
+### Quick Start
+
+```bash
+cd mcp-server
+npm install
+export PRIVATE_KEY=0x...
+export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
+node index.js
+```
+
+### Security Warning
+
+**Never hardcode your PRIVATE_KEY in any config file.** Always use environment variables or a secrets manager. The MCP server reads `PRIVATE_KEY` from the environment only and NEVER exposes it in tool output.
+
+### Claude Desktop Integration
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "pharos": {
+      "command": "node",
+      "args": ["/path/to/mcp-server/index.js"],
+      "env": {
+        "PRIVATE_KEY": "${PRIVATE_KEY}",
+        "PHAROS_TESTNET_RPC_URL": "https://atlantic.dplabs-internal.com",
+        "PHAROS_MAINNET_RPC_URL": "https://rpc.pharos.xyz"
+      }
+    }
+  }
+}
+```
+
+See [mcp-server/README.md](./mcp-server/README.md) for full documentation.
 
 ## Skill Map
 
@@ -185,11 +231,11 @@ skill/
   references/*.md       # network context, deployment patterns, harness
   scripts/*.sh          # deploy and verify scripts (Foundry and Hardhat)
 contracts/              # example Solidity contracts (3 deployed on testnet)
-test/                   # Foundry tests (15 passing)
+test/                   # Foundry tests (36 passing)
 script/                 # Forge deploy scripts
 config/                 # Pharos network configuration
 packages/               # shared TypeScript types (viem defineChain)
-mcp-server/             # MCP server with 10 executable tools for AI agents
+mcp-server/             # MCP server with 15 executable tools for AI agents
 .github/workflows/      # CI/CD deploy pipeline
 foundry.toml            # Foundry config with Pharos RPC endpoints
 hardhat.config.js       # Hardhat config with Pharos network definitions
@@ -222,59 +268,6 @@ bash skill/scripts/deploy-testnet.sh                    # broadcast
 ```
 
 Get testnet PHRS from the [Pharos Faucet](https://testnet.pharosnetwork.xyz).
-
-## MCP Server
-
-The Pharos MCP Server exposes **10 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
-
-| # | Tool | Description | Executes? |
-|---|------|-------------|-----------|
-| 1 | `pharos_network_config` | Get network configuration (RPC, chain ID, explorer) | Static |
-| 2 | `pharos_deploy_contract` | Deploy a compiled contract via `forge script` | Yes |
-| 3 | `pharos_verify_contract` | Verify contract on PharosScan via explorer API | Yes |
-| 4 | `pharos_run_security_check` | Run `slither` + structured security review | Yes |
-| 5 | `pharos_generate_tests` | Write Foundry test file to disk | Yes |
-| 6 | `pharos_check_balance` | Check PHRS/PROS balance via RPC | Yes |
-| 7 | `pharos_contract_info` | Fetch contract metadata from explorer API | Yes |
-| 8 | `pharos_transfer_token` | Send PHRS/PROS using walletClient | Yes |
-| 9 | `pharos_deploy_erc20` | Deploy ERC-20 token via `forge create` | Yes |
-| 10 | `pharos_get_logs` | Fetch event logs with block range | Yes |
-
-### Quick Start
-
-```bash
-cd mcp-server
-npm install
-export PRIVATE_KEY=0x...
-export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
-node index.js
-```
-
-### Security Warning
-
-**Never hardcode your PRIVATE_KEY in any config file.** Always use environment variables or a secrets manager. The MCP server reads `PRIVATE_KEY` from the environment only and NEVER exposes it in tool output.
-
-### Claude Desktop Integration
-
-Add to `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "pharos": {
-      "command": "node",
-      "args": ["/path/to/mcp-server/index.js"],
-      "env": {
-        "PRIVATE_KEY": "${PRIVATE_KEY}",
-        "PHAROS_TESTNET_RPC_URL": "https://atlantic.dplabs-internal.com",
-        "PHAROS_MAINNET_RPC_URL": "https://rpc.pharos.xyz"
-      }
-    }
-  }
-}
-```
-
-See [mcp-server/README.md](./mcp-server/README.md) for full documentation.
 
 ## Pharos Networks
 
