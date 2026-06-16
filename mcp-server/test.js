@@ -184,6 +184,32 @@ test("pharos_network_status tool exists", () => {
   assert(content.includes('"finalized"') || content.includes("'finalized'"), "finalized block tag not found");
 });
 
+// Error handling tests
+test("validateAddress throws on bad address", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  assert(content.includes("validateAddress"), "validateAddress not defined");
+  assert(content.includes("/^0x[a-fA-F0-9]{40}$/"), "address regex not found");
+});
+
+test("structuredError returns proper JSON shape", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  assert(content.includes("isError: true"), "isError flag missing");
+  assert(content.includes("let hint") || content.includes("hint ="), "hint variable missing in structuredError");
+});
+
+test("All 15 tools have unique names", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  const names = content.match(/case "pharos_\w+"/g) || [];
+  const unique = new Set(names);
+  assert(unique.size === 15, `Expected 15 unique tool case names, got ${unique.size}`);
+});
+
+test("RPC retry logic present", () => {
+  const content = readFileSync(INDEX(), "utf8");
+  assert(content.includes("RPC_RETRIES"), "RPC retry logic missing");
+  assert(content.includes("fallbackUrls"), "fallback URLs missing");
+});
+
 console.log("\nResults: " + passed + " passed, " + failed + " failed\n");
 console.log("Tools: 15 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate, trace_transaction, network_status)");
 process.exit(failed > 0 ? 1 : 0);

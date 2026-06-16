@@ -35,6 +35,7 @@ const NETWORKS = {
     name: "Atlantic Testnet",
     nativeCurrency: { name: "PHRS", symbol: "PHRS", decimals: 18 },
     rpcUrl: process.env.PHAROS_TESTNET_RPC_URL || "https://atlantic.dplabs-internal.com",
+    fallbackUrls: [],
     explorer: "https://atlantic.pharosscan.xyz",
     explorerApi: "https://atlantic.pharosscan.xyz/api",
     testnet: true,
@@ -44,6 +45,7 @@ const NETWORKS = {
     name: "Pacific Mainnet",
     nativeCurrency: { name: "PROS", symbol: "PROS", decimals: 18 },
     rpcUrl: process.env.PHAROS_MAINNET_RPC_URL || "https://rpc.pharos.xyz",
+    fallbackUrls: ["https://infra.orginstake.com/pharos/evm"],
     explorer: "https://www.pharosscan.xyz",
     explorerApi: "https://www.pharosscan.xyz/api",
     testnet: false,
@@ -54,6 +56,37 @@ function getNetwork(network = "atlanticTestnet") {
   const net = NETWORKS[network];
   if (!net) throw new Error(`Unknown network: ${network}. Use atlanticTestnet or pacificMainnet`);
   return net;
+}
+
+const RPC_RETRIES = 2;
+const RPC_TIMEOUT = 10000;
+
+async function rpcCall(network, method, params) {
+  const net = getNetwork(network);
+  const urls = [net.rpcUrl, ...(net.fallbackUrls || [])];
+  let lastErr;
+  for (const url of urls) {
+    for (let attempt = 0; attempt <= RPC_RETRIES; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), RPC_TIMEOUT);
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        const data = await response.json();
+        if (data.error) throw new Error(`RPC error: ${data.error.message}`);
+        return data.result;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < RPC_RETRIES) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+  }
+  throw new Error(`RPC failed after ${urls.length * (RPC_RETRIES + 1)} attempts: ${lastErr.message}`);
 }
 
 function getClient(network) {
@@ -591,29 +624,17 @@ async function diagnose(args) {
 // Tool 12 — pharos_get_account (Pharos-specific RPC)
 // ---------------------------------------------------------------------------
 async function getPharosAccount(args) {
-  const net = getNetwork(args.network);
   validateAddress(args.address, "address");
   try {
-    const response = await fetch(net.rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        method: "eth_getAccount",
-        params: [args.address, "latest"],
-        id: 1,
-      }),
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
+    const result = await rpcCall(args.network, "eth_getAccount", [args.address, "latest"]);
     return safeResult(withSubskill({
       action: "get_account",
-      network: net.name,
+      network: getNetwork(args.network).name,
       address: args.address,
-      balance: data.result.balance,
-      nonce: data.result.nonce,
-      codeHash: data.result.codeHash,
-      storageRoot: data.result.storageRoot,
+      balance: result.balance,
+      nonce: result.nonce,
+      codeHash: result.codeHash,
+      storageRoot: result.storageRoot,
     }, "get_account"));
   } catch (err) { return structuredError(err, "get_account"); }
 }
@@ -622,17 +643,13 @@ async function getPharosAccount(args) {
 // Tool 13 — pharos_gas_estimate
 // ---------------------------------------------------------------------------
 async function estimateGas(args) {
-  const net = getNetwork(args.network);
   try {
     const [gasPrice, maxPriorityFee] = await Promise.all([
-      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_gasPrice", params: [], id: 1 }) })
-        .then(r => r.json()).then(d => d.result),
-      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", method: "eth_maxPriorityFeePerGas", params: [], id: 1 }) })
-        .then(r => r.json()).then(d => d.result),
+      rpcCall(args.network, "eth_gasPrice", []),
+      rpcCall(args.network, "eth_maxPriorityFeePerGas", []),
     ]);
     const baseFee = (BigInt(gasPrice) - BigInt(maxPriorityFee)).toString();
+    const net = getNetwork(args.network);
     return safeResult(withSubskill({
       action: "gas_estimate",
       network: net.name,
@@ -649,28 +666,17 @@ async function estimateGas(args) {
 // Tool 14 — pharos_trace_transaction (Pharos enables debug_traceTransaction)
 // ---------------------------------------------------------------------------
 async function traceTransaction(args) {
-  const net = getNetwork(args.network);
   if (typeof args.txHash !== "string" || !/^0x[a-fA-F0-9]{64}$/.test(args.txHash)) {
     throw new Error("txHash: invalid transaction hash (must be 0x + 64 hex chars)");
   }
   try {
-    const response = await fetch(net.rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        method: "debug_traceTransaction",
-        params: [args.txHash, { tracer: "callTracer" }],
-        id: 1,
-      }),
-    });
-    const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
+    const trace = await rpcCall(args.network, "debug_traceTransaction", [args.txHash, { tracer: "callTracer" }]);
+    const net = getNetwork(args.network);
     return safeResult(withSubskill({
       action: "trace_transaction",
       network: net.name,
       txHash: args.txHash,
-      trace: data.result,
+      trace,
       explorerUrl: `${net.explorer}/tx/${args.txHash}`,
     }, "trace_transaction", args));
   } catch (err) { return structuredError(err, "trace_transaction"); }
@@ -680,20 +686,15 @@ async function traceTransaction(args) {
 // Tool 15 — pharos_network_status (safe + finalized block tags are Pharos-specific)
 // ---------------------------------------------------------------------------
 async function networkStatus(args) {
-  const net = getNetwork(args.network);
   try {
-    const rpc = (method, params) =>
-      fetch(net.rpcUrl, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }) })
-        .then(r => r.json()).then(d => { if (d.error) throw new Error(d.error.message); return d.result; });
-
     const [latest, safe, finalized, gasPrice] = await Promise.all([
-      rpc("eth_getBlockByNumber", ["latest", false]),
-      rpc("eth_getBlockByNumber", ["safe", false]),
-      rpc("eth_getBlockByNumber", ["finalized", false]),
-      rpc("eth_gasPrice", []),
+      rpcCall(args.network, "eth_getBlockByNumber", ["latest", false]),
+      rpcCall(args.network, "eth_getBlockByNumber", ["safe", false]),
+      rpcCall(args.network, "eth_getBlockByNumber", ["finalized", false]),
+      rpcCall(args.network, "eth_gasPrice", []),
     ]);
 
+    const net = getNetwork(args.network);
     const latestNum = BigInt(latest.number);
     const safeNum = BigInt(safe.number);
     const finalizedNum = BigInt(finalized.number);
