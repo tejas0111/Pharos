@@ -1,0 +1,40 @@
+name: MCP Server Tests
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "mcp-server/**"
+      - ".github/workflows/mcp-tests.yml"
+  pull_request:
+    paths:
+      - "mcp-server/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp-server
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: mcp-server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check syntax
+        run: node --check index.js
+
+      - name: Run MCP tests
+        run: node test.js
