@@ -1,66 +1,62 @@
-# Agent Composition Demo
+# Agent Demos
 
-This directory demonstrates **Skill-to-Agent composition** — chaining multiple MCP tools into a single autonomous workflow.
+This directory contains **real MCP client demos** that connect to the Pharos MCP server via stdio transport and execute tools — exactly as an AI agent would.
 
-## Workflow: Token Launch & Distribute
+| Demo | File | Tools Called | Requires PRIVATE_KEY? |
+|------|------|-------------|----------------------|
+| **MCP Quick Demo** | `mcp-demo.mjs` | 6 read-only tools (network, diagnose, gas, status, account, balance) | No |
+| **Token Workflow** | `token-workflow.mjs` | 8 tools — full lifecycle (deploy ERC-20, check balance, transfer, logs) | Only for real deployment |
+| **Cascade Demo** | `cascade-demo.mjs` | 5 tools — shows skill layer → tool layer → on-chain result | No |
 
-`token-workflow.sh` composes 3 MCP tools into a single pipeline:
+## Why This Matters
 
-```
-pharos_deploy_erc20 → pharos_check_balance → pharos_transfer_token
-```
+These demos prove the **Phase 2 Skill-to-Agent Dual Cascade** pipeline:
 
-| Step | Tool | Action |
-|------|------|--------|
-| 1 | `pharos_deploy_erc20` | Deploys a PharosERC20 token with name/symbol/supply |
-| 2 | `pharos_check_balance` | Reads the deployer's token balance from the chain |
-| 3 | `pharos_transfer_token` | Sends 100 tokens to a test recipient address |
+1. **Skill Creator** → writes subskills and MCP tools (this repo)
+2. **Agent** → reads subskills, calls MCP tools (simulated here via stdio)
+3. **Blockchain** → result on Pharos Atlantic Testnet / Pacific Mainnet
 
-### Why This Matters
-
-This demonstrates the **Phase 2 Skill-to-Agent pipeline** for the hackathon:
-
-1. **Skill Creator** → writes the subskills and MCP tools (this repo)
-2. **Agent Developer** → chains tools into a workflow script (this directory)
-3. **User Invocation** → runs the script with a single command
-
-Judges can see that the tools are not isolated — they can be composed into multi-step agent workflows that accomplish real tasks.
-
-### Usage
+## Usage
 
 ```bash
+# Quick demo (no key needed — 6 read-only tools)
+node agent/mcp-demo.mjs
+
+# Token workflow (no key = simulation, with key = real on-chain)
 export PRIVATE_KEY=0x...
-bash agent/token-workflow.sh
+node agent/token-workflow.mjs
+
+# Cascade demo (prints the skill→tool→blockchain flow)
+node agent/cascade-demo.mjs
 ```
 
-### Expected Output
+## Expected Output (token-workflow.mjs)
 
 ```
-════════════════════════════════════════════════
-  Pharos Token Agent — Atlantic Testnet (688689)
-════════════════════════════════════════════════
+  ✅ Connected — 18 tools available
 
-┌─ Step 1/3: Deploy PharosERC20 ──────────────────────┐
-│  ✓ Deployed at: 0x...
-└─────────────────────────────────────────────────────┘
+  ⚠  PRIVATE_KEY not set — deploys/transfers will be simulated
 
-┌─ Step 2/3: Check Deployer Balance ─────────────────┐
-│  Deployer: 0x...
-│  Balance: 1000000 PHT
-└─────────────────────────────────────────────────────┘
+  ──────────────────────────────────────────────────────
+    Step 1/8  pharos_network_config — Target Network
+  ──────────────────────────────────────────────────────
 
-┌─ Step 3/3: Transfer 100 PHT ───────────────────────┐
-│  ✓ Sent 100 PHT → 0x0000...1234
-└─────────────────────────────────────────────────────┘
+    ◆ Atlantic Testnet
+      Chain 688689 — https://atlantic.dplabs-internal.com
 
-════════════════════════════════════════════════
-  Workflow Complete!
-════════════════════════════════════════════════
+  ──────────────────────────────────────────────────────
+    Step 4/8  pharos_deploy_erc20 — Token Deployment
+  ──────────────────────────────────────────────────────
+  ...
+  ──────────────────────────────────────────────────────
+    Token Workflow Complete — simulated through MCP
+    18 tools registered
+  ──────────────────────────────────────────────────────
 ```
 
-### Extending
+## Extending
 
-This pattern can be extended to any workflow:
+Add new workflows by composing MCP tools:
 
 - **Audit Pipeline**: `deploy_contract` → `run_security_check` → `generate_tests`
 - **Deploy & Verify**: `deploy_contract` → `verify_contract` → `contract_info`

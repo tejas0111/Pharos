@@ -16,3 +16,4 @@ typechain-types/
 # Deploy artifacts
 deployments/localhost/
 broadcast/
+package-lock.json

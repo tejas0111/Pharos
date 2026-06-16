@@ -1,7 +1,7 @@
 # Pharos Agent Dev Suite
 
 [![tests](https://img.shields.io/badge/tests-30%20passing-brightgreen)]()
-[![contracts](https://img.shields.io/badge/contracts-4%20verified-blue)]()
+[![contracts](https://img.shields.io/badge/contracts-3%20verified-blue)]()
 [![tools](https://img.shields.io/badge/MCP%20tools-18-purple)]()
 [![subskills](https://img.shields.io/badge/subskills-42-orange)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
@@ -118,11 +118,17 @@ npx skills add https://github.com/tejas0111/Pharos
 ## Try It Now
 
 ```bash
-# 1. Check your environment (no PRIVATE_KEY needed)
-npx @pharos/mcp-server
+# 1. Run the MCP server (check environment, no PRIVATE_KEY needed)
+cd mcp-server && npm install && node index.js
 
-# 2. Or deploy to testnet in 30 seconds (requires PRIVATE_KEY in .env)
-forge script script/Counter.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast
+# 2. Run the MCP demo (6 read-only tools through real server — no key needed)
+node agent/mcp-demo.mjs
+
+# 3. Full token workflow (simulation mode — set PRIVATE_KEY for real on-chain)
+node agent/token-workflow.mjs
+
+# 4. Or deploy Counter to testnet with forge
+forge script script/Deploy.s.sol:DeployCounter --rpc-url https://atlantic.dplabs-internal.com --broadcast
 ```
 
 ## Usage
@@ -219,23 +225,19 @@ See [mcp-server/README.md](./mcp-server/README.md) for full documentation.
 | `refactoring-and-code-health` | behavior-preserving cleanup and structure improvements | required |
 | `dependency-upgrade-management` | package, toolchain, and version upgrades | required |
 | `performance-optimization` | runtime, render, bundle, and hot-path improvements | required |
-| `accessibility-review` | keyboard, semantics, contrast, screen-reader checks | required |
 | `release-notes-and-changelog` | release notes, changelog entries, PR summaries | optional |
 | `code-scaffolding-and-generation` | boilerplate, templates, and starter files | optional |
-| `state-management-integration` | query, store, cache, and client state wiring | required |
 | `monorepo-workspace-management` | workspace boundaries and shared tooling | required |
-| `localization-and-copy` | copy, strings, tone, and localization structure | optional |
 | `repo-automation-and-tooling` | scripts, automation, and local tooling | optional |
 | `deployment-for-testnet-and-mainnet` | network-aware deployment planning | required |
 | `contract-testing-for-testnet-and-mainnet` | network-specific contract tests and checks | required |
 | `code-review-templates-and-checklists` | PR checklists and review rubrics | optional |
-| `nextjs-app-router-and-server-actions` | App Router, route handlers, server actions | optional |
-| `react-ui-patterns-and-hooks` | React hooks and component patterns | optional |
 | `wagmi-viem-dapp-workflow` | wallet connect and contract flow helpers | optional |
 | `foundry-hardhat-contract-workflow` | Solidity dev workflows in Foundry or Hardhat | optional |
 | `remix-contract-workflow` | Remix/browser Solidity workflows | optional |
-| `tailwind-shadcn-ui-workflow` | Tailwind and shadcn/ui design systems | optional |
 | `cross-chain-bridge` | cross-chain bridge design and integration | required |
+| `dapp-quality` | a11y, i18n, Zustand state management for Pharos dapps | required |
+| `dapp-ui-workflow` | React, Next.js, Tailwind, shadcn components for Pharos dapps | required |
 | `upgrade-patterns` | proxy, beacon, and diamond upgrade strategies | required |
 | `gas-optimization` | gas profiling and optimization techniques | optional |
 | `security-audit` | comprehensive security review and audit | required |
@@ -265,7 +267,7 @@ skill/
   SKILL.md              # master skill -- routing and orchestration
   subskills/*/SKILL.md  # 42 focused subskills
   references/*.md       # network context, deployment patterns, harness
-  scripts/*.sh          # deploy and verify scripts (Foundry and Hardhat)
+  scripts/*.sh          # deploy and verify scripts (Foundry)
 contracts/              # example Solidity contracts (3 deployed on testnet)
 test/                   # Foundry tests (30 passing)
 script/                 # Forge deploy scripts
@@ -274,7 +276,6 @@ shared/                 # viem defineChain configs
 mcp-server/             # MCP server with 18 executable tools for AI agents
 .github/workflows/      # CI/CD deploy pipeline
 foundry.toml            # Foundry config with Pharos RPC endpoints
-hardhat.config.js       # Hardhat config with Pharos network definitions
 .env.example            # environment variable template
 LICENSE                 # MIT licensed
 DEPLOYMENTS.md          # live on-chain deployment proof

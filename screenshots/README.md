@@ -20,7 +20,7 @@ Run the token launch workflow and screenshot the terminal:
 
 ```bash
 export PRIVATE_KEY=0x...
-bash agent/token-workflow.sh
+node agent/token-workflow.mjs
 ```
 
 **What to capture**: The full terminal output showing all 3 steps — deploy, balance check, transfer — with the success messages and final explorer link.

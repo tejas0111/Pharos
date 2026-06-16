@@ -103,14 +103,14 @@ Works across all major AI coding assistants:
 ## Quick Start
 
 ```bash
-# 1. Check your environment (no PRIVATE_KEY needed)
-npx @pharos/mcp-server
+# 1. Run the MCP demo (no PRIVATE_KEY needed — 6 read-only tools)
+node agent/mcp-demo.mjs
 
-# 2. Deploy to testnet in 30 seconds (requires PRIVATE_KEY in .env)
-forge script script/Counter.s.sol --rpc-url https://atlantic.dplabs-internal.com --broadcast
+# 2. Full token workflow (set PRIVATE_KEY for real on-chain)
+node agent/token-workflow.mjs
 
-# 3. Run the token workflow demo
-bash agent/token-workflow.sh
+# 3. Deploy Counter to testnet with forge
+forge script script/Deploy.s.sol:DeployCounter --rpc-url https://atlantic.dplabs-internal.com --broadcast
 ```
 
 See the <a href="https://github.com/tejas0111/Pharos#try-it-now" target="_blank" rel="noopener noreferrer">README</a> for the full Try It Now quickstart.
@@ -122,13 +122,13 @@ skill/
   SKILL.md                 # Master routing & orchestration (1.2.0)
   subskills/*/SKILL.md     # 42 focused subskills
   references/*.md          # Network context, deployment patterns, harness
-  scripts/*.sh             # Deploy & verify scripts for Foundry & Hardhat
+  scripts/*.sh             # Deploy & verify scripts for Foundry
 
 contracts/                 # Example Solidity contracts (3 deployed)
-test/                      # Foundry tests (36 passing)
+test/                      # Foundry tests (30 passing)
 script/                    # Forge deploy scripts
 config/                    # Pharos network configuration
-packages/                  # Shared TypeScript types (viem defineChain)
+shared/                     # viem defineChain configs
 mcp-server/                # MCP server with 18 executable tools
 .github/workflows/         # CI/CD deploy pipeline
 DEPLOYMENTS.md             # Live on-chain deployment proof
@@ -165,7 +165,7 @@ DEPLOYMENTS.md             # Live on-chain deployment proof
 | **Originality & Creativity** | Dual-layer design: 42 instruction subskills + 18 executable MCP tools — the only skill offering both layers for Pharos development |
 | **Technical Quality** | 18 tools that actually execute (forge, viem RPC, Pharos-specific RPC, explorer API, slither), not just print commands. Private key sanitization. Error handling in every tool. Context-aware tips per tool. |
 | **Practical Use Case** | Full dev lifecycle coverage: deploy, verify, transfer, trace, gas estimate, network status, account state, security audit, test generation, log fetching |
-| **Reusability & Composability** | MCP tools chain together via the MCP protocol. See `agent/token-workflow.sh` for a 4-tool composition demo (diagnose → deploy ERC-20 → check balance → transfer). |
+| **Reusability & Composability** | MCP tools chain together via the MCP protocol. See `agent/token-workflow.mjs` for an 8-tool composition demo (network config → diagnose → balance check → deploy ERC-20 → post-deploy balance → transfer → event logs → network status). |
 | **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All addresses and tx hashes documented in `DEPLOYMENTS.md`. |
 | **Documentation** | 42 subskill READMEs, 250+ line master README, Anvita Flow integration guide, deployment proof, architecture diagram, agent composition demo |
 | **Pharos Vision Alignment** | Anvita Flow ready with x402 micropayments pre-configured. Phase 2 Agent Arena pipeline documented in `ANVITA_FLOW_INTEGRATION.md`. Pharos-native RPC methods (`eth_getAccount`, `debug_traceTransaction`, safe/finalized tags). |
@@ -187,3 +187,5 @@ See [screenshots/architecture.txt](./screenshots/architecture.txt) for the archi
 1. **Open the explorer**: https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e
 2. **Run the agent**: `node agent/mcp-demo.mjs`
 3. **Inspect the code**: Browse the skill suite at `skill/subskills/*/SKILL.md`
+
+> **Demo video**: [Link to your 90-second demo video](https://youtu.be/) — show the MCP server starting, tools being called, and the on-chain result.
