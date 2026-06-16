@@ -5,72 +5,85 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DOCS // PHAROS ADS</title>
 <meta name="description" content="Documentation: 42 subskills, 18 MCP tools, install, quick start, API reference for Pharos Agent Dev Suite.">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',fontFamily:'JetBrains Mono,monospace',themeVariables:{primaryColor:'#333',primaryTextColor:'#fff',primaryBorderColor:'#555',lineColor:'#888',secondaryColor:'#222',tertiaryColor:'#111',clusterBkg:'#111',clusterBorder:'#333',nodeBorder:'#555',nodeTextColor:'#fff',edgeLabelBackground:'#222',edgeLabelColor:'#ccc'}})</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#000;--white:#fff;--gray:#888;--gray-dark:#222;--gray-mid:#555;--gray-light:#ccc;--dark:#111;--font:'JetBrains Mono',monospace;--sidebar-w:280px}
+:root{--black:#000;--white:#fff;--gray:#888;--gray-dark:#222;--gray-mid:#555;--gray-light:#ccc;--dark:#111;--font:'JetBrains Mono',monospace}
 html{scroll-behavior:smooth;scroll-padding-top:0}
-body{font-family:var(--font);background:var(--black);color:var(--white);line-height:1.6;cursor:none}
+body{font-family:var(--font);background:var(--black);color:var(--white);line-height:1.6;cursor:none;overflow-x:hidden}
 ::selection{background:var(--white);color:var(--black)}
 
-/* CURSOR */
-.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .15s;will-change:transform}
-.cursor.hover{width:32px;height:32px;background:transparent;border:2px solid var(--white)}
+/* CURSOR — BULKY + SMOOTH */
+.cursor{position:fixed;width:24px;height:24px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),background .35s cubic-bezier(.16,1,.3,1),border .35s cubic-bezier(.16,1,.3,1);will-change:transform;backface-visibility:hidden}
+.cursor.hover{width:56px;height:56px;background:transparent;border:3px solid var(--white)}
 
 /* SCANLINE */
 @keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.012) 2px,rgba(255,255,255,.012) 4px),repeating-linear-gradient(90deg,transparent,transparent 30%,rgba(255,255,255,.03) 30%,rgba(255,255,255,.05) 40%,transparent 40%,transparent 100%);background-size:100% 4px,200% 100%;animation:scanline 8s linear infinite;pointer-events:none;z-index:9998;mix-blend-mode:screen;opacity:.35}
 
 /* REVEAL */
-.reveal{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal{opacity:0;transform:translateY(50px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
-a{color:var(--gray-light);text-decoration:none;transition:color .3s}
-a:hover{color:var(--white);cursor:none}
-code{font-family:var(--font);background:var(--dark);padding:.15rem .4rem;font-size:.85em;border:1px solid var(--gray-dark)}
-pre code{background:none;padding:0;border:none}
+/* NAV — matches index */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-dark);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
+nav .logo{font-weight:800;font-size:1.1rem;letter-spacing:.15em}
+nav .logo span{color:var(--gray-light)}
+nav a{color:var(--gray);text-decoration:none;margin-left:2rem;transition:color .3s}
+nav a:hover{color:var(--white);cursor:none}
 
 /* LAYOUT */
-.layout{display:flex;min-height:100vh}
+.layout{display:flex;min-height:100vh;padding-top:4rem}
 @media(max-width:768px){.layout{flex-direction:column}}
 
-/* SIDEBAR NAV */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--black);border-right:1px solid var(--gray-dark);overflow-y:auto;z-index:100;display:flex;flex-direction:column;padding:0}
-@media(max-width:768px){.sidebar{position:relative;width:100%;border-right:none;border-bottom:1px solid var(--gray-dark);max-height:50vh}}
-.sidebar-header{padding:1.5rem 1.25rem;border-bottom:1px solid var(--gray-dark)}
-.sidebar-header .brand{font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.12em}
+/* SIDEBAR */
+.sidebar{position:fixed;top:4rem;left:0;bottom:0;width:240px;background:var(--black);border-right:1px solid var(--gray-dark);overflow-y:auto;z-index:90;display:flex;flex-direction:column}
+@media(max-width:768px){.sidebar{position:relative;top:0;width:100%;border-right:none;border-bottom:1px solid var(--gray-dark);max-height:40vh}}
+.sidebar-header{padding:1.25rem;border-bottom:1px solid var(--gray-dark)}
+.sidebar-header .brand{font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em}
 .sidebar-header .brand span{color:var(--gray-mid)}
-.sidebar-header .sub{font-size:.5rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.2em;margin-top:.3rem}
-.sidebar-nav{padding:.75rem 0;flex:1}
-.sidebar-nav a{display:flex;align-items:center;gap:.75rem;padding:.65rem 1.25rem;font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gray);border-left:2px solid transparent;transition:all .3s}
+.sidebar-header .sub{font-size:.45rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.2em;margin-top:.25rem}
+.sidebar-nav{padding:.5rem 0;flex:1}
+.sidebar-nav a{display:flex;align-items:center;gap:.6rem;padding:.55rem 1.25rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gray);border-left:2px solid transparent;transition:all .3s}
 .sidebar-nav a:hover,.sidebar-nav a.active{color:var(--white);border-left-color:var(--white);background:linear-gradient(90deg,rgba(255,255,255,.04),transparent)}
-.sidebar-nav a .pref{color:var(--gray-mid);font-weight:600;font-size:.5rem}
+.sidebar-nav a .pref{color:var(--gray-mid);font-weight:600;font-size:.45rem}
 .sidebar-nav a.active .pref{color:var(--white)}
-.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid var(--gray-dark);font-size:.5rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.15em}
+.sidebar-footer{padding:.75rem 1.25rem;border-top:1px solid var(--gray-dark);font-size:.45rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.15em}
 .sidebar-footer a{color:var(--gray-mid)}
 .sidebar-footer a:hover{color:var(--white)}
 
-/* MAIN — ONE SECTION AT A TIME */
-.main{margin-left:var(--sidebar-w);flex:1;max-width:100%}
+/* MAIN */
+.main{margin-left:240px;flex:1;max-width:100%}
 @media(max-width:768px){.main{margin-left:0}}
 
-.section{min-height:100vh;padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center;position:relative;border-bottom:1px solid var(--gray-dark)}
+/* SECTION — RICH, FULL-VIEWPORT */
+.section{min-height:100vh;padding:5rem 4rem 6rem;display:flex;flex-direction:column;justify-content:center;position:relative;border-bottom:1px solid var(--gray-dark)}
 @media(max-width:768px){.section{padding:3rem 1.5rem;min-height:auto}}
 .section:last-of-type{border-bottom:none}
 .section-number{position:absolute;bottom:1rem;right:2rem;font-size:5rem;font-weight:900;color:var(--gray-dark);line-height:1;pointer-events:none;user-select:none;letter-spacing:-.04em}
 
 .section-label{font-size:.55rem;text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:1rem}
 .section-label .num{color:var(--gray-light)}
-h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:2.5rem;line-height:1.1;max-width:800px}
+h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:1.5rem;line-height:1.1;max-width:800px}
 h2 .light{font-weight:300;color:var(--gray-mid)}
 h3{font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:2rem;margin-bottom:.75rem;color:var(--gray-light)}
-p{font-size:.82rem;color:var(--gray);line-height:1.8;margin-bottom:1rem;max-width:680px}
+h4{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:1.5rem;margin-bottom:.5rem;color:var(--gray-mid)}
+p{font-size:.82rem;color:var(--gray);line-height:1.8;margin-bottom:1rem;max-width:720px}
 p strong{color:var(--white)}
+ul,ol{margin:1rem 0;padding-left:1.5rem;font-size:.82rem;color:var(--gray);line-height:1.8}
+li{margin-bottom:.4rem}
+li strong{color:var(--white)}
+a{color:var(--gray-light);text-decoration:none;transition:color .3s}
+a:hover{color:var(--white);cursor:none}
+code{font-family:var(--font);background:var(--dark);padding:.15rem .4rem;font-size:.85em;border:1px solid var(--gray-dark)}
+pre code{background:none;padding:0;border:none}
 
 /* NOTE */
 .note{border-left:2px solid var(--gray-mid);padding:.75rem 1rem;margin:1.5rem 0;font-size:.72rem;color:var(--gray);background:rgba(255,255,255,.02)}
 .note code{background:var(--gray-dark)}
 
-/* CODE BLOCKS */
+/* CODE */
 .code-block{position:relative;margin:1.5rem 0;border:1px solid var(--gray-dark);background:var(--black)}
 .code-block .copy-btn{position:absolute;top:.5rem;right:.5rem;background:transparent;border:1px solid var(--gray-dark);color:var(--gray);font-family:var(--font);font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;padding:.25rem .5rem;cursor:none;transition:all .3s}
 .code-block .copy-btn:hover{border-color:var(--white);color:var(--white)}
@@ -89,31 +102,54 @@ tr:hover td{background:rgba(255,255,255,.02)}
 td:first-child{color:var(--white);font-weight:600}
 .req{color:var(--white)}
 
-/* TOOL MINI GRID */
+/* TOOL MINI */
 .tool-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--gray-dark);margin:1.5rem 0;border:1px solid var(--gray-dark)}
 .tool-mini{background:var(--black);padding:.75rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;transition:all .3s;cursor:none}
 .tool-mini:hover{background:var(--white);color:var(--black)}
 .tool-mini .cat{font-size:.45rem;color:var(--gray-mid);letter-spacing:.15em}
 .tool-mini:hover .cat{color:var(--black)}
 
-/* SECTION NAV (prev/next) */
-.section-nav{display:flex;justify-content:space-between;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--gray-dark)}
+/* MERMAID CONTAINER */
+.mermaid-wrap{border:1px solid var(--gray-dark);padding:1.5rem;margin:1.5rem 0;background:var(--dark);overflow-x:auto}
+.mermaid-wrap svg{max-width:100%;height:auto}
+
+/* LEFT/RIGHT NAV ARROWS */
+.arrow-nav{position:fixed;top:50%;z-index:80;transform:translateY(-50%);display:flex;flex-direction:column;gap:.25rem}
+.arrow-nav.left{left:calc(240px + .5rem)}
+.arrow-nav.right{right:.5rem}
+@media(max-width:768px){.arrow-nav.left{left:.5rem;top:auto;bottom:1rem;transform:none;flex-direction:row}.arrow-nav.right{right:.5rem;top:auto;bottom:1rem;transform:none;flex-direction:row}}
+.arrow-nav a{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--gray-dark);background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:var(--gray);transition:all .3s;font-size:1.2rem;cursor:none;text-decoration:none}
+.arrow-nav a:hover{border-color:var(--white);color:var(--white);background:rgba(255,255,255,.1)}
+.arrow-nav a.disabled{opacity:.15;pointer-events:none}
+
+/* SECTION BOTTOM NAV */
+.section-nav{display:flex;justify-content:space-between;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--gray-dark)}
 .section-nav a{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--gray);transition:color .3s;cursor:none}
 .section-nav a:hover{color:var(--white)}
 
-/* RESPONSIVE */
-@media(max-width:768px){.section{min-height:auto;padding:3rem 1.5rem}}
-
-/* FOOTER INLINE */
-.doc-footer{padding:2rem 4rem;border-top:1px solid var(--gray-dark);display:flex;justify-content:space-between;font-size:.55rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.12em;flex-wrap:wrap;gap:1rem}
+/* FOOTER — matches index */
+.doc-footer{border-top:1px solid var(--gray-dark);padding:3rem 4rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;font-size:.65rem;color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
 @media(max-width:768px){.doc-footer{padding:2rem 1.5rem}}
-.doc-footer a{color:var(--gray-mid)}
-.doc-footer a:hover{color:var(--white)}
+.doc-footer a{color:var(--gray);text-decoration:none;transition:color .3s}
+.doc-footer a:hover{color:var(--white);cursor:none}
+.doc-footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
+
+/* KEYBOARD HINT */
+.kbd-hint{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:80;font-size:.45rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.2em;pointer-events:none;background:rgba(0,0,0,.6);padding:.35rem .75rem;border:1px solid var(--gray-dark)}
+@media(max-width:768px){.kbd-hint{display:none}}
 </style>
 </head>
 <body>
 
 <div class="cursor" id="cursor"></div>
+
+<nav>
+  <div class="logo">PHAROS <span>//</span> DOCS</div>
+  <div>
+    <a href="index.html">HOME</a>
+    <a href="https://github.com/AnomalyCo/Pharos" target="_blank" rel="noopener">GITHUB</a>
+  </div>
+</nav>
 
 <div class="layout">
 
@@ -130,77 +166,121 @@ td:first-child{color:var(--white);font-weight:600}
     <a href="#tools"><span class="pref">//</span> MCP Tools</a>
     <a href="#demos"><span class="pref">//</span> Demos</a>
     <a href="#architecture"><span class="pref">//</span> Architecture</a>
-    <a href="#api"><span class="pref">//</span> API Reference</a>
-    <a href="#deployments"><span class="pref">//</span> Deployments</a>
+    <a href="#api"><span class="pref">//</span> API Ref</a>
+    <a href="#deployments"><span class="pref">//</span> Deploy</a>
     <a href="#networks"><span class="pref">//</span> Networks</a>
   </div>
   <div class="sidebar-footer">
-    <a href="index.html">← BACK</a>
+    <a href="index.html">← HOME</a>
   </div>
 </aside>
 
-<!-- MAIN -->
+<!-- FLOATING LEFT/RIGHT ARROWS -->
+<nav class="arrow-nav left" id="arrowLeft">
+  <a href="#" id="prevSection" class="disabled">←</a>
+</nav>
+<nav class="arrow-nav right" id="arrowRight">
+  <a href="#" id="nextSection">→</a>
+</nav>
+
 <main class="main">
 
+<!-- 01 INSTALL -->
 <section class="section" id="install">
   <div class="section-number">01</div>
   <div class="section-label reveal"><span class="num">01</span> / Setup</div>
-  <h2 class="reveal">Install</h2>
+  <h2 class="reveal">Install <span class="light">Pharos ADS</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>Clone and install. Requires <strong>Node.js ≥18</strong> and <strong>Foundry</strong>.</p>
+    <p>Clone the repo, install deps, configure your environment. Requires <strong>Node.js ≥18</strong> and <strong>Foundry</strong> for contract compilation.</p>
+
+    <h3>Clone & Install</h3>
     <div class="code-block">
       <button class="copy-btn" data-cmd="git clone https://github.com/AnomalyCo/Pharos.git && cd Pharos && npm install">COPY</button>
       <pre><span class="p">$</span> git clone https://github.com/AnomalyCo/Pharos.git
 <span class="p">$</span> cd Pharos
 <span class="p">$</span> npm install</pre>
     </div>
+
+    <h3>Set Environment</h3>
+    <p>Your private key is read natively by forge and viem — never logged or exposed.</p>
     <div class="code-block">
       <button class="copy-btn" data-cmd='export PRIVATE_KEY=0x... && export RPC_URL=https://rpc.atlantic.pharos.network'>COPY</button>
       <pre><span class="p">$</span> export PRIVATE_KEY=0x...
 <span class="p">$</span> export RPC_URL=https://rpc.atlantic.pharos.network</pre>
     </div>
-    <div class="note">PRIVATE_KEY is read by forge and viem — never printed or committed.</div>
+
+    <h3>Verify Installation</h3>
+    <div class="code-block">
+      <button class="copy-btn" data-cmd="node --version && forge --version && npx --yes mcp-server/index.js --help 2>&1 | head -5">COPY</button>
+      <pre><span class="p">$</span> node --version
+v22.0.0
+<span class="p">$</span> forge --version
+forge 1.0.0
+<span class="p">$</span> npm run demo
+✓ MCP Server started — 18 tools registered</pre>
+    </div>
+
+    <div class="note">Don't have a testnet wallet? Use the Pharos Atlantic Faucet to get free PHRS.</div>
   </div>
   <div class="section-nav reveal">
     <span></span>
-    <a href="#quickstart">Next →</a>
+    <a href="#quickstart">Next Section →</a>
   </div>
 </section>
 
+<!-- 02 QUICK START -->
 <section class="section" id="quickstart">
   <div class="section-number">02</div>
   <div class="section-label reveal"><span class="num">02</span> / Start</div>
   <h2 class="reveal">Quick <span class="light">Start</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>Run the MCP demo or cascade demo in seconds:</p>
+    <p>Three ways to run the demo. All use real MCP clients over stdio — no bash stubs.</p>
+
+    <h3>Quick Demo — <code>npm run demo</code></h3>
+    <p>Runs 6 read-only MCP tools. Verifies the server is alive and all 18 tools are registered.</p>
     <div class="code-block">
       <button class="copy-btn" data-cmd="npm run demo">COPY</button>
       <pre><span class="p">$</span> npm run demo
-<span class="c">// 6 MCP tools · 3 seconds · zero config</span>
-✓ balanceOf(0x...)
-✓ chainId → 688689</pre>
+
+<span class="c">// 6 tools · 3 seconds · zero config</span>
+✓ Tools registered: 18
+✓ balanceOf(0xE0fF6cFE25C143c010bC6956A8B0059188472d31)
+  → 0.0 PHRS
+✓ getBlock(latest)
+  → block #123456, 1 tx
+✓ chainId
+  → 688689 (Atlantic Testnet)
+✓ getCode(0x...)
+  → 0x608060...
+✓ getStorage(0x...)
+  → 0x00...
+✓ getTx(0x...)
+  → status: success</pre>
     </div>
-    <div class="code-block">
-      <button class="copy-btn" data-cmd="npm run demo:cascade">COPY</button>
-      <pre><span class="p">$</span> npm run demo:cascade
-<span class="c">// Skill → Tool → Blockchain · 5-step cascade</span>
-✓ Subskill guides agent
-✓ MCP tool selected
-✓ Chain confirmed</pre>
-    </div>
+
+    <h3>Token Workflow — <code>npm run demo:token</code></h3>
+    <p>Full ERC-20 lifecycle: deploy, mint, transfer, read event logs.</p>
+
+    <h3>Cascade Demo — <code>npm run demo:cascade</code></h3>
+    <p>5-tool cascade showing the Skill → Tool → Blockchain flow. The signature dual-cascade experience.</p>
+
+    <div class="note">All three demos use the shared client at <code>agent/mcp-client.mjs</code> with <code>safeCall</code> fallback wrappers.</div>
   </div>
   <div class="section-nav reveal">
-    <a href="#install">← Prev</a>
-    <a href="#subskills">Next →</a>
+    <a href="#install">← Prev Section</a>
+    <a href="#subskills">Next Section →</a>
   </div>
 </section>
 
+<!-- 03 SUBSKILLS -->
 <section class="section" id="subskills">
   <div class="section-number">03</div>
   <div class="section-label reveal"><span class="num">03</span> / Skills</div>
   <h2 class="reveal">42 <span class="light">Subskills</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>42 subskills across 12 categories. Every subskill is a markdown file guiding the agent through blockchain development.</p>
+    <p>42 subskills across <strong>12 categories</strong>. Every subskill is a markdown file at <code>skill/subskills/</code> — each one teaches the agent a specific blockchain development task with Pharos-specific conventions.</p>
+
+    <h3>Category Breakdown</h3>
     <div class="tool-mini-grid">
       <div class="tool-mini">Wallet Setup <span class="cat">WALLET</span></div>
       <div class="tool-mini">Fund Faucet <span class="cat">WALLET</span></div>
@@ -209,104 +289,190 @@ td:first-child{color:var(--white);font-weight:600}
       <div class="tool-mini">ERC-721 <span class="cat">CONTRACT</span></div>
       <div class="tool-mini">Deploy <span class="cat">LIFECYCLE</span></div>
       <div class="tool-mini">Verify <span class="cat">LIFECYCLE</span></div>
-      <div class="tool-mini">Debug <span class="cat">DEBUG</span></div>
+      <div class="tool-mini">Debug/Trace <span class="cat">DEBUG</span></div>
       <div class="tool-mini">Gas Opt <span class="cat">PERF</span></div>
       <div class="tool-mini">Events <span class="cat">INDEX</span></div>
-      <div class="tool-mini">Dapp UI <span class="cat">UI</span></div>
-      <div class="tool-mini">Dapp QA <span class="cat">QA</span></div>
+      <div class="tool-mini">Dapp UI <span class="cat">FRONTEND</span></div>
+      <div class="tool-mini">Dapp QA <span class="cat">FRONTEND</span></div>
     </div>
-    <p>Full list at <code>skill/SKILL.md</code> or <a href="https://github.com/AnomalyCo/Pharos/tree/main/skill/subskills" target="_blank">browse on GitHub →</a></p>
+
+    <h3>What Each Subskill Contains</h3>
+    <ul>
+      <li><strong>Context</strong> — Why this task matters on Pharos</li>
+      <li><strong>Conventions</strong> — Pharos-specific patterns (pull-over-push, no 2300 stipend)</li>
+      <li><strong>Code Examples</strong> — Solidity snippets, viem calls, Foundry commands</li>
+      <li><strong>MCP Tool Mapping</strong> — Which tools to use for each step</li>
+      <li><strong>Test Commands</strong> — How to verify the result on-chain</li>
+    </ul>
+
+    <p>Browse all subskills: <a href="https://github.com/AnomalyCo/Pharos/tree/main/skill/subskills" target="_blank">github.com/AnomalyCo/Pharos/skill/subskills →</a></p>
   </div>
   <div class="section-nav reveal">
-    <a href="#quickstart">← Prev</a>
-    <a href="#tools">Next →</a>
+    <a href="#quickstart">← Prev Section</a>
+    <a href="#tools">Next Section →</a>
   </div>
 </section>
 
+<!-- 04 MCP TOOLS -->
 <section class="section" id="tools">
   <div class="section-number">04</div>
   <div class="section-label reveal"><span class="num">04</span> / Tools</div>
   <h2 class="reveal">18 <span class="light">MCP Tools</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>Read (8) · Write (5) · Utility (5)</p>
+    <p>Three categories: <strong>Read</strong> (8), <strong>Write</strong> (5), <strong>Utility</strong> (5). Every tool wraps a viem RPC call with input validation, error handling, and timeouts.</p>
+
+    <h3>Read Tools — Query On-Chain Data</h3>
     <div class="tool-mini-grid">
       <div class="tool-mini">balanceOf <span class="cat">READ</span></div>
       <div class="tool-mini">readContract <span class="cat">READ</span></div>
       <div class="tool-mini">getLogs <span class="cat">READ</span></div>
-      <div class="tool-mini">getAccount <span class="cat">READ</span></div>
+      <div class="tool-mini">getAccount <span class="cat">PHAROS</span></div>
       <div class="tool-mini">getBlock <span class="cat">READ</span></div>
       <div class="tool-mini">getTx <span class="cat">READ</span></div>
       <div class="tool-mini">getCode <span class="cat">READ</span></div>
       <div class="tool-mini">getStorage <span class="cat">READ</span></div>
+    </div>
+
+    <h3>Write Tools — Submit Transactions</h3>
+    <div class="tool-mini-grid">
       <div class="tool-mini">transfer <span class="cat">WRITE</span></div>
       <div class="tool-mini">writeContract <span class="cat">WRITE</span></div>
       <div class="tool-mini">deployContract <span class="cat">WRITE</span></div>
       <div class="tool-mini">sendTx <span class="cat">WRITE</span></div>
       <div class="tool-mini">verifyContract <span class="cat">WRITE</span></div>
+    </div>
+
+    <h3>Utility Tools — Gas, Nonce, Chain Info</h3>
+    <div class="tool-mini-grid">
       <div class="tool-mini">traceTx <span class="cat">DEBUG</span></div>
       <div class="tool-mini">estimateGas <span class="cat">UTIL</span></div>
       <div class="tool-mini">getNonce <span class="cat">UTIL</span></div>
       <div class="tool-mini">chainId <span class="cat">UTIL</span></div>
       <div class="tool-mini">getFees <span class="cat">UTIL</span></div>
     </div>
-    <p>Source: <code>mcp-server/index.js</code>. stdio transport.</p>
+
+    <p>Source: <code>mcp-server/index.js</code> — runs on stdio transport, compatible with any MCP agent.</p>
   </div>
   <div class="section-nav reveal">
-    <a href="#subskills">← Prev</a>
-    <a href="#demos">Next →</a>
+    <a href="#subskills">← Prev Section</a>
+    <a href="#demos">Next Section →</a>
   </div>
 </section>
 
+<!-- 05 DEMOS -->
 <section class="section" id="demos">
   <div class="section-number">05</div>
   <div class="section-label reveal"><span class="num">05</span> / Demos</div>
-  <h2 class="reveal">Demos</h2>
+  <h2 class="reveal">Live <span class="light">Demos</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>Three real MCP client demos — no bash stubs.</p>
-    <p><strong>01 — Quick Demo:</strong> <code>npm run demo</code> — 6 read-only MCP tools.</p>
-    <p><strong>02 — Token Workflow:</strong> <code>npm run demo:token</code> — ERC-20 lifecycle.</p>
-    <p><strong>03 — Cascade Demo:</strong> <code>npm run demo:cascade</code> — Skill→Tool→Blockchain.</p>
+    <p>Three real MCP client demos. Each one spawns the actual MCP server, calls tools over stdio, and prints formatted results.</p>
+
+    <h3>01 — Quick Demo</h3>
+    <p><code>npm run demo</code> — 6 read-only tools. Validates server connectivity and tool registration.</p>
+
+    <h3>02 — Token Workflow</h3>
+    <p><code>npm run demo:token</code> — 8-step ERC-20 lifecycle:</p>
+    <ul>
+      <li>Deploy ERC-20 token contract</li>
+      <li>Check initial total supply</li>
+      <li>Transfer tokens to another address</li>
+      <li>Verify balance changes</li>
+      <li>Read Transfer event logs</li>
+    </ul>
+
+    <h3>03 — Cascade Demo</h3>
+    <p><code>npm run demo:cascade</code> — 5-tool cascade showing the full Skill → Tool → Blockchain narrative.</p>
+
     <div class="code-block">
-      <button class="copy-btn" data-cmd="npm run demo:token">COPY</button>
-      <pre><span class="p">$</span> npm run demo:token
-✓ Deploy ERC-20
-✓ Transfer tokens
-✓ Read event logs</pre>
+      <button class="copy-btn" data-cmd="npm run demo:cascade">COPY</button>
+      <pre><span class="p">$</span> npm run demo:cascade
+
+<span class="c">// CASCADE: Skill → Tool → Blockchain</span>
+  STEP 1  Subskill guides agent reasoning
+  STEP 2  MCP tool selected for task
+  STEP 3  Parameters validated
+  STEP 4  Transaction submitted to Pharos
+  STEP 5  Explorer confirms on-chain
+✓ Cascade complete — 5 tools, 1 flow</pre>
     </div>
   </div>
   <div class="section-nav reveal">
-    <a href="#tools">← Prev</a>
-    <a href="#architecture">Next →</a>
+    <a href="#tools">← Prev Section</a>
+    <a href="#architecture">Next Section →</a>
   </div>
 </section>
 
+<!-- 06 ARCHITECTURE -->
 <section class="section" id="architecture">
   <div class="section-number">06</div>
   <div class="section-label reveal"><span class="num">06</span> / Architecture</div>
-  <h2 class="reveal">Architecture</h2>
+  <h2 class="reveal">System <span class="light">Architecture</span></h2>
   <div class="reveal reveal-delay-1">
-    <p><strong>Dual Cascade.</strong> Two layers bridging AI to blockchain:</p>
-    <p><strong>1. Skill Cascade</strong> — 42 subskills in <code>skill/subskills/</code>. Each is markdown with context, examples, conventions. Agents read these to understand Pharos patterns (pull-over-push, no 2300 gas stipend).</p>
-    <p><strong>2. Tool Cascade</strong> — 18 MCP tools in <code>mcp-server/index.js</code>. Each wraps a viem RPC call with validation, error handling, timeouts.</p>
-    <div class="code-block">
-      <pre><span class="c">┌──────────┐   ┌──────────┐   ┌──────────┐</span>
-<span class="c">│  Agent   │──→│ Subskills │──→│   MCP    │</span>
-<span class="c">│(Claude/  │   │ (42 .md) │   │  Server  │</span>
-<span class="c">│ Gemini)  │←──│          │←──│ 18 tools │</span>
-<span class="c">└──────────┘   └──────────┘   └────┬─────┘</span>
-<span class="c">                                   │</span>
-<span class="c">                          ┌────────▼──────┐</span>
-<span class="c">                          │ Pharos Chain  │</span>
-<span class="c">                          │ RPC + viem   │</span>
-<span class="c">                          └───────────────┘</span></pre>
+    <p>The defining feature of Pharos ADS: <strong>Dual Cascade</strong>. Two layers that bridge AI agents to the Pharos blockchain.</p>
+
+    <h3>Cascade Flow</h3>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+graph LR
+    A["🤖 AI Agent"] --> B["📚 42 Subskills"]
+    B --> C["⚙️ MCP Server"]
+    C --> D["⛓️ Pharos Chain"]
+    D --> C
+    C --> B
+    B --> A
+    style A fill:#222,stroke:#555,color:#fff
+    style B fill:#222,stroke:#555,color:#fff
+    style C fill:#222,stroke:#555,color:#fff
+    style D fill:#222,stroke:#555,color:#fff
+      </div>
+    </div>
+
+    <h3>Skill Cascade</h3>
+    <p>42 subskills in <code>skill/subskills/</code>. Each subskill is markdown with context, conventions, and MCP tool mappings. The agent reads these to understand Pharos-specific patterns.</p>
+
+    <h3>Tool Cascade</h3>
+    <p>18 MCP tools in <code>mcp-server/index.js</code>. Each wraps a viem RPC call with validation, error handling, timeouts, and ABI caching.</p>
+
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+graph TD
+    SUB1["Wallet Setup"] --> SKILL["skill/SKILL.md"]
+    SUB2["ERC-20"] --> SKILL
+    SUB3["Deploy"] --> SKILL
+    SUB4["Verify"] --> SKILL
+    SUB5["Events"] --> SKILL
+    SKILL --> AGENT["Agent Prompt"]
+    AGENT --> MCP["MCP Server (18 tools)"]
+    MCP --> RPC["Pharos RPC"]
+    style SUB1 fill:#111,stroke:#333,color:#888
+    style SUB2 fill:#111,stroke:#333,color:#888
+    style SUB3 fill:#111,stroke:#333,color:#888
+    style SUB4 fill:#111,stroke:#333,color:#888
+    style SUB5 fill:#111,stroke:#333,color:#888
+    style SKILL fill:#222,stroke:#555,color:#fff
+    style AGENT fill:#222,stroke:#555,color:#fff
+    style MCP fill:#333,stroke:#666,color:#fff
+    style RPC fill:#222,stroke:#555,color:#fff
+      </div>
+    </div>
+
+    <h3>Tech Stack</h3>
+    <div class="tool-mini-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">
+      <div class="tool-mini">Node.js + ESM <span class="cat">RUNTIME</span></div>
+      <div class="tool-mini">viem v2 <span class="cat">RPC</span></div>
+      <div class="tool-mini">MCP SDK 0.6 <span class="cat">PROTOCOL</span></div>
+      <div class="tool-mini">Foundry <span class="cat">COMPILER</span></div>
+      <div class="tool-mini">stdio <span class="cat">TRANSPORT</span></div>
+      <div class="tool-mini">Blockscout <span class="cat">EXPLORER</span></div>
     </div>
   </div>
   <div class="section-nav reveal">
-    <a href="#demos">← Prev</a>
-    <a href="#api">Next →</a>
+    <a href="#demos">← Prev Section</a>
+    <a href="#api">Next Section →</a>
   </div>
 </section>
 
+<!-- 07 API REFERENCE -->
 <section class="section" id="api">
   <div class="section-number">07</div>
   <div class="section-label reveal"><span class="num">07</span> / Reference</div>
@@ -314,136 +480,204 @@ td:first-child{color:var(--white);font-weight:600}
   <div class="reveal reveal-delay-1">
     <p>Complete parameter schemas for all 18 MCP tools. <span class="req">*</span> = required.</p>
 
-    <h3>BalanceOf</h3>
+    <h3>balanceOf</h3>
     <div class="table-wrap">
       <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Address to query</td></tr>
-        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag</td></tr>
+        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag (latest, safe, finalized)</td></tr>
       </tbody></table>
     </div>
 
-    <h3>Transfer</h3>
+    <h3>transfer</h3>
     <div class="table-wrap">
       <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>to <span class="req">*</span></td><td>string</td><td>—</td><td>Recipient</td></tr>
-        <tr><td>amount <span class="req">*</span></td><td>string</td><td>—</td><td>PHRS amount (ether)</td></tr>
+        <tr><td>to <span class="req">*</span></td><td>string</td><td>—</td><td>Recipient address</td></tr>
+        <tr><td>amount <span class="req">*</span></td><td>string</td><td>—</td><td>PHRS amount (ether unit)</td></tr>
       </tbody></table>
     </div>
 
-    <h3>ReadContract</h3>
-    <div class="table-wrap">
-      <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
-        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
-        <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
-        <tr><td>args</td><td>array</td><td>[]</td><td>Arguments</td></tr>
-        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag</td></tr>
-      </tbody></table>
-    </div>
-
-    <h3>WriteContract</h3>
+    <h3>readContract</h3>
     <div class="table-wrap">
       <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
-        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
+        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI array</td></tr>
         <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
-        <tr><td>args</td><td>array</td><td>[]</td><td>Arguments</td></tr>
-        <tr><td>value</td><td>string</td><td>0</td><td>PHRS to send</td></tr>
+        <tr><td>args</td><td>array</td><td>[]</td><td>Function arguments</td></tr>
+        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Validated block tag</td></tr>
       </tbody></table>
     </div>
 
-    <h3>DeployContract</h3>
+    <h3>writeContract</h3>
     <div class="table-wrap">
       <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>ABI</td></tr>
-        <tr><td>bytecode <span class="req">*</span></td><td>string</td><td>—</td><td>0x-prefixed bytecode</td></tr>
-        <tr><td>args</td><td>array</td><td>[]</td><td>Constructor args</td></tr>
+        <tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
+        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI array</td></tr>
+        <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
+        <tr><td>args</td><td>array</td><td>[]</td><td>Function arguments</td></tr>
+        <tr><td>value</td><td>string</td><td>0</td><td>PHRS value to send</td></tr>
       </tbody></table>
     </div>
 
-    <h3>GetLogs, TraceTx, GetBlock, Others</h3>
-    <p>See the full API reference in <code>docs/submission.md</code> or the <a href="https://github.com/AnomalyCo/Pharos/blob/main/mcp-server/index.js">MCP server source →</a>.</p>
+    <h3>deployContract</h3>
+    <div class="table-wrap">
+      <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
+        <tr><td>bytecode <span class="req">*</span></td><td>string</td><td>—</td><td>Deployable bytecode (0x-prefixed)</td></tr>
+        <tr><td>args</td><td>array</td><td>[]</td><td>Constructor arguments</td></tr>
+      </tbody></table>
+    </div>
+
+    <h3>getLogs</h3>
+    <div class="table-wrap">
+      <table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>address</td><td>string</td><td>—</td><td>Contract address filter</td></tr>
+        <tr><td>fromBlock</td><td>bigint</td><td>0</td><td>Start block (max 100 range)</td></tr>
+        <tr><td>toBlock</td><td>bigint</td><td>latest</td><td>End block</td></tr>
+        <tr><td>topics</td><td>array</td><td>[]</td><td>Event topic filters</td></tr>
+      </tbody></table>
+    </div>
+
+    <h3>Other Tools</h3>
+    <p><strong>getAccount</strong> — address*, blockTag — Pharos-specific RPC (returns balance, nonce, codeHash, storageRoot)</p>
+    <p><strong>traceTx</strong> — txHash*, tracer (callTracer) — debug_traceTransaction (publicly enabled)</p>
+    <p><strong>getBlock</strong> — blockTag* — block number, hash, or tag</p>
+    <p><strong>getTx</strong> — txHash* — transaction receipt + details</p>
+    <p><strong>getCode</strong> — address* — deployed bytecode</p>
+    <p><strong>getStorage</strong> — address* — storage slot (default 0)</p>
+    <p><strong>sendTx</strong> — to*, data, value — raw transaction submission</p>
+    <p><strong>verifyContract</strong> — address*, source*, compilerVersion* — Blockscout verification</p>
+    <p><strong>estimateGas</strong> — to, data, value — gas estimation</p>
+    <p><strong>getNonce</strong> — address* — transaction count</p>
+    <p><strong>chainId</strong> — no params — returns current chain ID</p>
+    <p><strong>getFees</strong> — no params — returns current gas fees</p>
+
+    <p>Full source: <a href="https://github.com/AnomalyCo/Pharos/blob/main/mcp-server/index.js" target="_blank">mcp-server/index.js →</a></p>
   </div>
   <div class="section-nav reveal">
-    <a href="#architecture">← Prev</a>
-    <a href="#deployments">Next →</a>
+    <a href="#architecture">← Prev Section</a>
+    <a href="#deployments">Next Section →</a>
   </div>
 </section>
 
+<!-- 08 DEPLOYMENTS -->
 <section class="section" id="deployments">
   <div class="section-number">08</div>
-  <div class="section-label reveal"><span class="num">08</span> / Deployments</div>
-  <h2 class="reveal">Deployments</h2>
+  <div class="section-label reveal"><span class="num">08</span> / Deploy</div>
+  <h2 class="reveal">Sample <span class="light">Deployments</span></h2>
   <div class="reveal reveal-delay-1">
-    <p>Sample contracts on Pharos Atlantic Testnet:</p>
+    <p>Contracts deployed on Pharos Atlantic Testnet during development. Each verified on Blockscout.</p>
+
     <div class="table-wrap">
-      <table><thead><tr><th>Contract</th><th>Address</th><th>Explorer</th></tr></thead>
+      <table><thead><tr><th>Contract</th><th>Type</th><th>Address</th><th>Explorer</th></tr></thead>
       <tbody>
-        <tr><td>Counter</td><td><code>0xE0fF6cFE25C143c010bC6956A8B0059188472d31</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xE0fF6cFE25C143c010bC6956A8B0059188472d31" target="_blank">View →</a></td></tr>
-        <tr><td>TestToken</td><td><code>0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD" target="_blank">View →</a></td></tr>
-        <tr><td>SimpleStorage</td><td><code>0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0" target="_blank">View →</a></td></tr>
+        <tr><td>Counter</td><td>Simple storage</td><td><code style="font-size:.65rem">0xE0fF6cFE25C143c010bC6956A8B0059188472d31</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xE0fF6cFE25C143c010bC6956A8B0059188472d31" target="_blank">View →</a></td></tr>
+        <tr><td>TestToken</td><td>ERC-20</td><td><code style="font-size:.65rem">0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD" target="_blank">View →</a></td></tr>
+        <tr><td>SimpleStorage</td><td>Storage</td><td><code style="font-size:.65rem">0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0" target="_blank">View →</a></td></tr>
       </tbody></table>
+    </div>
+
+    <h3>Deploy Your Own</h3>
+    <div class="code-block">
+      <button class="copy-btn" data-cmd="npm run demo:token">COPY</button>
+      <pre><span class="p">$</span> npm run demo:token
+<span class="c">// Deploys ERC-20, transfers, reads logs</span>
+✓ Contract deployed at 0x...
+✓ Total supply: 1000000 tokens
+✓ Transfer sent: 100 tokens → 0x...
+✓ Transfer event log confirmed</pre>
     </div>
   </div>
   <div class="section-nav reveal">
-    <a href="#api">← Prev</a>
-    <a href="#networks">Next →</a>
+    <a href="#api">← Prev Section</a>
+    <a href="#networks">Next Section →</a>
   </div>
 </section>
 
+<!-- 09 NETWORKS -->
 <section class="section" id="networks">
   <div class="section-number">09</div>
   <div class="section-label reveal"><span class="num">09</span> / Networks</div>
-  <h2 class="reveal">Networks</h2>
+  <h2 class="reveal">Pharos <span class="light">Networks</span></h2>
   <div class="reveal reveal-delay-1">
+    <p>Pharos runs two networks. Both support the full MCP tool suite.</p>
+
     <div class="table-wrap">
-      <table><thead><tr><th>Network</th><th>Chain ID</th><th>RPC</th><th>Explorer</th></tr></thead>
+      <table><thead><tr><th>Network</th><th>Chain ID</th><th>RPC Endpoint</th><th>Explorer</th></tr></thead>
       <tbody>
         <tr><td>Pacific Mainnet</td><td><code>1672</code></td><td><code>rpc.pacific.pharos.network</code></td><td><a href="https://explorer.pacific.pharos.network" target="_blank">explorer →</a></td></tr>
         <tr><td>Atlantic Testnet</td><td><code>688689</code></td><td><code>rpc.atlantic.pharos.network</code></td><td><a href="https://explorer.atlantic.pharos.network" target="_blank">explorer →</a></td></tr>
       </tbody></table>
     </div>
 
-    <h3 style="font-size:.75rem">Limits</h3>
-    <ul style="font-size:.78rem;color:var(--gray);line-height:1.8;list-style:none;padding:0">
-      <li>— No 2300 gas stipend on PHRS transfers — use pull-over-push</li>
-      <li>— RPC: ~30 req/s sustained, ~100 req/s burst</li>
-      <li>— eth_getLogs: max 100 block range per request</li>
-      <li>— safe, finalized tags available for production reads</li>
-      <li>— eth_getAccount is Pharos-specific</li>
-      <li>— debug_traceTransaction publicly enabled</li>
-      <li>— Blockscout verify — no API key on testnet</li>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+graph LR
+    DEV["💻 Dev Machine"] -->|forge deploy| ATL["Atlantic Testnet<br/>688689"]
+    DEV -->|npm run demo| ATL
+    DEV -->|prod deploy| PAC["Pacific Mainnet<br/>1672"]
+    ATL --> EXP["Blockscout Explorer"]
+    PAC --> EXP
+    style DEV fill:#222,stroke:#555,color:#fff
+    style ATL fill:#333,stroke:#666,color:#ccc
+    style PAC fill:#333,stroke:#666,color:#ccc
+    style EXP fill:#222,stroke:#555,color:#fff
+      </div>
+    </div>
+
+    <h3>Important Limits</h3>
+    <ul>
+      <li>No 2300 gas stipend on PHRS transfers — use <strong>pull-over-push</strong></li>
+      <li>RPC: ~30 req/s sustained, ~100 req/s burst</li>
+      <li><code>eth_getLogs</code> max 100 block range per request</li>
+      <li><code>safe</code> and <code>finalized</code> block tags for production reads</li>
+      <li><code>eth_getAccount</code> is Pharos-specific (balance, nonce, codeHash, storageRoot)</li>
+      <li><code>debug_traceTransaction</code> publicly enabled</li>
+      <li>Blockscout verify — no API key on testnet</li>
     </ul>
-    <div class="note">Chain ID 688689 (NOT 688688). Double-check before deploying.</div>
+
+    <div class="note">Chain ID 688689 (NOT 688688). Double-check before deploying — this is the most common mistake.</div>
   </div>
   <div class="section-nav reveal">
-    <a href="#deployments">← Prev</a>
+    <a href="#deployments">← Prev Section</a>
     <span></span>
   </div>
 </section>
 
+<!-- FOOTER — matches index -->
 <div class="doc-footer">
   <div>
-    <span style="font-weight:700;color:var(--white)">PHAROS AGENT DEV SUITE</span><br>
-    © 2026 — MIT — <a href="https://github.com/AnomalyCo/Pharos" target="_blank">GITHUB</a> / <a href="index.html">HOME</a>
+    <div style="font-weight:700;color:var(--white);margin-bottom:.5rem">PHAROS AGENT DEV SUITE</div>
+    <div>© 2026 — MIT — <a href="https://github.com/AnomalyCo/Pharos" target="_blank">GITHUB</a></div>
   </div>
-  <div style="text-align:right">42 SUBSKILLS · 18 TOOLS<br><span style="color:var(--gray-dark)">DUAL CASCADE</span></div>
+  <div class="r">BUILT FOR PHAROS<br>SKILL-TO-AGENT HACKATHON</div>
 </div>
 
 </main>
 </div>
 
+<div class="kbd-hint">← → or j/k to navigate</div>
+
 <script>
-// CURSOR
+// CURSOR — BULKY + SMOOTH
 const cursor = document.getElementById('cursor');
 if (!('ontouchstart' in window)) {
-  document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-  document.querySelectorAll('a, button, .tool-mini, .copy-btn, .sidebar-nav a').forEach(el => {
+  let mx = 0, my = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  const smooth = () => {
+    cx += (mx - cx) * .15;
+    cy += (my - cy) * .15;
+    cursor.style.left = cx + 'px';
+    cursor.style.top = cy + 'px';
+    requestAnimationFrame(smooth);
+  };
+  smooth();
+  document.querySelectorAll('a, button, .tool-mini, .copy-btn, .sidebar-nav a, .arrow-nav a').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
@@ -470,18 +704,52 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: .15, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// SIDEBAR ACTIVE LINK
+// SIDEBAR ACTIVE + ARROW NAV SYNC
+const sections = Array.from(document.querySelectorAll('.section[id]'));
 const links = document.querySelectorAll('.sidebar-nav a');
-const sectionObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      links.forEach(l => l.classList.remove('active'));
-      const match = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
-      if (match) match.classList.add('active');
-    }
+const prevBtn = document.getElementById('prevSection');
+const nextBtn = document.getElementById('nextSection');
+
+const syncNav = () => {
+  let currentIdx = -1;
+  const scrollY = window.scrollY + 200;
+  sections.forEach((s, i) => {
+    const top = s.offsetTop;
+    const bot = top + s.offsetHeight;
+    if (scrollY >= top && scrollY < bot) { currentIdx = i; }
   });
-}, { rootMargin: '-40% 0px -55% 0px' });
-document.querySelectorAll('.section[id]').forEach(s => sectionObserver.observe(s));
+  if (currentIdx === -1 && window.scrollY < 100) currentIdx = 0;
+  if (currentIdx === -1 && window.scrollY + window.innerHeight >= document.body.scrollHeight) currentIdx = sections.length - 1;
+  if (currentIdx === -1) return;
+
+  links.forEach(l => l.classList.remove('active'));
+  const activeLink = document.querySelector(`.sidebar-nav a[href="#${sections[currentIdx].id}"]`);
+  if (activeLink) activeLink.classList.add('active');
+
+  const prevSectionId = currentIdx > 0 ? sections[currentIdx - 1].id : null;
+  const nextSectionId = currentIdx < sections.length - 1 ? sections[currentIdx + 1].id : null;
+
+  prevBtn.href = prevSectionId ? '#' + prevSectionId : '#';
+  prevBtn.classList.toggle('disabled', !prevSectionId);
+  nextBtn.href = nextSectionId ? '#' + nextSectionId : '#';
+  nextBtn.classList.toggle('disabled', !nextSectionId);
+};
+
+window.addEventListener('scroll', syncNav);
+window.addEventListener('resize', syncNav);
+syncNav();
+
+// KEYBOARD NAV — left/right arrows + j/k
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'j') {
+    const href = prevBtn.getAttribute('href');
+    if (href && href !== '#') { e.preventDefault(); window.location.hash = href; }
+  }
+  if (e.key === 'ArrowRight' || e.key === 'k') {
+    const href = nextBtn.getAttribute('href');
+    if (href && href !== '#') { e.preventDefault(); window.location.hash = href; }
+  }
+});
 </script>
 </body>
 </html>

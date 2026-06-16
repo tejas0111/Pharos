@@ -12,9 +12,9 @@ html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--white);line-height:1.5;overflow-x:hidden;cursor:none}
 ::selection{background:var(--white);color:var(--black)}
 
-/* CUSTOM CURSOR */
-.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .15s,height .15s,background .15s;will-change:transform}
-.cursor.hover{width:32px;height:32px;background:transparent;border:2px solid var(--white)}
+/* CUSTOM CURSOR — BULKY + SMOOTH */
+.cursor{position:fixed;width:24px;height:24px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),background .35s cubic-bezier(.16,1,.3,1),border .35s cubic-bezier(.16,1,.3,1);will-change:transform;backface-visibility:hidden}
+.cursor.hover{width:56px;height:56px;background:transparent;border:3px solid var(--white)}
 
 /* SCANLINE */
 @keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
@@ -130,7 +130,6 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   <div>
     <a href="docs.html">DOCS</a>
     <a href="https://github.com/AnomalyCo/Pharos" target="_blank" rel="noopener">GITHUB</a>
-    <a href="docs/submission.md">SUBMISSION</a>
   </div>
 </nav>
 
@@ -151,7 +150,7 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
         <div class="tag">Pharos Agent Dev Suite — Dual Cascade</div>
         <div class="cta-row">
           <a href="docs.html" class="cta">DOCS →</a>
-          <a href="docs/submission.md" class="cta">SUBMISSION →</a>
+          <a href="https://github.com/AnomalyCo/Pharos" target="_blank" class="cta">GITHUB →</a>
         </div>
       </div>
       <div class="hero-right reveal visible reveal-delay-2">
@@ -289,10 +288,19 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
 </footer>
 
 <script>
-// CUSTOM CURSOR
+// CUSTOM CURSOR — BULKY + SMOOTH
 const cursor = document.getElementById('cursor');
 if (!('ontouchstart' in window)) {
-  document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+  let mx = 0, my = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  const smooth = () => {
+    cx += (mx - cx) * .15;
+    cy += (my - cy) * .15;
+    cursor.style.left = cx + 'px';
+    cursor.style.top = cy + 'px';
+    requestAnimationFrame(smooth);
+  };
+  smooth();
   document.querySelectorAll('a, button, .tool-card, .cta, .screenshot-card').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
