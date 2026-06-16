@@ -2,7 +2,7 @@
 /**
  * Pharos MCP Server — Executable Tools
  *
- * 11 tools for AI agents to interact with the Pharos blockchain.
+ * 18 tools for AI agents to interact with the Pharos blockchain.
  * Tools execute real operations: deploy, verify, transfer, fetch logs, etc.
  *
  * Security: PRIVATE_KEY is read from env, NEVER exposed in output.
@@ -124,6 +124,9 @@ const SUBLINK = {
   gas_estimate: "gas-optimization",
   trace_transaction: "bug-finding-and-debugging",
   network_status: "production-ops",
+  read_contract: "contract-review",
+  write_contract: "wallet-and-transaction-ui",
+  fetch_abi: "contract-review",
 };
 
 function contextualTip(toolName, args, result) {
@@ -145,6 +148,9 @@ function contextualTip(toolName, args, result) {
     },
     pharos_trace_transaction: () => "debug_traceTransaction is publicly enabled on Pharos — use it to debug reverts and optimize gas.",
     pharos_network_status: (args, result) => `Chain is ${result?.blocksToFinalized || "?"} blocks from finality. Use "finalized" tag for production reads.`,
+    pharos_read_contract: (args, result) => `Use safe or finalized block tags for production reads. Pharos has these tags available — most chains don't.`,
+    pharos_write_contract: (args, result) => result?.simulated ? "Simulation passed. Set simulate=false to broadcast the transaction." : `Transaction sent. Track it at ${result?.explorerUrl || "the explorer"}.`,
+    pharos_fetch_abi: () => "Use the returned ABI with pharos_read_contract or pharos_write_contract to interact with the contract. Cache ABIs locally to avoid repeated calls.",
   };
   const fn = tips[toolName];
   return fn ? fn(args, result) : "💡 Pharos uses EIP-1559 — base fee burned, priority fee to validators.";
@@ -718,6 +724,120 @@ async function networkStatus(args) {
 }
 
 // ---------------------------------------------------------------------------
+// Tool 16 — pharos_read_contract
+// ---------------------------------------------------------------------------
+function validateAbi(abi) {
+  if (!Array.isArray(abi)) throw new Error("ABI must be a JSON array of function/event entries");
+  if (abi.length === 0) throw new Error("ABI must contain at least one entry");
+}
+
+async function readContract(args) {
+  const { network = "atlanticTestnet", address, abi: abiRaw, functionName, args: fnArgs = [], blockTag = "latest" } = args;
+  validateAddress(address, "address");
+  let abi;
+  try { abi = JSON.parse(abiRaw); } catch { throw new Error("abi must be a valid JSON array"); }
+  validateAbi(abi);
+  if (!functionName) throw new Error("functionName is required");
+
+  const client = getClient(network);
+  const result = await client.readContract({
+    address: address,
+    abi: abi,
+    functionName: functionName,
+    args: fnArgs,
+    blockTag: blockTag,
+  });
+
+  return safeResult(withSubskill({
+    action: "read_contract",
+    network: getNetwork(network).name,
+    chainId: getNetwork(network).id,
+    contract: address,
+    function: functionName,
+    result: typeof result === "bigint" ? result.toString() : result,
+  }, "read_contract", args));
+}
+
+// ---------------------------------------------------------------------------
+// Tool 17 — pharos_write_contract (requires PRIVATE_KEY)
+// ---------------------------------------------------------------------------
+async function writeContract(args) {
+  const { network = "atlanticTestnet", address, abi: abiRaw, functionName, args: fnArgs = [], value = "0", simulate = true } = args;
+  validateAddress(address, "address");
+  let abi;
+  try { abi = JSON.parse(abiRaw); } catch { throw new Error("abi must be a valid JSON array"); }
+  validateAbi(abi);
+  if (!functionName) throw new Error("functionName is required");
+
+  const wallet = getWalletClient(network);
+  const net = getNetwork(network);
+
+  const request = {
+    address: address,
+    abi: abi,
+    functionName: functionName,
+    args: fnArgs,
+    value: BigInt(value),
+    account: wallet.account,
+    chain: { id: net.id, name: net.name, nativeCurrency: net.nativeCurrency, rpcUrls: { default: { http: [net.rpcUrl] } } },
+  };
+
+  if (simulate) {
+    const client = getClient(network);
+    const { request: simulated } = await client.simulateContract(request);
+    return safeResult(withSubskill({
+      action: "write_contract",
+      simulated: true,
+      network: net.name,
+      contract: address,
+      function: functionName,
+      message: "Simulation passed. Set simulate=false to broadcast.",
+    }, "write_contract", args));
+  }
+
+  const hash = await wallet.writeContract(request);
+  const explorerUrl = `${net.explorer}/tx/${hash}`;
+  return safeResult(withSubskill({
+    action: "write_contract",
+    simulated: false,
+    network: net.name,
+    contract: address,
+    function: functionName,
+    txHash: hash,
+    explorerUrl: explorerUrl,
+  }, "write_contract", args));
+}
+
+// ---------------------------------------------------------------------------
+// Tool 18 — pharos_fetch_abi
+// ---------------------------------------------------------------------------
+async function fetchAbi(args) {
+  const { network = "atlanticTestnet", address } = args;
+  validateAddress(address, "address");
+  const net = getNetwork(network);
+
+  const response = await fetch(`${net.explorerApi}?module=contract&action=getabi&address=${address}`);
+  const data = await response.json();
+  if (data.status !== "1") throw new Error(`Explorer API error: ${data.message || data.result || "ABI not found. Contract may not be verified."}`);
+
+  let abi;
+  try { abi = JSON.parse(data.result); } catch { throw new Error("Failed to parse ABI from explorer response"); }
+
+  const functions = abi.filter(item => item.type === "function").map(f => `${f.name}(${(f.inputs || []).map(i => i.type).join(",")}) → ${(f.outputs || []).map(o => o.type).join(",")}`);
+  const events = abi.filter(item => item.type === "event").map(e => `${e.name}(${(e.inputs || []).map(i => i.type).join(",")})`);
+
+  return safeResult(withSubskill({
+    action: "fetch_abi",
+    network: net.name,
+    contract: address,
+    verified: true,
+    abi: data.result,
+    functions: functions,
+    events: events,
+  }, "fetch_abi", args));
+}
+
+// ---------------------------------------------------------------------------
 // Subskill lookup for tools/list descriptions
 // ---------------------------------------------------------------------------
 const TOOL_META = {
@@ -736,6 +856,9 @@ const TOOL_META = {
   pharos_gas_estimate: { description: "Estimate current gas prices and transaction costs on a Pharos network", subskill: "gas-optimization" },
   pharos_trace_transaction: { description: "Trace a transaction using debug_traceTransaction with callTracer — enabled on Pharos (most chains disable this)", subskill: "bug-finding-and-debugging" },
   pharos_network_status: { description: "Check network status: safe & finalized block numbers, gas prices — Pharos has unique safe/finalized block tags", subskill: "production-ops" },
+  pharos_read_contract: { description: "Call any view/pure function on a deployed contract using its ABI (e.g., balanceOf, totalSupply, ownerOf)", subskill: "contract-review" },
+  pharos_write_contract: { description: "Call any state-changing function on a deployed contract using its ABI. Supports simulation mode (default) before broadcasting", subskill: "wallet-and-transaction-ui" },
+  pharos_fetch_abi: { description: "Download the verified ABI JSON for a contract from PharosScan explorer", subskill: "contract-review" },
 };
 
 // ---------------------------------------------------------------------------
@@ -861,6 +984,39 @@ const TOOL_SCHEMAS = {
       network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
     },
   },
+  pharos_read_contract: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      address: { type: "string", description: "Contract address (0x...)" },
+      abi: { type: "string", description: "Contract ABI as a JSON array string" },
+      functionName: { type: "string", description: "Function name to call (e.g., balanceOf)" },
+      args: { type: "array", items: {}, description: "Function arguments as JSON array" },
+      blockTag: { type: "string", default: "latest", enum: ["latest", "safe", "finalized"] },
+    },
+    required: ["address", "abi", "functionName"],
+  },
+  pharos_write_contract: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      address: { type: "string", description: "Contract address (0x...)" },
+      abi: { type: "string", description: "Contract ABI as a JSON array string" },
+      functionName: { type: "string", description: "Function name to call (e.g., transfer)" },
+      args: { type: "array", items: {}, description: "Function arguments as JSON array" },
+      value: { type: "string", default: "0", description: "ETH value to send in wei" },
+      simulate: { type: "boolean", default: true, description: "If true, simulate only (no broadcast)" },
+    },
+    required: ["address", "abi", "functionName"],
+  },
+  pharos_fetch_abi: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      address: { type: "string", description: "Contract address (0x...)" },
+    },
+    required: ["address"],
+  },
 };
 
 server.setRequestHandler({ method: "tools/list" }, async () => ({
@@ -891,6 +1047,9 @@ server.setRequestHandler({ method: "tools/call" }, async (request) => {
       case "pharos_gas_estimate": return await estimateGas(args);
       case "pharos_trace_transaction": return await traceTransaction(args);
       case "pharos_network_status": return await networkStatus(args);
+      case "pharos_read_contract": return await readContract(args);
+      case "pharos_write_contract": return await writeContract(args);
+      case "pharos_fetch_abi": return await fetchAbi(args);
       default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }
   } catch (err) {
@@ -918,4 +1077,4 @@ function checkDependencies() {
 checkDependencies();
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("Pharos MCP Server running on stdio — 15 tools");
+console.error("Pharos MCP Server running on stdio — 18 tools");
