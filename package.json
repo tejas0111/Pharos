@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "forge build",
     "test": "forge test",
-    "deploy:testnet": "bash skill/scripts/deploy-testnet.sh"
+    "deploy:testnet": "bash skill/scripts/deploy-testnet.sh",
+    "lint:sol": "solhint 'contracts/**/*.sol'"
   },
   "keywords": ["pharos", "blockchain", "solidity", "agent-skills", "ai-codeda"]
 }

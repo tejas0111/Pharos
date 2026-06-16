@@ -240,7 +240,6 @@ async function deployContract(args) {
     const cmd = [
       "forge", "script", script,
       "--rpc-url", net.rpcUrl,
-      "--private-key", process.env.PRIVATE_KEY || "",
     ];
     if (simulateOnly) {
       cmd.push("-vvv");
@@ -248,12 +247,14 @@ async function deployContract(args) {
       cmd.push("--broadcast", "-vvv");
     }
 
+    const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
     const output = execSync(cmd.join(" "), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
       stdio: ["pipe", "pipe", "pipe"],
+      env,
     });
 
     const addressMatch = output.match(/deployed at: (0x[a-fA-F0-9]{40})/);
@@ -519,16 +520,17 @@ async function deployErc20(args) {
       "forge", "create",
       "contracts/PharosERC20.sol:PharosERC20",
       "--rpc-url", net.rpcUrl,
-      "--private-key", process.env.PRIVATE_KEY,
       "--constructor-args", name, symbol, supply,
     ];
 
+    const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
     const output = execSync(cmd.join(" "), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
       stdio: ["pipe", "pipe", "pipe"],
+      env,
     });
 
     const addressMatch = output.match(/Deployed to: (0x[a-fA-F0-9]{40})/);

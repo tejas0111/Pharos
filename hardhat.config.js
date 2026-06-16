@@ -1,5 +1,24 @@
 require("@nomicfoundation/hardhat-toolbox");
 
+task("deploy", "Deploy contracts to Pharos")
+  .addParam("contract", "Contract name (e.g., Counter)")
+  .setAction(async (taskArgs, hre) => {
+    const factory = await hre.ethers.getContractFactory(taskArgs.contract);
+    const contract = await factory.deploy();
+    await contract.waitForDeployment();
+    console.log(`${taskArgs.contract} deployed to:`, await contract.getAddress());
+  });
+
+task("verify", "Verify contract on PharosScan")
+  .addParam("address", "Contract address")
+  .addParam("contract", "Fully qualified name (e.g. contracts/Counter.sol:Counter)")
+  .setAction(async (taskArgs, hre) => {
+    await hre.run("verify:verify", {
+      address: taskArgs.address,
+      contract: taskArgs.contract,
+    });
+  });
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
