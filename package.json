@@ -6,6 +6,9 @@
   "scripts": {
     "compile": "forge build",
     "test": "forge test",
+    "demo": "node agent/mcp-demo.mjs",
+    "demo:token": "node agent/token-workflow.mjs",
+    "demo:cascade": "node agent/cascade-demo.mjs",
     "deploy:testnet": "bash skill/scripts/deploy-testnet.sh",
     "lint:sol": "solhint 'contracts/**/*.sol'"
   },
