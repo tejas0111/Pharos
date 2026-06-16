@@ -9,5 +9,5 @@
     "deploy:testnet": "bash skill/scripts/deploy-testnet.sh",
     "lint:sol": "solhint 'contracts/**/*.sol'"
   },
-  "keywords": ["pharos", "blockchain", "solidity", "agent-skills", "ai-codeda"]
+  "keywords": ["pharos", "blockchain", "solidity", "agent-skills", "ai-coding", "web3"]
 }

@@ -82,6 +82,13 @@ PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL
 PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL
 ```
 
+## Related
+
+| Subskill | Why |
+|---|---|
+| `framework-integration` | Stack detection |
+| `solidity-authoring` | Contract exploration |
+
 ## When NOT to Use
 
 - **Making changes** — For modifying code or config, use the relevant feature subskill after onboarding is complete.

@@ -143,6 +143,13 @@ Review UI behavior for keyboard support, semantics, contrast, and screen-reader 
 ## Verification
 
 Tab through every interactive element. Run axe-core: `npx axe <url>`. Lighthouse a11y audit in Chrome DevTools. Verify live regions announce tx state transitions.
+## Related
+
+| Subskill | Why |
+|---|---|
+| `react-ui-patterns-and-hooks` | Share UI component patterns |
+| `frontend-dapp-integration` | UI connects to contracts |
+
 ## Gate
 
 High risk — two-phase execution required:

@@ -128,6 +128,13 @@ export default getRequestConfig(async ({ locale }) => ({
 | Wallet connect | Action-oriented | "Connect Wallet" |
 | Balance display | Minimal, precise | "Staked: 1,000.00 PHRS" |
 
+## Related
+
+| Subskill | Why |
+|---|---|
+| `frontend-dapp-integration` | UI that consumes localized strings |
+| `docs-and-example-generation` | Documentation writing |
+
 ## When NOT to Use
 
 - **Accessibility review** — For inclusive language/ARIA, use `accessibility-review`.

@@ -105,6 +105,13 @@ Native PHRS staking with auto-compound rewards.
 | `frontend/package.json` | `version` | `"version": "2.1.0"` |
 | `packages/shared/package.json` | `version` | `"version": "2.1.0"` |
 
+## Related
+
+| Subskill | Why |
+|---|---|
+| `docs-and-example-generation` | Related documentation |
+| `ci-and-build-troubleshooting` | Release pipeline |
+
 ## When NOT to Use
 
 - **Technical documentation** — For developer docs/READMEs, use `docs-and-example-generation`.

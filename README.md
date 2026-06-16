@@ -162,6 +162,8 @@ The agent classifies your request, routes to the appropriate subskill, presents 
 | `rwa-compliance` | real-world asset compliance and regulatory | required |
 | `workflow-orchestrator` | multi-step workflow orchestration | required |
 | `post-deploy` | post-deployment monitoring and maintenance | required |
+| `mainnet-deployment` | production deployment on Pacific Mainnet (1672, PROS) | required |
+| `testnet-deployment` | testnet deployment on Atlantic Testnet (688689, PHRS) | required |
 
 ## Workflow
 

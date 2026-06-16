@@ -41,7 +41,7 @@ contract PharosERC20Test is Test {
     function test_Transfer_MovesTokens() public {
         uint256 amount = 100 ether;
         vm.prank(OWNER);
-        s_token.transfer(USER, amount);
+        assertTrue(s_token.transfer(USER, amount));
         assertEq(s_token.balanceOf(OWNER), INITIAL_SUPPLY - amount);
         assertEq(s_token.balanceOf(USER), amount);
     }
@@ -51,19 +51,19 @@ contract PharosERC20Test is Test {
         vm.prank(OWNER);
         vm.expectEmit(true, true, true, true, address(s_token));
         emit PharosERC20.Transfer(OWNER, USER, amount);
-        s_token.transfer(USER, amount);
+        assertTrue(s_token.transfer(USER, amount));
     }
 
     function test_Transfer_RevertsWhenInsufficientBalance() public {
         vm.prank(USER);
         vm.expectRevert(PharosERC20.PharosERC20__InsufficientBalance.selector);
-        s_token.transfer(OWNER, 1 ether);
+        s_token.transfer(OWNER, 1 ether); // intentionally unchecked — reverts under expectRevert
     }
 
     function test_Transfer_RevertsWhenZeroAddress() public {
         vm.prank(OWNER);
         vm.expectRevert(PharosERC20.PharosERC20__ZeroAddress.selector);
-        s_token.transfer(address(0), 100 ether);
+        s_token.transfer(address(0), 100 ether); // intentionally unchecked — reverts under expectRevert
     }
 
     // --- Mint ---
@@ -125,7 +125,7 @@ contract PharosERC20Test is Test {
         s_token.approve(SPENDER, approveAmount);
 
         vm.prank(SPENDER);
-        s_token.transferFrom(OWNER, USER, transferAmount);
+        assertTrue(s_token.transferFrom(OWNER, USER, transferAmount));
 
         assertEq(s_token.balanceOf(USER), transferAmount);
         assertEq(s_token.balanceOf(OWNER), INITIAL_SUPPLY - transferAmount);
@@ -140,7 +140,7 @@ contract PharosERC20Test is Test {
         vm.prank(SPENDER);
         vm.expectEmit(true, true, true, true, address(s_token));
         emit PharosERC20.Transfer(OWNER, USER, amount);
-        s_token.transferFrom(OWNER, USER, amount);
+        assertTrue(s_token.transferFrom(OWNER, USER, amount));
     }
 
     function test_TransferFrom_RevertsWhenInsufficientAllowance() public {
@@ -149,7 +149,7 @@ contract PharosERC20Test is Test {
 
         vm.prank(SPENDER);
         vm.expectRevert(PharosERC20.PharosERC20__InsufficientAllowance.selector);
-        s_token.transferFrom(OWNER, USER, 100 ether);
+        s_token.transferFrom(OWNER, USER, 100 ether); // intentionally unchecked — reverts under expectRevert
     }
 
     function test_TransferFrom_RevertsWhenInsufficientBalance() public {
@@ -158,7 +158,7 @@ contract PharosERC20Test is Test {
 
         vm.prank(SPENDER);
         vm.expectRevert(PharosERC20.PharosERC20__InsufficientBalance.selector);
-        s_token.transferFrom(OWNER, USER, INITIAL_SUPPLY + 1 ether);
+        s_token.transferFrom(OWNER, USER, INITIAL_SUPPLY + 1 ether); // intentionally unchecked — reverts under expectRevert
     }
 
     // --- Owner view ---

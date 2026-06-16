@@ -166,6 +166,14 @@ testnet deploy (688689)
 - If mainnet deploy fails mid-transaction: wait for revert, fix issue, re-deploy
 - If verified contract has a bug: deploy new version, update frontend config, verify new address
 
+## Related
+
+| Subskill | Why |
+|---|---|
+| `deployment-and-verification` | Detailed deploy prep |
+| `mainnet-deployment` | Mainnet-specific flow |
+| `testnet-deployment` | Testnet-specific flow |
+
 ## When NOT to Use
 
 - **Single deployment** — For deploying to just one network, use `deployment-and-verification`.
