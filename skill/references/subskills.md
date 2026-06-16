@@ -1,6 +1,6 @@
 # Subskill Reference
 
-Extended descriptions of all 43 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
+Extended descriptions of all 39 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
 
 ## Contract Work
 
@@ -58,7 +58,7 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 - **Triggers**: "frontend", "dapp", "ui integration", "wallet connect", "view state", "transaction preview", "wire up the contract", "connect UI to contract"
 - **Use when**: The user wants to connect a frontend UI to contract state and methods.
-- **Do NOT use when**: The user is designing pure UI without contract interaction — use `react-ui-patterns-and-hooks` or `tailwind-shadcn-ui-workflow`.
+- **Do NOT use when**: The user is designing pure UI without contract interaction — use `dapp-ui-workflow`.
 - **Workflow**: Map user journey and contract states → Choose minimal component tree → Show plan → Implement after approval.
 - **Verification**: `npm run build`, manual flow check in browser or storybook.
 - **Cross-ref**: `wagmi-viem-dapp-workflow` (integration helpers), `wallet-and-transaction-ui` (wallet states)
@@ -72,7 +72,7 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Do NOT use when**: The user is wiring contract reads/writes — use `frontend-dapp-integration`.
 - **Workflow**: Identify wallet states, tx states, error states → Define screen sequence → Present UI plan → Build state machine.
 - **Verification**: Component renders all states (loading, success, error, empty) in browser or storybook.
-- **Cross-ref**: `frontend-dapp-integration` (data wiring), `react-ui-patterns-and-hooks` (component patterns)
+- **Cross-ref**: `frontend-dapp-integration` (data wiring), `dapp-ui-workflow` (component patterns)
 
 ## Testing & Review
 
@@ -142,7 +142,7 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Do NOT use when**: The user is already using the framework and needs a specific feature — use the workflow-specific subskill (e.g., `wagmi-viem-dapp-workflow`).
 - **Workflow**: Detect framework → Map minimal integration changes → Show plan → Proceed after agreement.
 - **Verification**: `npm run build` or framework-specific config check.
-- **Cross-ref**: `wagmi-viem-dapp-workflow`, `foundry-hardhat-contract-workflow`, `nextjs-app-router-and-server-actions`, `remix-contract-workflow`, `tailwind-shadcn-ui-workflow`
+- **Cross-ref**: `wagmi-viem-dapp-workflow`, `foundry-hardhat-contract-workflow`, `dapp-ui-workflow`, `remix-contract-workflow`
 
 ### ci-and-build-troubleshooting
 
@@ -221,27 +221,16 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Verification**: Visual review of the template.
 - **Cross-ref**: `repo-automation-and-tooling` (automating PR checks)
 
-### nextjs-app-router-and-server-actions
+### dapp-ui-workflow
 
-**Handle Next.js App Router, route handlers, server actions, and RSC patterns.**
+**Build the complete UI layer of a Pharos dapp — React components, Next.js App Router pages, styling with Tailwind/shadcn, and custom hooks wired to wagmi/viem.**
 
-- **Triggers**: "next.js app router", "server actions", "route handlers", "rsc", "nextjs", "layout", "loading.tsx", "error.tsx"
-- **Use when**: The user is working with Next.js App Router patterns, server actions, or React Server Components.
-- **Do NOT use when**: Using Next.js Pages Router — this subskill is App Router only.
-- **Workflow**: Map route, server, client boundaries → Choose minimal App Router pattern → Show plan → Implement after agreement.
-- **Verification**: `npm run build` and manual route navigation.
-- **Cross-ref**: `react-ui-patterns-and-hooks` (client components), `wagmi-viem-dapp-workflow` (contract integration)
-
-### react-ui-patterns-and-hooks
-
-**Improve React hooks, component boundaries, and client-side UI patterns.**
-
-- **Triggers**: "react hooks", "component pattern", "context", "state hook", "ui patterns", "custom hook", "component design"
-- **Use when**: The user wants help with React component architecture, custom hooks, or rendering patterns.
-- **Do NOT use when**: The user is working with dapp-specific patterns — use `wagmi-viem-dapp-workflow` or `frontend-dapp-integration`.
-- **Workflow**: Identify state and rendering pattern → Suggest smallest React pattern → Show plan → Implement after agreement.
-- **Verification**: `npm run build` and component rendering check.
-- **Cross-ref**: `state-management-integration` (global state), `frontend-dapp-integration` (dapp-specific)
+- **Triggers**: "dapp ui", "frontend component", "page layout", "tailwind", "shadcn", "next.js app router", "react hook", "component design", "styling"
+- **Use when**: The user is building or modifying the frontend UI layer of a Pharos dapp — components, layouts, routing, styling, and React hooks.
+- **Do NOT use when**: The user needs wallet connect or tx UI patterns — use `wallet-and-transaction-ui`. Contract integration wiring — use `frontend-dapp-integration` or `wagmi-viem-dapp-workflow`.
+- **Workflow**: Identify dapp UI surface → Map components/hooks/routes → Choose minimal pattern → Show plan → Implement after agreement.
+- **Verification**: `npm run build` and visual rendering check.
+- **Cross-ref**: `dapp-quality` (a11y, i18n, state), `wallet-and-transaction-ui` (tx UX), `frontend-dapp-integration` (contract state wiring)
 
 ### wagmi-viem-dapp-workflow
 
@@ -249,10 +238,10 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 - **Triggers**: "wagmi", "viem", "wallet connect", "contract read", "contract write", "dapp workflow", "useContractRead", "useContractWrite"
 - **Use when**: The user needs Wagmi/Viem configuration, hooks, or contract integration patterns.
-- **Do NOT use when**: The user needs a full frontend layout — use `tailwind-shadcn-ui-workflow` or `react-ui-patterns-and-hooks`.
+- **Do NOT use when**: The user needs a full frontend layout — use `dapp-ui-workflow`.
 - **Workflow**: Map contract and wallet interactions → Choose minimal Wagmi/Viem pattern → Show plan → Verify config.
 - **Verification**: Config validation in dev tools, component renders without errors.
-- **Cross-ref**: `frontend-dapp-integration` (UI wiring), `nextjs-app-router-and-server-actions` (routing)
+- **Cross-ref**: `frontend-dapp-integration` (UI wiring), `dapp-ui-workflow` (UI components)
 
 ### foundry-hardhat-contract-workflow
 
@@ -276,16 +265,16 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Verification**: Manual check in Remix IDE.
 - **Cross-ref**: `foundry-hardhat-contract-workflow` (local alternative)
 
-### tailwind-shadcn-ui-workflow
+### dapp-quality
 
-**Design and implement polished UI flows using Tailwind and shadcn/ui patterns.**
+**Make Pharos dapps production-ready: accessibility auditing, internationalization, state management, and overall UX quality.**
 
-- **Triggers**: "tailwind", "shadcn", "ui workflow", "design system", "component styles", "tailwindcss", "shadcn/ui", "daisyui"
-- **Use when**: The user needs Tailwind CSS or shadcn/ui component implementation.
-- **Do NOT use when**: The user needs logic or state wiring — use `react-ui-patterns-and-hooks` or `frontend-dapp-integration`.
-- **Workflow**: Identify UI surface and design constraints → Choose smallest Tailwind/shadcn pattern → Show plan → Implement.
-- **Verification**: Visual check in browser. `npm run build`.
-- **Cross-ref**: `react-ui-patterns-and-hooks` (logic), `frontend-dapp-integration` (contract wiring)
+- **Triggers**: "a11y", "accessibility", "i18n", "localization", "translation", "state management", "zustand", "redux", "ux quality", "dapp polish"
+- **Use when**: The user needs dapp accessibility audit, multi-language support, dapp-wide state management, or general UI quality improvements.
+- **Do NOT use when**: The user needs component UI patterns — use `dapp-ui-workflow`. Wallet/tx UX — use `wallet-and-transaction-ui`.
+- **Workflow**: Identify quality dimension (a11y/i18n/state) → Audit current state → Propose fixes → Show plan → Implement → Verify.
+- **Verification**: a11y: keyboard nav + axe-core. i18n: locale switch test. State: component render with correct data.
+- **Cross-ref**: `dapp-ui-workflow` (UI components), `wallet-and-transaction-ui` (tx UX), `frontend-dapp-integration` (contract state)
 
 ## Quality & Performance
 
@@ -310,28 +299,6 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Workflow**: Locate bottleneck → Propose measurable optimization → Show plan → Implement → Verify improvement.
 - **Verification**: Before/after metric comparison (render time, bundle size, gas estimate).
 - **Cross-ref**: `refactoring-and-code-health` (non-performance structure changes)
-
-### accessibility-review
-
-**Review UI behavior for keyboard support, semantics, contrast, and screen-reader friendliness.**
-
-- **Triggers**: "accessibility", "a11y", "keyboard", "screen reader", "contrast", "semantics", "aria", "tab order"
-- **Use when**: The user needs an accessibility audit or fix for UI components.
-- **Do NOT use when**: The user needs general UI patterns — use `react-ui-patterns-and-hooks` or `tailwind-shadcn-ui-workflow`.
-- **Workflow**: Inspect UI for accessibility-sensitive interactions → List issues by severity → Show plan → Patch → Verify.
-- **Verification**: Keyboard navigation test. axe-core or lighthouse accessibility check.
-- **Cross-ref**: `react-ui-patterns-and-hooks` (component patterns), `tailwind-shadcn-ui-workflow` (styling)
-
-### state-management-integration
-
-**Wire app state into query, store, cache, or client-side state tools without creating drift.**
-
-- **Triggers**: "state management", "zustand", "redux", "query client", "cache", "store", "react query", "jotai", "recoil"
-- **Use when**: The user needs to integrate a state management library or pattern.
-- **Do NOT use when**: Component-local state is sufficient — use `react-ui-patterns-and-hooks`.
-- **Workflow**: Identify state ownership and update flow → Choose minimal tool → Show plan → Wire state → Verify.
-- **Verification**: State updates correctly in components. `npm run build`.
-- **Cross-ref**: `react-ui-patterns-and-hooks` (local state), `frontend-dapp-integration` (contract state)
 
 ## Shipping & Docs
 
@@ -389,17 +356,6 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 - **Workflow**: Identify audience and usage scenario → Draft concise docs → Show outline → Proceed after agreement.
 - **Verification**: Visual review of the documentation.
 - **Cross-ref**: `code-scaffolding-and-generation` (generating file structure), `release-notes-and-changelog` (release docs)
-
-### localization-and-copy
-
-**Adjust product copy, labels, and localization structure for clearer user-facing text.**
-
-- **Triggers**: "localization", "i18n", "translation", "copy", "microcopy", "labels", "strings", "text content"
-- **Use when**: The user needs to improve or restructure user-facing text, labels, or localization.
-- **Do NOT use when**: The user needs UI component changes — use `react-ui-patterns-and-hooks` or `tailwind-shadcn-ui-workflow`.
-- **Workflow**: Identify user-facing strings → Draft improved copy → Show plan → Apply after agreement.
-- **Verification**: Visual review of the text in context.
-- **Cross-ref**: `accessibility-review` (inclusive language), `docs-and-example-generation` (developer docs)
 
 ### cross-chain-bridge
 
@@ -499,14 +455,14 @@ Extended descriptions of all 43 developer subskills. Each entry includes: trigge
 
 ## Subskill Families
 
-The 43 subskills are grouped into three families for organizational clarity:
+The 39 subskills are grouped into three families for organizational clarity:
 
 - **Repo automation and maintenance**: repo-onboarding, repo-automation-and-tooling, dependency-upgrade-management, monorepo-workspace-management, code-review-templates-and-checklists
-- **Framework-specific implementation**: framework-integration, nextjs-app-router-and-server-actions, react-ui-patterns-and-hooks, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, tailwind-shadcn-ui-workflow
-- **Review, release, and authoring**: contract-review, bug-finding-and-debugging, deployment-and-verification, migration-and-backward-compatibility, release-notes-and-changelog, code-scaffolding-and-generation, docs-and-example-generation, localization-and-copy
+- **Framework-specific implementation**: framework-integration, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, dapp-ui-workflow, dapp-quality
+- **Review, release, and authoring**: contract-review, bug-finding-and-debugging, deployment-and-verification, migration-and-backward-compatibility, release-notes-and-changelog, code-scaffolding-and-generation, docs-and-example-generation
 
 ## Classification Rule
 
 The master skill routes to **the narrowest subskill** that can solve the request without inventing extra work. If the user says "review this contract", route to `contract-review`, not `solidity-authoring`. If the user says "set up tests for this", route to `testing-strategy` first (plan), then offer `test-generation` (execution) as a follow-up.
 
-When an intent is ambiguous between subskills, default to the more specific one. If "improve this hook" could match `react-ui-patterns-and-hooks` or `refactoring-and-code-health`, use `react-ui-patterns-and-hooks` if it's a UI hook, or `refactoring-and-code-health` if it's a data logic hook.
+When an intent is ambiguous between subskills, default to the more specific one. If "improve this hook" could match `dapp-ui-workflow` or `refactoring-and-code-health`, use `dapp-ui-workflow` if it's a UI hook, or `refactoring-and-code-health` if it's a data logic hook.

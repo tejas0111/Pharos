@@ -1,9 +1,0 @@
-{
-  "name": "@pharos/shared",
-  "version": "1.0.0",
-  "description": "Shared Pharos chain configurations and types",
-  "main": "src/pharosChain.ts",
-  "types": "src/pharosChain.ts",
-  "keywords": ["pharos", "viem", "blockchain"],
-  "license": "MIT"
-}

@@ -1,7 +1,7 @@
 {
   "name": "pharos-agent-dev-suite",
   "version": "1.2.0",
-  "description": "AI agent skill package for Pharos blockchain development — 46 subskills, on-chain deployment proof, MCP server",
+  "description": "AI agent skill package for Pharos blockchain development — 42 subskills, on-chain deployment proof, MCP server",
   "private": true,
   "scripts": {
     "compile": "forge build",

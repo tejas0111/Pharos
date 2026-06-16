@@ -14,9 +14,9 @@ The Pharos Agent Dev Suite is a comprehensive skill package that turns any AI co
 ### ✅ Live On-Chain Deployment
 We don't just talk about Pharos — we prove it. Three contracts deployed to Pharos Atlantic Testnet (chain 688689):
 
-- **Counter**: [`0x55ec4b1e32537b6f72aa20153735709837488e4e`](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e)
-- **Storage**: [`0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0`](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0)
-- **PharosERC20**: [`0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD`](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD)
+- **Counter**: <a href="https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e" target="_blank" rel="noopener noreferrer">`0x55ec4b1e32537b6f72aa20153735709837488e4e`</a>
+- **Storage**: <a href="https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0" target="_blank" rel="noopener noreferrer">`0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0`</a>
+- **PharosERC20**: <a href="https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD" target="_blank" rel="noopener noreferrer">`0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD`</a>
 
 **Deployer**: `0x735367687d6a701466840321eD8e34E4DafE84aC`
 **Network**: Atlantic Testnet (688689, PHRS)
@@ -110,7 +110,7 @@ forge script script/Counter.s.sol --rpc-url https://atlantic.dplabs-internal.com
 bash agent/token-workflow.sh
 ```
 
-See the [README](https://github.com/tejas0111/Pharos#try-it-now) for the full Try It Now quickstart.
+See the <a href="https://github.com/tejas0111/Pharos#try-it-now" target="_blank" rel="noopener noreferrer">README</a> for the full Try It Now quickstart.
 
 ## Technical Architecture
 
@@ -144,14 +144,14 @@ DEPLOYMENTS.md             # Live on-chain deployment proof
 
 | Network | Chain ID | Explorer | Faucet |
 |---|---|---|---|
-| Atlantic Testnet | 688689 | [atlantic.pharosscan.xyz](https://atlantic.pharosscan.xyz) | [testnet.pharosnetwork.xyz](https://testnet.pharosnetwork.xyz) |
-| Pacific Mainnet | 1672 | [pharosscan.xyz](https://pharosscan.xyz) | — |
+| Atlantic Testnet | 688689 | <a href="https://atlantic.pharosscan.xyz" target="_blank" rel="noopener noreferrer">atlantic.pharosscan.xyz</a> | <a href="https://testnet.pharosnetwork.xyz" target="_blank" rel="noopener noreferrer">testnet.pharosnetwork.xyz</a> |
+| Pacific Mainnet | 1672 | <a href="https://pharosscan.xyz" target="_blank" rel="noopener noreferrer">pharosscan.xyz</a> | — |
 
 ## Links
 
-- **GitHub**: [https://github.com/tejas0111/Pharos](https://github.com/tejas0111/Pharos)
-- **Pharos Docs**: [https://docs.pharos.xyz](https://docs.pharos.xyz)
-- **Pharos Discord**: [https://discord.com/invite/pharos](https://discord.com/invite/pharos)
+- **GitHub**: <a href="https://github.com/tejas0111/Pharos" target="_blank" rel="noopener noreferrer">https://github.com/tejas0111/Pharos</a>
+- **Pharos Docs**: <a href="https://docs.pharos.xyz" target="_blank" rel="noopener noreferrer">https://docs.pharos.xyz</a>
+- **Pharos Discord**: <a href="https://discord.com/invite/pharos" target="_blank" rel="noopener noreferrer">https://discord.com/invite/pharos</a>
 
 ---
 

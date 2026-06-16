@@ -68,13 +68,13 @@ cat << 'CASCADE'
        │
        ▼
   ┌─────────────────────┐
-  │  46 Subskills       │  ← Agent reads to learn
+  │  42 Subskills       │  ← Agent reads to learn
   │  (Layer 1)          │
   └─────────┬───────────┘
             │
             ▼
   ┌─────────────────────┐
-  │  15 MCP Tools       │  ← Agent calls to execute
+  │  18 MCP Tools       │  ← Agent calls to execute
   │  (Layer 2)          │
   └─────────┬───────────┘
             │

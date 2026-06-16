@@ -1,30 +1,30 @@
 ┌──────────────────────────────────────────────────────────────────┐
 │                    PHAROS AGENT DEV SUITE                         │
-│          46 Instruction Subskills + 10 Executable MCP Tools       │
+│          42 Instruction Subskills + 18 Executable MCP Tools       │
 ├─────────────────────────────┬────────────────────────────────────┤
 │                             │                                     │
 │   LAYER 1: SKILLS           │   LAYER 2: MCP TOOLS               │
-│   46 Prompt-Only Subskills  │   10 Executable Tools               │
+│   42 Prompt-Only Subskills  │   18 Executable Tools               │
 │                             │                                     │
 │   • contract-architecture   │   • pharos_deploy_contract         │
 │   • solidity-authoring      │   • pharos_deploy_erc20            │
 │   • contract-review         │   • pharos_verify_contract         │
 │   • security-audit          │   • pharos_transfer_token          │
-│   • deployment-and-verify   │   • pharos_check_balance           │
-│   • test-generation         │   • pharos_get_logs                │
-│   • gas-optimization        │   • pharos_contract_info           │
-│   • cross-chain-bridge      │   • pharos_run_security_check      │
-│   • upgrade-patterns        │   • pharos_generate_tests          │
-│   • ...37 more              │   • pharos_network_config          │
+│   • gas-optimization        │   • pharos_check_balance           │
+│   • cross-chain-bridge      │   • pharos_get_logs                │
+│   • upgrade-patterns        │   • pharos_read_contract           │
+│   • dapp-ui-workflow        │   • pharos_write_contract          │
+│   • dapp-quality            │   • pharos_fetch_abi               │
+│   • ...33 more              │   • pharos_network_config          │
 │                             │                                     │
 ├─────────────────────────────┴────────────────────────────────────┤
 │                                                                   │
-│   AGENT COMPOSITION  (agent/token-workflow.sh)                    │
+│   REAL MCP DEMO  (node agent/mcp-demo.mjs)                        │
 │                                                                   │
-│   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────┐ │
-│   │ Deploy ERC-20    │ → │ Check Balance    │ → │ Transfer     │ │
-│   │ (forge create)   │   │ (cast call)      │   │ (cast send)  │ │
-│   └──────────────────┘   └──────────────────┘   └──────────────┘ │
+│   ┌──────────────────┐   ┌─────────────────┐   ┌──────────────┐  │
+│   │ network_config   │ → │ gas_estimate    │ → │ check_balance │  │
+│   │ (MCP stdio)      │   │ (MCP stdio)     │   │ (MCP stdio)   │  │
+│   └──────────────────┘   └─────────────────┘   └──────────────┘  │
 │                                                                   │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                   │

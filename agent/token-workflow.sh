@@ -27,13 +27,11 @@ curl_rpc() {
 }
 
 # ============================================================================
-# Token Launch & Distribute Agent — Expanded Demo (covers all 15 MCP tools)
+# Token Launch & Distribute Agent — CLI Demo (forge + cast + curl)
 # ============================================================================
-# Demonstrates Skill-to-Agent composition: deploys ERC-20, checks balance,
-# transfers tokens, traces transactions, queries network status, and more.
-#
-# This script uses forge/cast/curl CLI commands to recreate the functionality
-# of all 15 Pharos MCP tools in a single runnable workflow.
+# Demonstrates token lifecycle on Pharos via forge/cast CLI commands.
+# This is a CLI equivalent of the MCP tools, NOT an MCP server demo.
+# For the real MCP demo, run: node agent/mcp-demo.mjs
 #
 # Prerequisites:
 #   - PRIVATE_KEY set in environment (or .env)
@@ -48,7 +46,7 @@ curl_rpc() {
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "  Pharos Token Agent — Atlantic Testnet (688689)"
-echo "  15 MCP Tools Demo — forge + cast + curl"
+echo "  CLI Demo — forge + cast + curl (NOT MCP — run node agent/mcp-demo.mjs for MCP)"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 
@@ -349,24 +347,24 @@ echo "└───────────────────────�
 echo ""
 
 echo "═══════════════════════════════════════════════════════════════"
-echo "  Workflow Complete! 15/15 MCP Tools Demonstrated            "
+echo "  Workflow Complete! CLI tools demonstrated.                 "
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
-echo "  Tool  1: pharos_network_config        — network info shown"
-echo "  Tool  2: pharos_deploy_contract       — forge script (alt)"
-echo "  Tool  3: pharos_verify_contract       — forge verify (cmd)"
-echo "  Tool  4: pharos_run_security_check    — security checklist"
-echo "  Tool  5: pharos_generate_tests        — test cmd shown"
-echo "  Tool  6: pharos_check_balance         — balances queried"
-echo "  Tool  7: pharos_contract_info         — explorer API hit"
-echo "  Tool  8: pharos_transfer_token        — tokens sent ✓"
-echo "  Tool  9: pharos_deploy_erc20          — token deployed ✓"
-echo "  Tool 10: pharos_get_logs              — event logs fetched"
-echo "  Tool 11: pharos_diagnose              — env checked"
-echo "  Tool 12: pharos_get_account           — eth_getAccount RPC"
-echo "  Tool 13: pharos_gas_estimate          — gas prices shown"
-echo "  Tool 14: pharos_trace_transaction     — tx traced"
-echo "  Tool 15: pharos_network_status        — block status shown"
+echo "  Task 1: pharos_network_config        — network info shown"
+echo "  Task 2: pharos_deploy_contract       — forge script (alt)"
+echo "  Task 3: pharos_verify_contract       — forge verify (cmd)"
+echo "  Task 4: pharos_run_security_check    — security checklist"
+echo "  Task 5: pharos_generate_tests        — test cmd shown"
+echo "  Task 6: pharos_check_balance         — balances queried"
+echo "  Task 7: pharos_contract_info         — explorer API hit"
+echo "  Task 8: pharos_transfer_token        — tokens sent ✓"
+echo "  Task 9: pharos_deploy_erc20          — token deployed ✓"
+echo "  Task 10: pharos_get_logs              — event logs fetched"
+echo "  Task 11: pharos_diagnose              — env checked"
+echo "  Task 12: pharos_get_account           — eth_getAccount RPC"
+echo "  Task 13: pharos_gas_estimate          — gas prices shown"
+echo "  Task 14: pharos_trace_transaction     — tx traced"
+echo "  Task 15: pharos_network_status        — block status shown"
 echo ""
 echo "  Token: $TOKEN_ADDRESS"
 echo "  Explorer: $EXPLORER/address/$TOKEN_ADDRESS"

@@ -91,7 +91,7 @@ async function rpcCall(network, method, params) {
 
 function getClient(network) {
   const net = getNetwork(network);
-  return createPublicClient({ transport: http(net.rpcUrl) });
+  return createPublicClient({ transport: http(net.rpcUrl, { timeout: RPC_TIMEOUT }) });
 }
 
 function getWalletClient(network) {
@@ -101,9 +101,19 @@ function getWalletClient(network) {
   const account = privateKeyToAccount(pk);
   return createWalletClient({
     account,
-    transport: http(net.rpcUrl),
+    transport: http(net.rpcUrl, { timeout: RPC_TIMEOUT }),
   });
 }
+
+const VALID_BLOCK_TAGS = ["latest", "safe", "finalized", "pending", "earliest"];
+
+function validateBlockTag(tag) {
+  if (tag && !VALID_BLOCK_TAGS.includes(tag)) {
+    throw new Error(`Invalid blockTag: "${tag}". Must be one of: ${VALID_BLOCK_TAGS.join(", ")}`);
+  }
+}
+
+const abiCache = new Map();
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -734,6 +744,7 @@ function validateAbi(abi) {
 async function readContract(args) {
   const { network = "atlanticTestnet", address, abi: abiRaw, functionName, args: fnArgs = [], blockTag = "latest" } = args;
   validateAddress(address, "address");
+  validateBlockTag(blockTag);
   let abi;
   try { abi = JSON.parse(abiRaw); } catch { throw new Error("abi must be a valid JSON array"); }
   validateAbi(abi);
@@ -816,7 +827,29 @@ async function fetchAbi(args) {
   validateAddress(address, "address");
   const net = getNetwork(network);
 
-  const response = await fetch(`${net.explorerApi}?module=contract&action=getabi&address=${address}`);
+  const cacheKey = `${network}:${address.toLowerCase()}`;
+  if (abiCache.has(cacheKey)) {
+    const cached = abiCache.get(cacheKey);
+    return safeResult(withSubskill({
+      action: "fetch_abi",
+      network: net.name,
+      contract: address,
+      verified: true,
+      cached: true,
+      abi: cached.abi,
+      functions: cached.functions,
+      events: cached.events,
+    }, "fetch_abi", args));
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), RPC_TIMEOUT);
+  let response;
+  try {
+    response = await fetch(`${net.explorerApi}?module=contract&action=getabi&address=${address}`, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
   const data = await response.json();
   if (data.status !== "1") throw new Error(`Explorer API error: ${data.message || data.result || "ABI not found. Contract may not be verified."}`);
 
@@ -825,6 +858,8 @@ async function fetchAbi(args) {
 
   const functions = abi.filter(item => item.type === "function").map(f => `${f.name}(${(f.inputs || []).map(i => i.type).join(",")}) → ${(f.outputs || []).map(o => o.type).join(",")}`);
   const events = abi.filter(item => item.type === "event").map(e => `${e.name}(${(e.inputs || []).map(i => i.type).join(",")})`);
+
+  abiCache.set(cacheKey, { abi: data.result, functions, events });
 
   return safeResult(withSubskill({
     action: "fetch_abi",

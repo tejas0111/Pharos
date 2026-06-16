@@ -27,12 +27,9 @@ pharos-dapp/
 │   ├── app/
 │   ├── components/
 │   └── package.json
-└── packages/
-    └── shared/         # Shared chain config, ABIs, types
-        ├── src/
-        │   └── pharosChain.ts
-        ├── package.json
-        └── tsconfig.json
+├── shared/
+│   └── pharosChain.ts    # Shared chain config
+└── mcp-server/
 ```
 
 ### pnpm-workspace.yaml
@@ -41,10 +38,10 @@ pharos-dapp/
 packages:
   - "contracts"
   - "frontend"
-  - "packages/*"
+  - "shared"
 ```
 
-### packages/shared/src/pharosChain.ts
+### shared/pharosChain.ts
 
 ```typescript
 import { defineChain } from 'viem'

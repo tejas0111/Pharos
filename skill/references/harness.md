@@ -4,7 +4,7 @@ Operational reference for the Pharos dev skill suite. This document contains the
 
 ## Decision Tree (Detailed)
 
-The master skill routes to 43 developer subskills + 3 deployment subskills. Classification follows this process:
+The master skill routes to 39 developer subskills + 3 deployment subskills. Classification follows this process:
 
 ### Step 1: Broad Category
 
@@ -15,10 +15,10 @@ Read the user's request and map it to one of 6 categories:
 | Contract Work | contract-architecture, solidity-authoring, interface-abi-design, protocol-integration-planning, upgrade-patterns, rwa-compliance |
 | UI Work | frontend-dapp-integration, wallet-and-transaction-ui |
 | Testing & Review | testing-strategy, test-generation, contract-review, bug-finding-and-debugging, contract-testing-for-testnet-and-mainnet |
-| Framework & Tooling | framework-integration, ci-and-build-troubleshooting, repo-onboarding, dependency-upgrade-management, monorepo-workspace-management, repo-automation-and-tooling, code-review-templates-and-checklists, deployment-for-testnet-and-mainnet, nextjs-app-router-and-server-actions, react-ui-patterns-and-hooks, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, tailwind-shadcn-ui-workflow |
+| Framework & Tooling | framework-integration, ci-and-build-troubleshooting, repo-onboarding, dependency-upgrade-management, monorepo-workspace-management, repo-automation-and-tooling, code-review-templates-and-checklists, deployment-for-testnet-and-mainnet, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow |
 | Integration | cross-chain-bridge, spn-development |
-| Quality & Performance | refactoring-and-code-health, performance-optimization, accessibility-review, state-management-integration, gas-optimization, security-audit |
-| Shipping & Docs | deployment-and-verification, migration-and-backward-compatibility, release-notes-and-changelog, code-scaffolding-and-generation, docs-and-example-generation, localization-and-copy |
+| UI & Frontend | frontend-dapp-integration, wallet-and-transaction-ui, dapp-ui-workflow, dapp-quality |
+| Quality & Performance | refactoring-and-code-health, performance-optimization, gas-optimization, security-audit |
 | Operations | production-ops |
 | Workflow | workflow-orchestrator |
 
@@ -122,8 +122,7 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | refactoring-and-code-health | Changes code structure (behavior-preserving) |
 | dependency-upgrade-management | Changes package versions |
 | performance-optimization | Modifies code paths |
-| accessibility-review | Changes UI behavior |
-| state-management-integration | Wires state tools |
+| dapp-quality | Changes UI behavior, state wiring, or text content |
 | monorepo-workspace-management | Changes workspace boundaries |
 | gas-optimization | Optimizations are low-risk but change contract bytecode |
 
@@ -135,16 +134,15 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | repo-onboarding | Read-only exploration |
 | repo-automation-and-tooling | Non-deployed automation |
 | code-review-templates-and-checklists | Documentation-only |
-| nextjs-app-router-and-server-actions | UI routing patterns |
-| react-ui-patterns-and-hooks | Component patterns |
+| dapp-ui-workflow | UI component and styling patterns |
 | wagmi-viem-dapp-workflow | Integration patterns |
 | foundry-hardhat-contract-workflow | Workflow setup |
 | remix-contract-workflow | Browser workflow |
-| tailwind-shadcn-ui-workflow | Styling patterns |
+| dapp-quality | UI quality patterns (a11y, i18n, state) |
 | release-notes-and-changelog | Documentation-only |
 | code-scaffolding-and-generation | Creates new files, no existing code change |
 | docs-and-example-generation | Documentation-only |
-| localization-and-copy | Text-only changes |
+| workflow-orchestrator | Planning meta-subskill, no code changes on its own |
 | workflow-orchestrator | Planning meta-subskill, no code changes on its own |
 
 ## What Not To Do

@@ -30,7 +30,7 @@ pharos-dapp/
 │   ├── components/
 │   ├── package.json            # wagmi + viem + RainbowKit
 │   └── next.config.js          # transpilePackages of shared
-├── packages/
+├── shared/
 │   └── shared/                 # Shared types, ABIs, chain config
 │       └── src/
 │           └── pharosChain.ts  # defineChain for 1672 / 688689

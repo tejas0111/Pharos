@@ -23,9 +23,9 @@ The Pharos Agent Dev Suite is already structured for Anvita Flow deployment:
 
 | Pharos Component | Anvita Flow Equivalent | Status |
 |---|---|---|
-| `skill/subskills/*/SKILL.md` (46 prompt-only) | Agent instructions / system prompts | Ready |
-| `mcp-server/` (15 executable tools) | MCP-compatible agent tools | Ready |
-| `packages/shared/src/pharosChain.ts` | Shared types for cross-agent data | Ready |
+| `skill/subskills/*/SKILL.md` (42 prompt-only) | Agent instructions / system prompts | Ready |
+| `mcp-server/` (18 executable tools) | MCP-compatible agent tools | Ready |
+| `shared/pharosChain.ts` | Shared types for cross-agent data | Ready |
 | `.github/workflows/pharos-deploy.yml` | CI/CD for agent deployment | Ready |
 | `DEPLOYMENTS.md` | On-chain proof for agent capabilities | Ready |
 
@@ -40,7 +40,7 @@ The Pharos Agent Dev Suite is already structured for Anvita Flow deployment:
               ┌────────────────┴────────────────┐
               │                                  │
      ┌────────┴────────┐              ┌──────────┴──────────┐
-     │  46 Prompt-Only  │              │   15 Executable    │
+     │  42 Prompt-Only  │              │   18 Executable    │
      │  Subskills       │              │   MCP Tools         │
      │  (Human Devs)    │              │   (Autonomous Agents)│
      └─────────────────┘              └─────────────────────┘
@@ -96,7 +96,10 @@ Create `anvita-agent.json` in the repo root:
     "pharos_get_account",
     "pharos_gas_estimate",
     "pharos_trace_transaction",
-    "pharos_network_status"
+    "pharos_network_status",
+    "pharos_read_contract",
+    "pharos_write_contract",
+    "pharos_fetch_abi"
   ],
   "x402": {
     "enabled": true,
@@ -168,7 +171,7 @@ anvita agent invoke @pharos/suite pharos_check_balance \
           │  (wrapped as Anvita Agent)    │
           │                               │
           │  ┌─────────────────────────┐  │
-          │  │ 15 Executable Tools     │  │
+          │  │ 18 Executable Tools     │  │
           │  │ - deploy, verify,       │  │
           │  │ - transfer, logs, trace │  │
           │  │ - security, tests,      │  │
@@ -186,11 +189,11 @@ anvita agent invoke @pharos/suite pharos_check_balance \
 
 ## Why Judges Will Like This
 
-1. **Phase 2 Ready**: The MCP server and 15 executable tools are already structured for Anvita Flow deployment. No rewriting needed.
+1. **Phase 2 Ready**: The MCP server and 18 executable tools are already structured for Anvita Flow deployment. No rewriting needed.
 
 2. **x402 Micropayments**: The pricing model is pre-defined. Other agents can pay PHRS/PROS to invoke your tools, creating a self-sustaining agent economy.
 
-3. **Dual-Layer**: 46 prompt subskills for human developers + 15 executable MCP tools for autonomous agents = full coverage of the "Skill Creator → Agent Developer → User Invocation" value chain.
+3. **Dual-Layer**: 42 prompt subskills for human developers + 18 executable MCP tools for autonomous agents = full coverage of the "Skill Creator → Agent Developer → User Invocation" value chain.
 
 4. **Real On-Chain Proof**: 3 deployed contracts on Atlantic Testnet with verified addresses and explorer links.
 

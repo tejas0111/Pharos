@@ -54,7 +54,7 @@ verify:
 pub-abis:
 	pnpm wagmi generate
 	pnpm --filter @pharos-dapp/shared build
-	pnpm publish packages/shared --access public
+	pnpm publish shared --access public
 ```
 
 ## Pre-commit (Husky + lint-staged)

@@ -2,27 +2,57 @@
 
 [![tests](https://img.shields.io/badge/tests-30%20passing-brightgreen)]()
 [![contracts](https://img.shields.io/badge/contracts-4%20verified-blue)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-15-purple)]()
-[![subskills](https://img.shields.io/badge/subskills-46-orange)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-18-purple)]()
+[![subskills](https://img.shields.io/badge/subskills-42-orange)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 [![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)]()
 
-**A dual-layer Pharos Skill — 46 instruction subskills for human developers + 15 executable MCP tools for autonomous AI agents.**
+**A dual-layer Pharos Skill — 42 instruction subskills for human developers + 18 executable MCP tools for autonomous AI agents.**
 
 Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific Mainnet 1672).
 
 > ### The Cascade
 > An AI agent reads Pharos subskills in **Layer 1**, learns what to do, then calls **Layer 2** MCP tools to execute on-chain. See the full walkthrough in [`CASCADE.md`](./CASCADE.md).
 
-### Layer 1: 46 Prompt-Only Subskills
+```mermaid
+flowchart LR
+    subgraph L1["Layer 1: 42 Instruction Subskills"]
+        direction LR
+        S1[[solidity-authoring]]
+        S2[[deployment-and-verification]]
+        S3[[security-audit]]
+        S4[[gas-optimization]]
+        S5[[frontend-dapp]]
+        S6[[...37 more]]
+    end
+    subgraph L2["Layer 2: 18 Executable MCP Tools"]
+        T1[deploy_contract]
+        T2[verify_contract]
+        T3[check_balance]
+        T4[transfer_token]
+        T5[read_contract]
+        T6[write_contract]
+        T7[fetch_abi]
+        T8[...11 more]
+    end
+    subgraph BC["Pharos Blockchain"]
+        AT[("Atlantic Testnet<br/>688689")]
+        PM[("Pacific Mainnet<br/>1672")]
+    end
+    REQ[("User Request")] --> L1
+    L1 -->|agent learns| L2
+    L2 -->|agent executes| BC
+```
+
+### Layer 1: 42 Prompt-Only Subskills
 
 For human developers using AI coding assistants (Codex, Claude Code, OpenCode, Gemini CLI):
-- **46 focused subskills** — architecture, Solidity, deployment, frontend, security, and more
+- **42 focused subskills** — architecture, Solidity, deployment, frontend, security, and more
 - **Plan-first execution** — agents draft a plan before touching code
 - **Approval gates** — higher-risk work requires explicit confirmation
 - **Structured output** — downstream agents can reuse results
 
-### Layer 2: 15 Executable MCP Tools
+### Layer 2: 18 Executable MCP Tools
 
 For autonomous AI agents that execute real on-chain operations:
 - **Deploy**, **verify**, and **transfer** on Pharos networks
@@ -39,9 +69,9 @@ For autonomous AI agents that execute real on-chain operations:
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) | ✅ |
-| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) | ✅ |
-| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) | ✅ |
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | <a href="https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | <a href="https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | <a href="https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
 
 ### Uniquely Pharos
 
@@ -58,9 +88,9 @@ Two capabilities in this skill exist for **NO other blockchain**:
 |---|---|---|
 | Format | **Dual-layer**: subskills + MCP tools | Single format only |
 | On-chain proof | **3 verified contracts** on Atlantic testnet | No deployment or code only |
-| Tool count | **46 subskills + 15 MCP tools** | Under 10 skills |
+| Tool count | **42 subskills + 18 MCP tools** | Under 10 skills |
 | Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas patterns | Generic EVM advice |
-| Live demo | `token-workflow.sh` composes 4 tools end-to-end | No demo or single command |
+| Live demo | `node agent/mcp-demo.mjs` calls 6 tools through the real MCP server | No demo or single command |
 | Phase 2 ready | Anvita Flow integration (x402 micropayments) documented | No forward planning |
 
 ### Anvita Flow Ready
@@ -107,7 +137,7 @@ The agent classifies your request, routes to the appropriate subskill, presents 
 
 ## MCP Server
 
-The Pharos MCP Server exposes **15 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
+The Pharos MCP Server exposes **18 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
 
 | # | Tool | Description | Executes? |
 |---|------|-------------|-----------|
@@ -126,6 +156,9 @@ The Pharos MCP Server exposes **15 executable tools** for AI agents to interact 
 | 13 | `pharos_gas_estimate` | Estimate gas prices with EIP-1559 breakdown | Yes |
 | 14 | `pharos_trace_transaction` | Trace a tx with `debug_traceTransaction` (Pharos enables this) | Yes |
 | 15 | `pharos_network_status` | Check safe/finalized block numbers and gas prices | Yes |
+| 16 | `pharos_read_contract` | Call any view/pure function on a deployed contract via its ABI | Yes |
+| 17 | `pharos_write_contract` | Call any state-changing function via ABI (simulate then broadcast) | Yes |
+| 18 | `pharos_fetch_abi` | Download verified ABI JSON from PharosScan explorer | Yes |
 
 ### Quick Start
 
@@ -230,15 +263,15 @@ See [mcp-server/README.md](./mcp-server/README.md) for full documentation.
 ```
 skill/
   SKILL.md              # master skill -- routing and orchestration
-  subskills/*/SKILL.md  # 46 focused subskills
+  subskills/*/SKILL.md  # 42 focused subskills
   references/*.md       # network context, deployment patterns, harness
   scripts/*.sh          # deploy and verify scripts (Foundry and Hardhat)
 contracts/              # example Solidity contracts (3 deployed on testnet)
 test/                   # Foundry tests (30 passing)
 script/                 # Forge deploy scripts
 config/                 # Pharos network configuration
-packages/               # shared TypeScript types (viem defineChain)
-mcp-server/             # MCP server with 15 executable tools for AI agents
+shared/                 # viem defineChain configs
+mcp-server/             # MCP server with 18 executable tools for AI agents
 .github/workflows/      # CI/CD deploy pipeline
 foundry.toml            # Foundry config with Pharos RPC endpoints
 hardhat.config.js       # Hardhat config with Pharos network definitions
@@ -254,9 +287,9 @@ ANVITA_FLOW_INTEGRATION.md  # Phase 2 readiness documentation
 
 | Contract | Address | Tx Hash | Explorer |
 |----------|---------|---------|----------|
-| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | [View](https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) | ✅ |
-| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | [View](https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) | ✅ |
-| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | [View](https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD) | ✅ |
+| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | <a href="https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
+| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | <a href="https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
+| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | <a href="https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD" target="_blank" rel="noopener noreferrer">View</a> | ✅ |
 
 See [DEPLOYMENTS.md](./DEPLOYMENTS.md) for full details.
 
@@ -270,11 +303,11 @@ SIMULATE_ONLY=1 bash skill/scripts/deploy-testnet.sh   # simulate first
 bash skill/scripts/deploy-testnet.sh                    # broadcast
 ```
 
-Get testnet PHRS from the [Pharos Faucet](https://testnet.pharosnetwork.xyz).
+Get testnet PHRS from the <a href="https://testnet.pharosnetwork.xyz" target="_blank" rel="noopener noreferrer">Pharos Faucet</a>.
 
 ## Pharos Networks
 
 | Network | Chain ID | Explorer | Faucet |
 |---|---|---|---|
-| Atlantic Testnet | 688689 | [atlantic.pharosscan.xyz](https://atlantic.pharosscan.xyz) | [faucet](https://testnet.pharosnetwork.xyz) |
-| Pacific Mainnet | 1672 | [pharosscan.xyz](https://pharosscan.xyz) | -- |
+| Atlantic Testnet | 688689 | <a href="https://atlantic.pharosscan.xyz" target="_blank" rel="noopener noreferrer">atlantic.pharosscan.xyz</a> | <a href="https://testnet.pharosnetwork.xyz" target="_blank" rel="noopener noreferrer">faucet</a> |
+| Pacific Mainnet | 1672 | <a href="https://pharosscan.xyz" target="_blank" rel="noopener noreferrer">pharosscan.xyz</a> | -- |

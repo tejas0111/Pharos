@@ -103,7 +103,7 @@ Native PHRS staking with auto-compound rewards.
 | `contracts/foundry.toml` | `solc` | `solc = "0.8.24"` |
 | `contracts/package.json` | `version` | `"version": "2.1.0"` |
 | `frontend/package.json` | `version` | `"version": "2.1.0"` |
-| `packages/shared/package.json` | `version` | `"version": "2.1.0"` |
+| `shared/package.json` | `version` | `"version": "2.1.0"` |
 
 ## Related
 

@@ -215,6 +215,39 @@ test("RPC retry logic present", () => {
   assert(content.includes("fallbackUrls"), "fallback URLs missing");
 });
 
+// ── Integration tests (require live RPC) ──
+const INTEGRATION_ENABLED = !!process.env.PHAROS_TESTNET_RPC_URL;
+
+if (INTEGRATION_ENABLED) {
+  console.log("\n  ── Integration Tests ──\n");
+  test("RPC connect to Atlantic testnet", async () => {
+    const url = process.env.PHAROS_TESTNET_RPC_URL;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "eth_chainId", params: [], id: 1 }),
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(`RPC error: ${data.error.message}`);
+    const chainId = parseInt(data.result, 16);
+    if (chainId !== 688689) throw new Error(`Expected chain 688689, got ${chainId}`);
+  });
+
+  test("RPC balance check", async () => {
+    const url = process.env.PHAROS_TESTNET_RPC_URL;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "eth_getBalance", params: ["0x0000000000000000000000000000000000000000", "latest"], id: 1 }),
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(`RPC error: ${data.error.message}`);
+    if (BigInt(data.result) < 0n) throw new Error("Invalid balance");
+  });
+} else {
+  console.log("\n  ℹ️  Set PHAROS_TESTNET_RPC_URL to enable integration tests.\n");
+}
+
 console.log("\nResults: " + passed + " passed, " + failed + " failed\n");
 console.log("Tools: 18 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate, trace_transaction, network_status, read_contract, write_contract, fetch_abi)");
 process.exit(failed > 0 ? 1 : 0);

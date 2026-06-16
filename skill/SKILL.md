@@ -1,6 +1,6 @@
 ---
 name: pharos-agent-suite
-description: "Pharos blockchain developer and deployment suite for contract coding, dapp frontend integration, testing, and high-risk deployment on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or broadcasting contracts with Foundry/Hardhat, or when onboarding repos, refactoring, managing monorepos, and configuring CI. Keywords: Pharos, Solidity, contract, dapp, deploy, broadcast, verify, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, cast, PharosScan."
+description: "Pharos blockchain developer and deployment suite for contract coding, dapp frontend integration, testing, and high-risk deployment on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or broadcasting contracts with Foundry/Hardhat, or when onboarding repos, refactoring, managing monorepos, and configuring CI. Keywords: Pharos, Solidity, contract, dapp, deploy, broadcast, verify, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, cast, PharosScan, dapp-ui, dapp-quality."
 slash: true
 metadata:
   audience: developer
@@ -10,7 +10,7 @@ metadata:
 
 # Pharos Agent Suite
 
-The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 43 developer subskills + 3 high-risk deployment subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
+The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 39 developer subskills + 3 high-risk deployment subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
 
 ## Core Workflow: Requirement → Plan → Execute
 
@@ -72,8 +72,10 @@ Classify the request by asking these questions in order:
    └── Interface/ABI/events/errors?                → interface-abi-design
 
 3. Is the request about FRONTEND/UI code?
-   ├── Wiring UI to contract state?                → frontend-dapp-integration
-   └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
+    ├── Wiring UI to contract state?                → frontend-dapp-integration
+    ├── Building dapp UI components and pages?      → dapp-ui-workflow
+    ├── Dapp quality (a11y, i18n, state mgmt)?      → dapp-quality
+    └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
 
 ... (rest of the routing tree)
 
@@ -127,6 +129,8 @@ Classify the request by asking these questions in order:
 
 3. Is the request about FRONTEND/UI code?
    ├── Wiring UI to contract state?                → frontend-dapp-integration
+   ├── Building dapp UI components and pages?      → dapp-ui-workflow
+   ├── Dapp quality (a11y, i18n, state mgmt)?      → dapp-quality
    └── Wallet connect, tx preview, history UI?     → wallet-and-transaction-ui
 
 4. Is the request about TESTING or REVIEW?

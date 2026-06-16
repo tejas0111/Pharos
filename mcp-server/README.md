@@ -1,10 +1,10 @@
 # Pharos MCP Server
 
 [![tests](https://img.shields.io/badge/tests-21%20passing-brightgreen)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-15-purple)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-18-purple)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 
-MCP server for AI agents to interact with the Pharos blockchain. Exposes **15 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, and more.
+MCP server for AI agents to interact with the Pharos blockchain. Exposes **18 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, and more.
 
 ## Tools
 
@@ -25,6 +25,9 @@ MCP server for AI agents to interact with the Pharos blockchain. Exposes **15 ex
 | 13 | `pharos_gas_estimate` | Estimate gas prices with EIP-1559 breakdown | ✅ Yes |
 | 14 | `pharos_trace_transaction` | Trace a tx with `debug_traceTransaction` (Pharos enables this) | ✅ Yes |
 | 15 | `pharos_network_status` | Check safe/finalized block numbers and gas prices | ✅ Yes |
+| 16 | `pharos_read_contract` | Call any view/pure function on a deployed contract via its ABI | ✅ Yes |
+| 17 | `pharos_write_contract` | Call any state-changing function via ABI (simulate then broadcast) | ✅ Yes |
+| 18 | `pharos_fetch_abi` | Download verified ABI JSON from PharosScan explorer | ✅ Yes |
 
 ## Security
 
