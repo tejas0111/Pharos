@@ -4,76 +4,75 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DOCS // PHAROS ADS</title>
-<meta name="description" content="Documentation: 42 subskills, 18 MCP tools, install, quick start, API reference for Pharos Agent Dev Suite.">
+<meta name="description" content="42 subskills, 18 MCP tools — install, API reference, architecture.">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({startOnLoad:true,theme:'dark',fontFamily:'JetBrains Mono,monospace',themeVariables:{primaryColor:'#333',primaryTextColor:'#fff',primaryBorderColor:'#555',lineColor:'#888',secondaryColor:'#222',tertiaryColor:'#111',clusterBkg:'#111',clusterBorder:'#333',nodeBorder:'#555',nodeTextColor:'#fff',edgeLabelBackground:'#222',edgeLabelColor:'#ccc'}})</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--black:#000;--white:#fff;--gray:#888;--gray-dark:#222;--gray-mid:#555;--gray-light:#ccc;--dark:#111;--font:'JetBrains Mono',monospace}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--black);color:var(--white);line-height:1.6;cursor:none;overflow:hidden;height:100vh}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--black);color:var(--white);line-height:1.6;cursor:none}
 ::selection{background:var(--white);color:var(--black)}
 
-/* CURSOR — BULKY + SMOOTH */
-.cursor{position:fixed;width:24px;height:24px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),background .35s cubic-bezier(.16,1,.3,1),border .35s cubic-bezier(.16,1,.3,1);will-change:transform;backface-visibility:hidden}
-.cursor.hover{width:56px;height:56px;background:transparent;border:3px solid var(--white)}
+/* CURSOR — LIGHT, FAST */
+.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,background .25s ease;will-change:transform}
+.cursor.hover{width:32px;height:32px;background:transparent;border:2px solid var(--white)}
 
 /* SCANLINE */
 @keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.012) 2px,rgba(255,255,255,.012) 4px),repeating-linear-gradient(90deg,transparent,transparent 30%,rgba(255,255,255,.03) 30%,rgba(255,255,255,.05) 40%,transparent 40%,transparent 100%);background-size:100% 4px,200% 100%;animation:scanline 8s linear infinite;pointer-events:none;z-index:9998;mix-blend-mode:screen;opacity:.35}
 
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:3.5rem;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-dark);font-size:.7rem;text-transform:uppercase;letter-spacing:.12em}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:3.5rem;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:2px solid var(--gray-dark);font-size:.7rem;text-transform:uppercase;letter-spacing:.12em}
 nav .logo{font-weight:800;font-size:1rem;letter-spacing:.15em}
 nav .logo span{color:var(--gray-light)}
 nav a{color:var(--gray);text-decoration:none;margin-left:1.5rem;transition:color .3s}
 nav a:hover{color:var(--white);cursor:none}
 
-/* LAYOUT — SNAP SCROLL CONTAINER */
+/* LAYOUT */
 .layout{display:flex;height:calc(100vh - 3.5rem);margin-top:3.5rem;overflow:hidden}
 @media(max-width:768px){.layout{flex-direction:column}}
 
 /* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--black);border-right:1px solid var(--gray-dark);display:flex;flex-direction:column;overflow:hidden}
-@media(max-width:768px){.sidebar{width:100%;border-right:none;border-bottom:1px solid var(--gray-dark);max-height:40vh;overflow-y:auto}}
-.sidebar-header{padding:1rem 1.25rem;border-bottom:1px solid var(--gray-dark)}
+.sidebar{width:220px;flex-shrink:0;background:var(--black);border-right:2px solid var(--gray-dark);display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:768px){.sidebar{width:100%;border-right:none;border-bottom:2px solid var(--gray-dark);max-height:35vh;overflow-y:auto}}
+.sidebar-header{padding:1rem 1.25rem;border-bottom:2px solid var(--gray-dark)}
 .sidebar-header .brand{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
 .sidebar-header .brand span{color:var(--gray-mid)}
 .sidebar-nav{padding:.5rem 0;flex:1;overflow-y:auto}
-.sidebar-nav a{display:flex;align-items:center;gap:.6rem;padding:.55rem 1.25rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);border-left:2px solid transparent;transition:all .3s;cursor:pointer}
-.sidebar-nav a:hover,.sidebar-nav a.active{color:var(--white);border-left-color:var(--white);background:linear-gradient(90deg,rgba(255,255,255,.04),transparent)}
+.sidebar-nav a{display:flex;align-items:center;gap:.6rem;padding:.6rem 1.25rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);border-left:3px solid transparent;transition:all .3s;cursor:pointer}
+.sidebar-nav a:hover,.sidebar-nav a.active{color:var(--white);border-left-color:var(--white);background:linear-gradient(90deg,rgba(255,255,255,.06),transparent)}
 .sidebar-nav a .pref{color:var(--gray-mid);font-weight:600;font-size:.45rem}
 .sidebar-nav a.active .pref{color:var(--white)}
-.sidebar-footer{padding:.75rem 1.25rem;border-top:1px solid var(--gray-dark);font-size:.45rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.15em}
+.sidebar-footer{padding:.75rem 1.25rem;border-top:2px solid var(--gray-dark);font-size:.45rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.15em}
 .sidebar-footer a{color:var(--gray-mid);cursor:pointer}
 .sidebar-footer a:hover{color:var(--white)}
 
-/* MAIN — SNAP SCROLL */
-.main{flex:1;overflow-y:scroll;height:100%;scroll-snap-type:y mandatory;scroll-behavior:smooth}
-@media(max-width:768px){.main{height:auto;overflow-y:visible;scroll-snap-type:none}}
+/* MAIN — SLIDE CONTAINER */
+.main{flex:1;position:relative;overflow:hidden;background:var(--black)}
+@media(max-width:768px){.main{height:auto;min-height:60vh}}
 
-/* SECTION — EXACT VIEWPORT SNAP */
-.section{scroll-snap-align:start;height:calc(100vh - 3.5rem);padding:3rem 4rem;display:flex;flex-direction:column;justify-content:center;position:relative;border-bottom:1px solid var(--gray-dark);overflow-y:auto}
-@media(max-width:768px){.section{height:auto;min-height:100vh;padding:2rem 1.5rem;scroll-snap-align:none}}
+/* SECTION — STACKED, ONLY ONE VISIBLE */
+.section{position:absolute;inset:0;padding:3rem 4rem;display:flex;flex-direction:column;justify-content:center;opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);pointer-events:none;overflow-y:auto;border-bottom:none}
+.section.active{opacity:1;transform:translateY(0);pointer-events:all;position:relative;z-index:2}
+.section.exit{opacity:0;transform:translateY(-30px);pointer-events:none}
+@media(max-width:768px){.section{padding:2rem 1.5rem;position:relative;inset:auto;display:${({active}) => active ? 'flex' : 'none'};min-height:60vh}}
 .section:last-of-type{border-bottom:none}
-.section-number{position:absolute;bottom:1rem;right:2rem;font-size:4rem;font-weight:900;color:var(--gray-dark);line-height:1;pointer-events:none;user-select:none;letter-spacing:-.04em}
+.section-number{position:absolute;bottom:1rem;right:2rem;font-size:5rem;font-weight:900;color:var(--gray-dark);line-height:1;pointer-events:none;user-select:none;letter-spacing:-.04em}
 
-/* SECTION COUNTER */
-.section-counter{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:80;font-size:.5rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.25em;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border:1px solid var(--gray-dark);padding:.35rem 1rem;pointer-events:none}
-@media(max-width:768px){.section-counter{bottom:.75rem}}
+/* COUNTER */
+.section-counter{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:80;font-size:.55rem;color:var(--gray-dark);text-transform:uppercase;letter-spacing:.25em;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border:2px solid var(--gray-dark);padding:.4rem 1.2rem;pointer-events:none}
+@media(max-width:768px){.section-counter{bottom:.75rem;font-size:.45rem}}
 
-.section-label{font-size:.5rem;text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:.75rem}
+/* CONTENT STYLES */
+.section-label{font-size:.55rem;text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:.75rem}
 .section-label .num{color:var(--gray-light)}
-h2{font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:1.25rem;line-height:1.1;max-width:800px}
+h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:1.25rem;line-height:1.1;max-width:800px}
 h2 .light{font-weight:300;color:var(--gray-mid)}
-h3{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:1.5rem;margin-bottom:.6rem;color:var(--gray-light)}
-p{font-size:.78rem;color:var(--gray);line-height:1.7;margin-bottom:.75rem;max-width:700px}
+h3{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:1.5rem;margin-bottom:.5rem;color:var(--gray-light)}
+p{font-size:.82rem;color:var(--gray);line-height:1.8;margin-bottom:.75rem;max-width:720px}
 p strong{color:var(--white)}
-ul,ol{margin:.75rem 0;padding-left:1.25rem;font-size:.78rem;color:var(--gray);line-height:1.7}
+ul,ol{margin:.75rem 0;padding-left:1.25rem;font-size:.82rem;color:var(--gray);line-height:1.8}
 li{margin-bottom:.3rem}
 li strong{color:var(--white)}
 a{color:var(--gray-light);text-decoration:none;transition:color .3s}
@@ -81,56 +80,55 @@ a:hover{color:var(--white);cursor:none}
 code{font-family:var(--font);background:var(--dark);padding:.15rem .35rem;font-size:.85em;border:1px solid var(--gray-dark)}
 pre code{background:none;padding:0;border:none}
 
-.note{border-left:2px solid var(--gray-mid);padding:.6rem 1rem;margin:1rem 0;font-size:.68rem;color:var(--gray);background:rgba(255,255,255,.02)}
-.note code{background:var(--gray-dark)}
+.note{border-left:3px solid var(--gray-mid);padding:.6rem 1rem;margin:1rem 0;font-size:.72rem;color:var(--gray);background:rgba(255,255,255,.02)}
 
 /* CODE */
-.code-block{position:relative;margin:1rem 0;border:1px solid var(--gray-dark);background:var(--black)}
-.code-block .copy-btn{position:absolute;top:.4rem;right:.4rem;background:transparent;border:1px solid var(--gray-dark);color:var(--gray);font-family:var(--font);font-size:.45rem;text-transform:uppercase;letter-spacing:.1em;padding:.2rem .45rem;cursor:none;transition:all .3s}
+.code-block{position:relative;margin:1rem 0;border:2px solid var(--gray-dark);background:var(--black)}
+.code-block .copy-btn{position:absolute;top:.4rem;right:.4rem;background:transparent;border:2px solid var(--gray-dark);color:var(--gray);font-family:var(--font);font-size:.45rem;text-transform:uppercase;letter-spacing:.1em;padding:.2rem .45rem;cursor:none;transition:all .3s}
 .code-block .copy-btn:hover{border-color:var(--white);color:var(--white)}
 .code-block .copy-btn.copied{border-color:var(--white)}
-.code-block pre{padding:1rem;overflow-x:auto;font-size:.72rem;line-height:1.5;color:var(--gray-light)}
+.code-block pre{padding:1rem 1.25rem;overflow-x:auto;font-size:.75rem;line-height:1.6;color:var(--gray-light)}
 .code-block pre .p{color:var(--gray-mid)}
 .code-block pre .c{color:var(--gray-dark);font-style:italic}
 
 /* TABLE */
-.table-wrap{overflow-x:auto;margin:1rem 0;border:1px solid var(--gray-dark)}
-table{width:100%;border-collapse:collapse;font-size:.68rem}
+.table-wrap{overflow-x:auto;margin:1rem 0;border:2px solid var(--gray-dark)}
+table{width:100%;border-collapse:collapse;font-size:.7rem}
 thead{background:var(--dark)}
-th{text-transform:uppercase;letter-spacing:.12em;color:var(--gray-light);font-weight:600;text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--gray-dark)}
-td{padding:.45rem .75rem;border-bottom:1px solid var(--gray-dark);color:var(--gray);font-family:var(--font);vertical-align:top}
-tr:hover td{background:rgba(255,255,255,.02)}
+th{text-transform:uppercase;letter-spacing:.12em;color:var(--gray-light);font-weight:600;text-align:left;padding:.55rem .75rem;border-bottom:2px solid var(--gray-dark)}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--gray-dark);color:var(--gray);font-family:var(--font);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.03)}
 td:first-child{color:var(--white);font-weight:600}
 .req{color:var(--white)}
 
 /* TOOL MINI */
-.tool-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1px;background:var(--gray-dark);margin:1rem 0;border:1px solid var(--gray-dark)}
-.tool-mini{background:var(--black);padding:.6rem .75rem;font-size:.55rem;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center;transition:all .3s;cursor:none}
-.tool-mini:hover{background:var(--white);color:var(--black)}
+.tool-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:2px;margin:1rem 0}
+.tool-mini{border:2px solid var(--gray-dark);padding:.6rem .75rem;font-size:.55rem;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center;transition:all .3s;cursor:none;background:var(--black)}
+.tool-mini:hover{background:var(--white);color:var(--black);border-color:var(--white)}
 .tool-mini .cat{font-size:.4rem;color:var(--gray-mid);letter-spacing:.15em}
 .tool-mini:hover .cat{color:var(--black)}
 
 /* MERMAID */
-.mermaid-wrap{border:1px solid var(--gray-dark);padding:1rem;margin:1rem 0;background:var(--dark);overflow-x:auto}
+.mermaid-wrap{border:2px solid var(--gray-dark);padding:1rem;margin:1rem 0;background:var(--dark);overflow-x:auto}
 .mermaid-wrap svg{max-width:100%;height:auto}
 
-/* LEFT/RIGHT ARROWS */
-.arrow-nav{position:fixed;top:50%;z-index:80;transform:translateY(-50%);display:flex;flex-direction:column;gap:.25rem}
+/* ARROWS */
+.arrow-nav{position:fixed;top:50%;z-index:80;transform:translateY(-50%)}
 .arrow-nav.left{left:.75rem}
 .arrow-nav.right{right:.75rem}
-@media(max-width:768px){.arrow-nav.left{left:.5rem;top:auto;bottom:4.5rem;transform:none;flex-direction:row}.arrow-nav.right{right:.5rem;top:auto;bottom:4.5rem;transform:none;flex-direction:row}}
-.arrow-nav a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--gray-dark);background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:var(--gray);transition:all .3s;font-size:1.1rem;cursor:none;text-decoration:none}
+@media(max-width:768px){.arrow-nav.left{left:.5rem;top:auto;bottom:4.5rem;transform:none}.arrow-nav.right{right:.5rem;top:auto;bottom:4.5rem;transform:none}}
+.arrow-nav a{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:2px solid var(--gray-dark);background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:var(--gray);transition:all .3s;font-size:1.3rem;cursor:none;text-decoration:none}
 .arrow-nav a:hover{border-color:var(--white);color:var(--white);background:rgba(255,255,255,.1)}
-.arrow-nav a.disabled{opacity:.15;pointer-events:none}
+.arrow-nav a.disabled{opacity:.15;pointer-events:none;border-color:var(--gray-dark)}
 
-/* SECTION BOTTOM NAV */
-.section-nav{display:flex;justify-content:space-between;margin-top:2rem;padding-top:1rem;border-top:1px solid var(--gray-dark)}
+/* SECTION NAV */
+.section-nav{display:flex;justify-content:space-between;margin-top:2rem;padding-top:1rem;border-top:2px solid var(--gray-dark)}
 .section-nav a{font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:var(--gray);transition:color .3s;cursor:none}
 .section-nav a:hover{color:var(--white)}
 
-/* FOOTER — inline in last section */
-.doc-footer{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--gray-dark);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.6rem;color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
-.doc-footer a{color:var(--gray);text-decoration:none;transition:color .3s}
+/* FOOTER */
+.doc-footer{margin-top:2rem;padding-top:1.5rem;border-top:2px solid var(--gray-dark);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.6rem;color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
+.doc-footer a{color:var(--gray);transition:color .3s}
 .doc-footer a:hover{color:var(--white);cursor:none}
 .doc-footer .r{text-align:right;font-size:.5rem;color:var(--gray-dark)}
 </style>
@@ -153,15 +151,15 @@ td:first-child{color:var(--white);font-weight:600}
       <div class="brand">PHAROS <span>//</span> DOCS</div>
     </div>
     <div class="sidebar-nav" id="sidebarNav">
-      <a href="#install" class="active"><span class="pref">01</span> Install</a>
-      <a href="#quickstart"><span class="pref">02</span> Quick Start</a>
-      <a href="#subskills"><span class="pref">03</span> Subskills</a>
-      <a href="#tools"><span class="pref">04</span> MCP Tools</a>
-      <a href="#demos"><span class="pref">05</span> Demos</a>
-      <a href="#architecture"><span class="pref">06</span> Architecture</a>
-      <a href="#api"><span class="pref">07</span> API Ref</a>
-      <a href="#deployments"><span class="pref">08</span> Deploy</a>
-      <a href="#networks"><span class="pref">09</span> Networks</a>
+      <a href="#install" class="active" data-index="0"><span class="pref">01</span> Install</a>
+      <a href="#quickstart" data-index="1"><span class="pref">02</span> Quick Start</a>
+      <a href="#subskills" data-index="2"><span class="pref">03</span> Subskills</a>
+      <a href="#tools" data-index="3"><span class="pref">04</span> MCP Tools</a>
+      <a href="#demos" data-index="4"><span class="pref">05</span> Demos</a>
+      <a href="#architecture" data-index="5"><span class="pref">06</span> Architecture</a>
+      <a href="#api" data-index="6"><span class="pref">07</span> API Ref</a>
+      <a href="#deployments" data-index="7"><span class="pref">08</span> Deploy</a>
+      <a href="#networks" data-index="8"><span class="pref">09</span> Networks</a>
     </div>
     <div class="sidebar-footer"><a href="index.html">← HOME</a></div>
   </aside>
@@ -173,14 +171,14 @@ td:first-child{color:var(--white);font-weight:600}
     <a href="#" id="nextSection">→</a>
   </nav>
 
-  <main class="main" id="scrollContainer">
+  <main class="main" id="slideContainer">
 
-    <section class="section" id="install">
+    <div class="section active" id="install" data-index="0">
       <div class="section-number">01</div>
-      <div class="section-label reveal"><span class="num">01</span> / Setup</div>
-      <h2 class="reveal">Install <span class="light">Pharos ADS</span></h2>
-      <div class="reveal reveal-delay-1">
-        <p>Clone, install, configure. Requires <strong>Node.js ≥18</strong> + <strong>Foundry</strong>.</p>
+      <div class="section-label"><span class="num">01</span> / Setup</div>
+      <h2>Install <span class="light">Pharos ADS</span></h2>
+      <div>
+        <p>Clone the repo, install deps, configure your environment. Requires <strong>Node.js ≥18</strong> + <strong>Foundry</strong>.</p>
         <div class="code-block">
           <button class="copy-btn" data-cmd="git clone https://github.com/AnomalyCo/Pharos.git && cd Pharos && npm install">COPY</button>
           <pre><span class="p">$</span> git clone https://github.com/AnomalyCo/Pharos.git
@@ -192,21 +190,21 @@ td:first-child{color:var(--white);font-weight:600}
           <pre><span class="p">$</span> export PRIVATE_KEY=0x...
 <span class="p">$</span> export RPC_URL=https://rpc.atlantic.pharos.network</pre>
         </div>
-        <p>Verify with <code>npm run demo</code>.</p>
+        <p>Verify: <code>npm run demo</code> — 18 tools should register.</p>
         <div class="note">No testnet PHRS? Use the Atlantic Faucet.</div>
       </div>
-      <div class="section-nav reveal">
+      <div class="section-nav">
         <span></span>
-        <a href="#quickstart">Next →</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="quickstart">
+    <div class="section" id="quickstart" data-index="1">
       <div class="section-number">02</div>
-      <div class="section-label reveal"><span class="num">02</span> / Start</div>
-      <h2 class="reveal">Quick <span class="light">Start</span></h2>
-      <div class="reveal reveal-delay-1">
-        <p>Three demos built on real MCP clients — no bash stubs.</p>
+      <div class="section-label"><span class="num">02</span> / Start</div>
+      <h2>Quick <span class="light">Start</span></h2>
+      <div>
+        <p>Three demos — real MCP clients, zero bash stubs.</p>
         <h3>Quick Demo — <code>npm run demo</code></h3>
         <p>6 read-only tools: balanceOf, getBlock, chainId, getCode, getStorage, getTx.</p>
         <div class="code-block">
@@ -217,26 +215,25 @@ td:first-child{color:var(--white);font-weight:600}
 ✓ balanceOf(0x...) → 0 PHRS
 ✓ getBlock(latest) → #123456
 ✓ chainId → 688689
-✓ getCode(0x...) → 0x608060...
-✓ getTx(0x...) → success</pre>
+✓ getCode(0x...) → 0x608060...</pre>
         </div>
         <h3>Token Workflow — <code>npm run demo:token</code></h3>
         <p>Full ERC-20 lifecycle: deploy, mint, transfer, read logs.</p>
         <h3>Cascade Demo — <code>npm run demo:cascade</code></h3>
         <p>5-tool cascade: Skill → Tool → Blockchain.</p>
       </div>
-      <div class="section-nav reveal">
-        <a href="#install">← Prev</a>
-        <a href="#subskills">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="subskills">
+    <div class="section" id="subskills" data-index="2">
       <div class="section-number">03</div>
-      <div class="section-label reveal"><span class="num">03</span> / Skills</div>
-      <h2 class="reveal">42 <span class="light">Subskills</span></h2>
-      <div class="reveal reveal-delay-1">
-        <p>42 subskills across <strong>12 categories</strong>. Each is a markdown file at <code>skill/subskills/</code> — guides the agent through blockchain dev tasks with Pharos-specific conventions.</p>
+      <div class="section-label"><span class="num">03</span> / Skills</div>
+      <h2>42 <span class="light">Subskills</span></h2>
+      <div>
+        <p>42 subskills across <strong>12 categories</strong>. Each is markdown at <code>skill/subskills/</code> — guides the agent through blockchain dev with Pharos-specific conventions.</p>
         <div class="tool-mini-grid">
           <div class="tool-mini">Wallet <span class="cat">WALLET</span></div>
           <div class="tool-mini">Faucet <span class="cat">WALLET</span></div>
@@ -253,18 +250,18 @@ td:first-child{color:var(--white);font-weight:600}
         </div>
         <p><a href="https://github.com/AnomalyCo/Pharos/tree/main/skill/subskills" target="_blank">Browse on GitHub →</a></p>
       </div>
-      <div class="section-nav reveal">
-        <a href="#quickstart">← Prev</a>
-        <a href="#tools">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="tools">
+    <div class="section" id="tools" data-index="3">
       <div class="section-number">04</div>
-      <div class="section-label reveal"><span class="num">04</span> / Tools</div>
-      <h2 class="reveal">18 <span class="light">MCP Tools</span></h2>
-      <div class="reveal reveal-delay-1">
-        <p>Read (8) · Write (5) · Utility (5). Every tool wraps a viem RPC call with validation, error handling, and timeouts.</p>
+      <div class="section-label"><span class="num">04</span> / Tools</div>
+      <h2>18 <span class="light">MCP Tools</span></h2>
+      <div>
+        <p>Read (8) · Write (5) · Utility (5). Each wraps a viem RPC call with validation + error handling.</p>
         <div class="tool-mini-grid">
           <div class="tool-mini">balanceOf <span class="cat">READ</span></div>
           <div class="tool-mini">readContract <span class="cat">READ</span></div>
@@ -286,18 +283,18 @@ td:first-child{color:var(--white);font-weight:600}
           <div class="tool-mini">getFees <span class="cat">UTIL</span></div>
         </div>
       </div>
-      <div class="section-nav reveal">
-        <a href="#subskills">← Prev</a>
-        <a href="#demos">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="demos">
+    <div class="section" id="demos" data-index="4">
       <div class="section-number">05</div>
-      <div class="section-label reveal"><span class="num">05</span> / Demos</div>
-      <h2 class="reveal">Live <span class="light">Demos</span></h2>
-      <div class="reveal reveal-delay-1">
-        <p>Three demos: each spawns the real MCP server over stdio.</p>
+      <div class="section-label"><span class="num">05</span> / Demos</div>
+      <h2>Live <span class="light">Demos</span></h2>
+      <div>
+        <p>Three demos that spawn the real MCP server over stdio.</p>
         <h3>01 — Quick Demo</h3>
         <p><code>npm run demo</code> — 6 read-only tools. Validates server connectivity.</p>
         <h3>02 — Token Workflow</h3>
@@ -312,24 +309,23 @@ td:first-child{color:var(--white);font-weight:600}
   STEP 3  Params validated
   STEP 4  Tx submitted to Pharos
   STEP 5  Explorer confirms
-✓ Cascade complete</pre>
+✓ Cascade complete — 5 tools, 1 flow</pre>
         </div>
       </div>
-      <div class="section-nav reveal">
-        <a href="#tools">← Prev</a>
-        <a href="#architecture">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="architecture">
+    <div class="section" id="architecture" data-index="5">
       <div class="section-number">06</div>
-      <div class="section-label reveal"><span class="num">06</span> / Arch</div>
-      <h2 class="reveal">System <span class="light">Architecture</span></h2>
-      <div class="reveal reveal-delay-1">
+      <div class="section-label"><span class="num">06</span> / Arch</div>
+      <h2>System <span class="light">Architecture</span></h2>
+      <div>
         <p><strong>Dual Cascade</strong> — two layers bridge AI agents to the Pharos blockchain.</p>
         <div class="mermaid-wrap">
-          <div class="mermaid">
-graph LR
+          <div class="mermaid">graph LR
     A["AI Agent"] --> B["42 Subskills"]
     B --> C["MCP Server (18)"]
     C --> D["Pharos Chain"]
@@ -337,36 +333,23 @@ graph LR
     style A fill:#222,stroke:#555,color:#fff
     style B fill:#222,stroke:#555,color:#fff
     style C fill:#222,stroke:#555,color:#fff
-    style D fill:#222,stroke:#555,color:#fff
-          </div>
+    style D fill:#222,stroke:#555,color:#fff</div>
         </div>
         <p><strong>Skill Cascade</strong> — 42 subskills in markdown. Each teaches Pharos patterns: pull-over-push, no 2300 gas stipend.</p>
         <p><strong>Tool Cascade</strong> — 18 MCP tools wrapping viem RPC calls with validation, error handling, ABI caching.</p>
-        <div class="mermaid-wrap">
-          <div class="mermaid">
-graph TD
-    SKILL["skill/SKILL.md"] --> AGENT["Agent"]
-    AGENT --> MCP["MCP Server"]
-    MCP --> RPC["Pharos RPC"]
-    style SKILL fill:#222,stroke:#555,color:#fff
-    style AGENT fill:#222,stroke:#555,color:#fff
-    style MCP fill:#333,stroke:#666,color:#fff
-    style RPC fill:#222,stroke:#555,color:#fff
-          </div>
-        </div>
-        <p>Stack: Node.js + ESM · viem v2 · MCP SDK 0.6 · Foundry · stdio transport · Blockscout explorer</p>
+        <p>Stack: Node.js + ESM · viem v2 · MCP SDK 0.6 · Foundry · stdio transport · Blockscout</p>
       </div>
-      <div class="section-nav reveal">
-        <a href="#demos">← Prev</a>
-        <a href="#api">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="api">
+    <div class="section" id="api" data-index="6">
       <div class="section-number">07</div>
-      <div class="section-label reveal"><span class="num">07</span> / Ref</div>
-      <h2 class="reveal">API <span class="light">Reference</span></h2>
-      <div class="reveal reveal-delay-1">
+      <div class="section-label"><span class="num">07</span> / Ref</div>
+      <h2>API <span class="light">Reference</span></h2>
+      <div>
         <p><span class="req">*</span> = required.</p>
         <h3>balanceOf</h3>
         <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
@@ -397,17 +380,17 @@ graph TD
         <tr><td>args</td><td>array</td><td>[]</td><td>Constructor args</td></tr></tbody></table></div>
         <p>See full source: <a href="https://github.com/AnomalyCo/Pharos/blob/main/mcp-server/index.js" target="_blank">mcp-server/index.js →</a></p>
       </div>
-      <div class="section-nav reveal">
-        <a href="#architecture">← Prev</a>
-        <a href="#deployments">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="deployments">
+    <div class="section" id="deployments" data-index="7">
       <div class="section-number">08</div>
-      <div class="section-label reveal"><span class="num">08</span> / Deploy</div>
-      <h2 class="reveal">Sample <span class="light">Deployments</span></h2>
-      <div class="reveal reveal-delay-1">
+      <div class="section-label"><span class="num">08</span> / Deploy</div>
+      <h2>Sample <span class="light">Deployments</span></h2>
+      <div>
         <p>Contracts on Pharos Atlantic Testnet, verified on Blockscout.</p>
         <div class="table-wrap"><table><thead><tr><th>Contract</th><th>Address</th><th>Explorer</th></tr></thead>
         <tbody>
@@ -416,25 +399,24 @@ graph TD
           <tr><td>SimpleStorage</td><td><code style="font-size:.6rem">0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0" target="_blank">View →</a></td></tr>
         </tbody></table></div>
       </div>
-      <div class="section-nav reveal">
-        <a href="#api">← Prev</a>
-        <a href="#networks">Next →</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
+        <a href="#" class="next-slide">Next →</a>
       </div>
-    </section>
+    </div>
 
-    <section class="section" id="networks">
+    <div class="section" id="networks" data-index="8">
       <div class="section-number">09</div>
-      <div class="section-label reveal"><span class="num">09</span> / Networks</div>
-      <h2 class="reveal">Pharos <span class="light">Networks</span></h2>
-      <div class="reveal reveal-delay-1">
+      <div class="section-label"><span class="num">09</span> / Networks</div>
+      <h2>Pharos <span class="light">Networks</span></h2>
+      <div>
         <div class="table-wrap"><table><thead><tr><th>Network</th><th>Chain ID</th><th>RPC</th><th>Explorer</th></tr></thead>
         <tbody>
           <tr><td>Pacific Mainnet</td><td><code>1672</code></td><td><code>rpc.pacific...</code></td><td><a href="https://explorer.pacific.pharos.network" target="_blank">explorer →</a></td></tr>
           <tr><td>Atlantic Testnet</td><td><code>688689</code></td><td><code>rpc.atlantic...</code></td><td><a href="https://explorer.atlantic.pharos.network" target="_blank">explorer →</a></td></tr>
         </tbody></table></div>
         <div class="mermaid-wrap">
-          <div class="mermaid">
-graph LR
+          <div class="mermaid">graph LR
     DEV["Dev Machine"] -->|forge/npm| ATL["Atlantic Testnet<br/>688689"]
     DEV -->|prod| PAC["Pacific Mainnet<br/>1672"]
     ATL --> EXP["Blockscout"]
@@ -442,8 +424,7 @@ graph LR
     style DEV fill:#222,stroke:#555,color:#fff
     style ATL fill:#333,stroke:#666,color:#ccc
     style PAC fill:#333,stroke:#666,color:#ccc
-    style EXP fill:#222,stroke:#555,color:#fff
-          </div>
+    style EXP fill:#222,stroke:#555,color:#fff</div>
         </div>
         <h3>Limits</h3>
         <ul>
@@ -457,18 +438,18 @@ graph LR
         </ul>
         <div class="note">Chain ID 688689 (NOT 688688).</div>
       </div>
-      <div class="section-nav reveal">
-        <a href="#deployments">← Prev</a>
+      <div class="section-nav">
+        <a href="#" class="prev-slide">← Prev</a>
         <span></span>
       </div>
-      <div class="doc-footer reveal">
+      <div class="doc-footer">
         <div>
-          <div style="font-weight:700;color:var(--white);margin-bottom:.5rem">PHAROS AGENT DEV SUITE</div>
+          <div style="font-weight:700;color:var(--white);margin-bottom:.3rem">PHAROS AGENT DEV SUITE</div>
           <div>© 2026 — MIT — <a href="https://github.com/AnomalyCo/Pharos" target="_blank">GITHUB</a></div>
         </div>
         <div class="r">42 SUBSKILLS · 18 TOOLS<br>DUAL CASCADE</div>
       </div>
-    </section>
+    </div>
 
   </main>
 </div>
@@ -482,8 +463,8 @@ if (!('ontouchstart' in window)) {
   let mx = 0, my = 0, cx = 0, cy = 0;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
   const smooth = () => {
-    cx += (mx - cx) * .15;
-    cy += (my - cy) * .15;
+    cx += (mx - cx) * .25;
+    cy += (my - cy) * .25;
     cursor.style.left = cx + 'px';
     cursor.style.top = cy + 'px';
     requestAnimationFrame(smooth);
@@ -507,65 +488,76 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   });
 });
 
-// SCROLL REVEAL
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: .15, rootMargin: '0px 0px -60px 0px' });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// SNAP-SYNC: sidebar + arrows + counter
-const container = document.getElementById('scrollContainer');
+// SLIDE SYSTEM
 const sections = Array.from(document.querySelectorAll('.section'));
 const links = document.querySelectorAll('.sidebar-nav a');
 const prevBtn = document.getElementById('prevSection');
 const nextBtn = document.getElementById('nextSection');
 const counter = document.getElementById('sectionCounter');
+let current = 0;
+let animating = false;
 
-const sync = () => {
-  const scrollTop = container.scrollTop;
-  let current = 0;
-  sections.forEach((s, i) => {
-    const top = s.offsetTop - container.offsetTop;
-    const bot = top + s.offsetHeight;
-    if (scrollTop >= top - s.offsetHeight * .3 && scrollTop < bot - s.offsetHeight * .3) current = i;
-  });
+const goTo = (idx) => {
+  if (animating || idx === current || idx < 0 || idx >= sections.length) return;
+  animating = true;
+  const direction = idx > current ? 1 : -1;
+  const prev = current;
+  current = idx;
 
+  // current slides out
+  sections[prev].classList.remove('active');
+  sections[prev].classList.add('exit');
+
+  // new slides in
+  sections[current].classList.remove('exit');
+  sections[current].classList.add('active');
+
+  // sidebar
   links.forEach(l => l.classList.remove('active'));
-  const active = document.querySelector(`.sidebar-nav a[href="#${sections[current].id}"]`);
+  const active = document.querySelector(`.sidebar-nav a[data-index="${current}"]`);
   if (active) active.classList.add('active');
 
-  prevBtn.href = current > 0 ? '#' + sections[current - 1].id : '#';
+  // arrows
   prevBtn.classList.toggle('disabled', current === 0);
-  nextBtn.href = current < sections.length - 1 ? '#' + sections[current + 1].id : '#';
   nextBtn.classList.toggle('disabled', current === sections.length - 1);
 
+  // counter
   counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(sections.length).padStart(2, '0');
+
+  // scroll to top of section content
+  sections[current].scrollTop = 0;
+
+  setTimeout(() => { animating = false; }, 650);
 };
 
-container.addEventListener('scroll', sync);
-container.addEventListener('resize', sync);
-sync();
-
-// KEYBOARD
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft' || e.key === 'j') {
-    const href = prevBtn.getAttribute('href');
-    if (href && href !== '#') { e.preventDefault(); container.querySelector(href).scrollIntoView({ behavior: 'smooth' }); }
-  }
-  if (e.key === 'ArrowRight' || e.key === 'k') {
-    const href = nextBtn.getAttribute('href');
-    if (href && href !== '#') { e.preventDefault(); container.querySelector(href).scrollIntoView({ behavior: 'smooth' }); }
-  }
-});
-
-// SIDEBAR CLICK → smooth scroll within container
+// sidebar click
 document.querySelectorAll('.sidebar-nav a').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    goTo(parseInt(a.dataset.index));
   });
 });
+
+// arrows
+prevBtn.addEventListener('click', e => { e.preventDefault(); goTo(current - 1); });
+nextBtn.addEventListener('click', e => { e.preventDefault(); goTo(current + 1); });
+
+// bottom nav
+document.querySelectorAll('.next-slide').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); goTo(current + 1); });
+});
+document.querySelectorAll('.prev-slide').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); goTo(current - 1); });
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'j') { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'ArrowRight' || e.key === 'k') { e.preventDefault(); goTo(current + 1); }
+});
+
+// init
+goTo(0);
 </script>
 </body>
 </html>

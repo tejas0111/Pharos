@@ -12,9 +12,9 @@ html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--white);line-height:1.5;overflow-x:hidden;cursor:none}
 ::selection{background:var(--white);color:var(--black)}
 
-/* CUSTOM CURSOR — BULKY + SMOOTH */
-.cursor{position:fixed;width:24px;height:24px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),background .35s cubic-bezier(.16,1,.3,1),border .35s cubic-bezier(.16,1,.3,1);will-change:transform;backface-visibility:hidden}
-.cursor.hover{width:56px;height:56px;background:transparent;border:3px solid var(--white)}
+/* CURSOR — LIGHT, FAST */
+.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,background .25s ease;will-change:transform}
+.cursor.hover{width:32px;height:32px;background:transparent;border:2px solid var(--white)}
 
 /* SCANLINE */
 @keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
@@ -214,6 +214,40 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   </div>
 </section>
 
+<section id="deploy-flow">
+  <div class="section-inner">
+    <div class="section-label reveal"><span class="num">03</span> / Workflow</div>
+    <h2 class="reveal">Deploy <span class="light">in 3 Commands</span></h2>
+    <p class="reveal reveal-delay-1">From zero to verified contract in under 60 seconds. No config files, no boilerplate.</p>
+    <div class="code-block reveal reveal-delay-2" style="border:2px solid var(--gray-dark);padding:2rem;margin-top:1rem">
+      <pre style="font-size:.9rem;line-height:2"><span class="p">$</span> forge build
+<span class="c">// Compiles Solidity → ABI + bytecode</span>
+
+<span class="p">$</span> forge create src/Counter.sol:Counter \
+  --rpc-url https://rpc.atlantic.pharos.network \
+  --private-key $PRIVATE_KEY
+<span class="c">// Deploys to Atlantic Testnet</span>
+
+<span class="p">$</span> npm run demo
+<span class="c">// Verifies on-chain via MCP tools</span></pre>
+    </div>
+    <div class="reveal reveal-delay-3" style="display:flex;gap:2rem;margin-top:1.5rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
+        <div style="font-size:2rem;font-weight:900;color:var(--white)">42</div>
+        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">Agent Subskills</div>
+      </div>
+      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
+        <div style="font-size:2rem;font-weight:900;color:var(--white)">18</div>
+        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">MCP Tools</div>
+      </div>
+      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
+        <div style="font-size:2rem;font-weight:900;color:var(--white)">2</div>
+        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">Networks</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="why">
   <div class="section-inner">
     <div class="section-label reveal"><span class="num">04</span> / Rationale</div>
@@ -265,8 +299,8 @@ if (!('ontouchstart' in window)) {
   let mx = 0, my = 0, cx = 0, cy = 0;
   document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
   const smooth = () => {
-    cx += (mx - cx) * .15;
-    cy += (my - cy) * .15;
+    cx += (mx - cx) * .25;
+    cy += (my - cy) * .25;
     cursor.style.left = cx + 'px';
     cursor.style.top = cy + 'px';
     requestAnimationFrame(smooth);
