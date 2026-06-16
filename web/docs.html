@@ -7,11 +7,21 @@
 <meta name="description" content="Full documentation: 42 subskills, 18 MCP tools, install guide, quick start, architecture, API reference for Pharos Agent Dev Suite.">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#000;--white:#fff;--cyan:#00f0ff;--pink:#ff0066;--gray:#888;--dark:#111;--font:'JetBrains Mono',monospace;--sidebar-w:260px}
+:root{--black:#000;--white:#fff;--cyan:#00f0ff;--pink:#ff0066;--gray:#888;--gray-light:#aaa;--dark:#111;--font:'JetBrains Mono',monospace;--sidebar-w:260px}
 html{scroll-behavior:smooth;scroll-padding-top:2rem}
 body{font-family:var(--font);background:var(--black);color:var(--white);line-height:1.6}
 ::selection{background:var(--white);color:var(--black)}
+
+/* SCAN LINE — MOVING GRAY ANIMATION LINE */
+@keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
 body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;mix-blend-mode:overlay}
+body::after{content:'';position:fixed;left:0;right:0;top:0;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.015) 2px,rgba(255,255,255,.015) 4px),repeating-linear-gradient(90deg,transparent,transparent 30%,rgba(200,200,200,.05) 30%,rgba(200,200,200,.07) 40%,transparent 40%,transparent 100%);background-size:100% 4px,200% 100%;animation:scanline 8s linear infinite;pointer-events:none;z-index:9998;mix-blend-mode:screen;opacity:.4}
+
+/* MARQUEE SCROLL */
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.marquee{overflow:hidden;white-space:nowrap;display:flex;width:100%}
+.marquee-inner{display:flex;animation:marquee 30s linear infinite;gap:0}
+.marquee-inner > *{flex-shrink:0}
 a{color:var(--cyan);text-decoration:none}
 a:hover{color:var(--pink)}
 code{font-family:var(--font);background:var(--dark);padding:.15rem .35rem;font-size:.85em;border:1px solid var(--gray)}
@@ -135,6 +145,15 @@ td:first-child{color:var(--white);font-weight:600}
 </aside>
 
 <main class="main">
+
+<div class="marquee" style="position:sticky;top:0;z-index:99;background:var(--black);border-bottom:1px solid #222;font-size:.65rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);height:2rem;line-height:2rem;overflow:hidden">
+  <div class="marquee-inner" style="animation-duration:60s">
+    <span style="padding:0 2rem">PHAROS AGENT DEV SUITE // 42 SUBSKILLS + 18 MCP TOOLS // DUAL CASCADE</span>
+    <span style="padding:0 2rem">PHAROS AGENT DEV SUITE // 42 SUBSKILLS + 18 MCP TOOLS // DUAL CASCADE</span>
+    <span style="padding:0 2rem">PHAROS AGENT DEV SUITE // 42 SUBSKILLS + 18 MCP TOOLS // DUAL CASCADE</span>
+    <span style="padding:0 2rem">PHAROS AGENT DEV SUITE // 42 SUBSKILLS + 18 MCP TOOLS // DUAL CASCADE</span>
+  </div>
+</div>
 
 <!-- INSTALL -->
 <section class="section" id="install">
