@@ -13,6 +13,8 @@ Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific
 
 > ### The Cascade
 > An AI agent reads Pharos subskills in **Layer 1**, learns what to do, then calls **Layer 2** MCP tools to execute on-chain. See the full walkthrough in [`CASCADE.md`](./CASCADE.md).
+>
+> **🌐 Website & Demo**: [pharos-ads.netlify.app](https://pharos-ads.netlify.app) — landing page, docs, and demo video.
 
 ```mermaid
 flowchart LR
@@ -130,6 +132,8 @@ node agent/token-workflow.mjs
 # 4. Or deploy Counter to testnet with forge
 forge script script/Deploy.s.sol:DeployCounter --rpc-url https://atlantic.dplabs-internal.com --broadcast
 ```
+
+📺 **Watch the demo video** at **[pharos-ads.netlify.app](https://pharos-ads.netlify.app)** — or browse the [docs](https://pharos-ads.netlify.app/docs.html).
 
 ## Usage
 
