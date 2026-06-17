@@ -1,5 +1,5 @@
 ---
-name: pharos-agent-suite
+name: pharos-agent-dev-suite
 description: "Pharos blockchain developer and deployment suite for contract coding, dapp frontend integration, testing, and high-risk deployment on Pharos (Atlantic 688689 / Pacific 1672). Use when building, testing, reviewing, debugging, or broadcasting contracts with Foundry/Hardhat, or when onboarding repos, refactoring, managing monorepos, and configuring CI. Keywords: Pharos, Solidity, contract, dapp, deploy, broadcast, verify, Foundry, Hardhat, wagmi, viem, Remix, CI, build failure, review, audit, debug, refactor, scaffold, monorepo, a11y, release notes, PROS, PHRS, 688689, 1672, Atlantic, Pacific, forge, cast, PharosScan, dapp-ui, dapp-quality."
 slash: true
 metadata:
@@ -8,7 +8,7 @@ metadata:
   category: workflow
 ---
 
-# Pharos Agent Suite
+# Pharos Agent Dev Suite
 
 The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 39 developer subskills + 3 high-risk deployment subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
 
@@ -222,4 +222,4 @@ Every broadcast requires explicit approval. No exceptions. The MCP server enforc
 Every response must include: **Summary, Plan, Assumptions, Files/Artifacts, Verification, and Approval Question.**
 
 ---
-*Pharos Agent Suite — Powering the next generation of Pharos developers.*
+*Pharos Agent Dev Suite — Powering the next generation of Pharos developers.*
