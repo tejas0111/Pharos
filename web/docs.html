@@ -191,17 +191,15 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <p>Clone the repo, install deps, configure your environment. Requires <strong>Node.js ≥18</strong> + <strong>Foundry</strong>.</p>
         <div class="code-block">
-          <button class="copy-btn" data-cmd="git clone https://github.com/tejas0111/Pharos.git && cd Pharos && npm install">COPY</button>
-          <pre><span class="p">$</span> git clone https://github.com/tejas0111/Pharos.git
-<span class="p">$</span> cd Pharos
-<span class="p">$</span> npm install</pre>
+          <button class="copy-btn" data-cmd="npx skills add https://github.com/tejas0111/pharos">COPY</button>
+          <pre><span class="p">$</span> npx skills add https://github.com/tejas0111/pharos </pre>
         </div>
         <div class="code-block">
           <button class="copy-btn" data-cmd='export PRIVATE_KEY=0x... && export RPC_URL=https://rpc.atlantic.pharos.network'>COPY</button>
           <pre><span class="p">$</span> export PRIVATE_KEY=0x...
 <span class="p">$</span> export RPC_URL=https://rpc.atlantic.pharos.network</pre>
         </div>
-        <p>Verify: <code>npm run demo</code> — 18 tools should register.</p>
+        <p>Verify: <code>npm test</code> — 21 tools should register.</p>
         <div class="note">No testnet PHRS? Use the Atlantic Faucet.</div>
       </div>
     </div>
