@@ -33,7 +33,7 @@ node agent/cascade-demo.mjs
 ## Expected Output (token-workflow.mjs)
 
 ```
-  ✅ Connected — 18 tools available
+  ✅ Connected — 21 tools available
 
   ⚠  PRIVATE_KEY not set — deploys/transfers will be simulated
 
@@ -50,7 +50,7 @@ node agent/cascade-demo.mjs
   ...
   ──────────────────────────────────────────────────────
     Token Workflow Complete — simulated through MCP
-    18 tools registered
+    21 tools registered
   ──────────────────────────────────────────────────────
 ```
 

@@ -1,13 +1,13 @@
 # Pharos Agent Dev Suite
 
 ## One-Liner
-**42 agent skills + 18 MCP tools + live on-chain deployment proof for building on Pharos (Atlantic Testnet / Pacific Mainnet).**
+**42 agent skills + 21 MCP tools + live on-chain deployment proof for building on Pharos (Atlantic Testnet / Pacific Mainnet).**
 
 ---
 
 ## What It Is
 
-The Pharos Agent Dev Suite is a comprehensive skill package that turns any AI coding agent (Codex, Claude Code, OpenCode, Gemini CLI) into a Pharos blockchain specialist. With 42 finely-grained subskills spanning architecture, Solidity authoring, deployment, frontend dapp integration, security auditing, and production operations — plus 18 executable MCP tools for autonomous agents — it provides end-to-end coverage for Pharos development.
+The Pharos Agent Dev Suite is a comprehensive skill package that turns any AI coding agent (Codex, Claude Code, OpenCode, Gemini CLI) into a Pharos blockchain specialist. With 42 finely-grained subskills spanning architecture, Solidity authoring, deployment, frontend dapp integration, security auditing, and production operations — plus 21 executable MCP tools for autonomous agents — it provides end-to-end coverage for Pharos development.
 
 ## Key Differentiators
 
@@ -21,11 +21,11 @@ We don't just talk about Pharos — we prove it. Three contracts deployed to Pha
 **Deployer**: `0x735367687d6a701466840321eD8e34E4DafE84aC`
 **Network**: Atlantic Testnet (688689, PHRS)
 
-### 🎯 42 Focused Subskills + 18 MCP Tools
+### 🎯 42 Focused Subskills + 21 MCP Tools
 
 Dual-layer design: instruction subskills for human developers and executable MCP tools for autonomous AI agents.
 
-**18 MCP Tools:**
+**21 MCP Tools:**
 
 | # | Tool | Description | Executes? |
 |---|------|-------------|-----------|
@@ -47,6 +47,9 @@ Dual-layer design: instruction subskills for human developers and executable MCP
 | 16 | `pharos_read_contract` | Call any view/pure function on a deployed contract via its ABI | Yes |
 | 17 | `pharos_write_contract` | Call any state-changing function via ABI (simulate then broadcast) | Yes |
 | 18 | `pharos_fetch_abi` | Download verified ABI JSON from PharosScan explorer | Yes |
+| 19 | `pharos_frontend_sync` | Sync deployed contract address and ABI to a frontend project | Yes |
+| 20 | `pharos_create_safe_tx` | Build a Safe transaction payload for multi-sig execution | Yes |
+| 21 | `pharos_propose_safe_tx` | Prepare a Safe multi-sig transaction for proposal via Safe Transaction Service | Yes |
 
 **42 Subskills by Category:**
 
@@ -75,7 +78,7 @@ High-risk operations (deployments, security changes, upgrades) require explicit 
 |---|---|---|
 | Format | **Dual-layer**: subskills + MCP tools | Single format only |
 | On-chain proof | **3 verified contracts** on Atlantic testnet | No deployment or code only |
-| Tool count | **42 subskills + 18 MCP tools** | Under 10 skills |
+| Tool count | **42 subskills + 21 MCP tools** | Under 10 skills |
 | Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas patterns | Generic EVM advice |
 | Live demo | `node agent/mcp-demo.mjs` calls 6 tools through the real MCP server | No demo or single command |
 | Phase 2 ready | Anvita Flow integration (x402 micropayments) documented | No forward planning |
@@ -129,7 +132,7 @@ test/                      # Foundry tests (30 passing)
 script/                    # Forge deploy scripts
 config/                    # Pharos network configuration
 shared/                     # viem defineChain configs
-mcp-server/                # MCP server with 18 executable tools
+mcp-server/                # MCP server with 21 executable tools
 .github/workflows/         # CI/CD deploy pipeline
 DEPLOYMENTS.md             # Live on-chain deployment proof
 ```
@@ -162,8 +165,8 @@ DEPLOYMENTS.md             # Live on-chain deployment proof
 
 | Criterion | How We Deliver |
 |---|---|
-| **Originality & Creativity** | Dual-layer design: 42 instruction subskills + 18 executable MCP tools — the only skill offering both layers for Pharos development |
-| **Technical Quality** | 18 tools that actually execute (forge, viem RPC, Pharos-specific RPC, explorer API, slither), not just print commands. Private key sanitization. Error handling in every tool. Context-aware tips per tool. |
+| **Originality & Creativity** | Dual-layer design: 42 instruction subskills + 21 executable MCP tools — the only skill offering both layers for Pharos development |
+| **Technical Quality** | 21 tools that actually execute (forge, viem RPC, Pharos-specific RPC, explorer API, slither), not just print commands. Private key sanitization. Error handling in every tool. Context-aware tips per tool. |
 | **Practical Use Case** | Full dev lifecycle coverage: deploy, verify, transfer, trace, gas estimate, network status, account state, security audit, test generation, log fetching |
 | **Reusability & Composability** | MCP tools chain together via the MCP protocol. See `agent/token-workflow.mjs` for an 8-tool composition demo (network config → diagnose → balance check → deploy ERC-20 → post-deploy balance → transfer → event logs → network status). |
 | **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All addresses and tx hashes documented in `DEPLOYMENTS.md`. |

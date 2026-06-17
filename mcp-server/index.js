@@ -138,6 +138,9 @@ const SUBLINK = {
   read_contract: "contract-review",
   write_contract: "wallet-and-transaction-ui",
   fetch_abi: "contract-review",
+  frontend_sync: "frontend-dapp-integration",
+  create_safe_tx: "wallet-and-transaction-ui",
+  propose_safe_tx: "wallet-and-transaction-ui",
 };
 
 function contextualTip(toolName, args, result) {
@@ -1075,9 +1078,9 @@ async function frontendSync(args) {
       envFileWritten: result.envFile,
       abiFileWritten: result.abiFile,
       tip: ".env.local reloads automatically in dev. Restart your Next.js dev server to pick up new env vars.",
-    }, "check_balance"));
+    }, "frontend_sync"));
   } catch (err) {
-    return structuredError(err, "check_balance");
+    return structuredError(err, "frontend_sync");
   }
 }
 

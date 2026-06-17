@@ -22,7 +22,7 @@ async function main() {
 
     console.log(`\n${BLUE}╔════════════════════════════════════════════════════════════╗${RESET}`);
     console.log(`${BLUE}║   Pharos Skill-to-Agent Dual Cascade Demo                ║${RESET}`);
-    console.log(`${BLUE}║   42 subskills → 18 MCP tools → Pharos Blockchain        ║${RESET}`);
+    console.log(`${BLUE}║   42 subskills → 21 MCP tools → Pharos Blockchain        ║${RESET}`);
     console.log(`${BLUE}╚════════════════════════════════════════════════════════════╝${RESET}`);
 
     // ── Phase 1 ──

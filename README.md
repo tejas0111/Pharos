@@ -2,12 +2,12 @@
 
 [![tests](https://img.shields.io/badge/tests-30%20passing-brightgreen)]()
 [![contracts](https://img.shields.io/badge/contracts-3%20verified-blue)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-18-purple)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)]()
 [![subskills](https://img.shields.io/badge/subskills-42-orange)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 [![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)]()
 
-**A dual-layer Pharos Skill — 42 instruction subskills for human developers + 18 executable MCP tools for autonomous AI agents.**
+**A dual-layer Pharos Skill — 42 instruction subskills for human developers + 21 executable MCP tools for autonomous AI agents.**
 
 Built for the Pharos Skill-to-Agent Hackathon (Atlantic Testnet 688689 / Pacific Mainnet 1672).
 
@@ -25,7 +25,7 @@ flowchart LR
         S5[[frontend-dapp]]
         S6[[...37 more]]
     end
-    subgraph L2["Layer 2: 18 Executable MCP Tools"]
+    subgraph L2["Layer 2: 21 Executable MCP Tools"]
         T1[deploy_contract]
         T2[verify_contract]
         T3[check_balance]
@@ -33,7 +33,7 @@ flowchart LR
         T5[read_contract]
         T6[write_contract]
         T7[fetch_abi]
-        T8[...11 more]
+        T8[...14 more]
     end
     subgraph BC["Pharos Blockchain"]
         AT[("Atlantic Testnet<br/>688689")]
@@ -52,7 +52,7 @@ For human developers using AI coding assistants (Codex, Claude Code, OpenCode, G
 - **Approval gates** — higher-risk work requires explicit confirmation
 - **Structured output** — downstream agents can reuse results
 
-### Layer 2: 18 Executable MCP Tools
+### Layer 2: 21 Executable MCP Tools
 
 For autonomous AI agents that execute real on-chain operations:
 - **Deploy**, **verify**, and **transfer** on Pharos networks
@@ -88,7 +88,7 @@ Two capabilities in this skill exist for **NO other blockchain**:
 |---|---|---|
 | Format | **Dual-layer**: subskills + MCP tools | Single format only |
 | On-chain proof | **3 verified contracts** on Atlantic testnet | No deployment or code only |
-| Tool count | **42 subskills + 18 MCP tools** | Under 10 skills |
+| Tool count | **42 subskills + 21 MCP tools** | Under 10 skills |
 | Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas patterns | Generic EVM advice |
 | Live demo | `node agent/mcp-demo.mjs` calls 6 tools through the real MCP server | No demo or single command |
 | Phase 2 ready | Anvita Flow integration (x402 micropayments) documented | No forward planning |
@@ -143,7 +143,7 @@ The agent classifies your request, routes to the appropriate subskill, presents 
 
 ## MCP Server
 
-The Pharos MCP Server exposes **18 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
+The Pharos MCP Server exposes **21 executable tools** for AI agents to interact with the Pharos blockchain. It runs as a stdio-based MCP server compatible with Claude Desktop and other MCP hosts.
 
 | # | Tool | Description | Executes? |
 |---|------|-------------|-----------|
@@ -165,6 +165,9 @@ The Pharos MCP Server exposes **18 executable tools** for AI agents to interact 
 | 16 | `pharos_read_contract` | Call any view/pure function on a deployed contract via its ABI | Yes |
 | 17 | `pharos_write_contract` | Call any state-changing function via ABI (simulate then broadcast) | Yes |
 | 18 | `pharos_fetch_abi` | Download verified ABI JSON from PharosScan explorer | Yes |
+| 19 | `pharos_frontend_sync` | Sync deployed contract address and ABI to a frontend project | Yes |
+| 20 | `pharos_create_safe_tx` | Build a Safe transaction payload for multi-sig execution | Yes |
+| 21 | `pharos_propose_safe_tx` | Prepare a Safe multi-sig transaction for proposal via Safe Transaction Service | Yes |
 
 ### Quick Start
 
@@ -273,7 +276,7 @@ test/                   # Foundry tests (30 passing)
 script/                 # Forge deploy scripts
 config/                 # Pharos network configuration
 shared/                 # viem defineChain configs
-mcp-server/             # MCP server with 18 executable tools for AI agents
+mcp-server/             # MCP server with 21 executable tools for AI agents
 .github/workflows/      # CI/CD deploy pipeline
 foundry.toml            # Foundry config with Pharos RPC endpoints
 .env.example            # environment variable template

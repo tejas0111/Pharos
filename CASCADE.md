@@ -21,7 +21,7 @@ flowchart TB
         S8[[cross-chain-bridge]]
     end
 
-    subgraph L2["Layer 2: 18 Executable MCP Tools"]
+    subgraph L2["Layer 2: 21 Executable MCP Tools"]
         T1[pharos_network_config]
         T2[pharos_deploy_contract]
         T3[pharos_verify_contract]
@@ -72,7 +72,7 @@ sequenceDiagram
     actor U as Developer
     participant A as AI Agent
     participant S as 42 Subskills
-    participant T as 18 MCP Tools
+    participant T as 21 MCP Tools
     participant B as Pharos Atlantic Testnet (688689)
     participant E as PharosScan Explorer
 
@@ -178,7 +178,7 @@ mindmap
 title: MCP Tools → Corresponding Subskills
 ---
 flowchart LR
-    subgraph Tools["18 MCP Tools"]
+    subgraph Tools["21 MCP Tools"]
         T1[pharos_network_config]
         T2[pharos_deploy_contract]
         T3[pharos_verify_contract]
@@ -197,6 +197,9 @@ flowchart LR
         T16[pharos_read_contract]
         T17[pharos_write_contract]
         T18[pharos_fetch_abi]
+        T19[pharos_frontend_sync]
+        T20[pharos_create_safe_tx]
+        T21[pharos_propose_safe_tx]
     end
 
     subgraph Skills["Subskills"]
@@ -285,5 +288,5 @@ flowchart TB
 | Layer | Count | What It Does |
 |---|---|---|
 | **Layer 1** | 42 subskills | Teaches AI agents Pharos-specific patterns, conventions, and best practices |
-| **Layer 2** | 18 MCP tools | Executes real on-chain operations on Pharos Atlantic & Pacific networks |
+| **Layer 2** | 21 MCP tools | Executes real on-chain operations on Pharos Atlantic & Pacific networks |
 | **Cascade** | User → Subskills → Tools → Blockchain | Agent reads (learns) then calls (executes) — the dual-layer cascade |

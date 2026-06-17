@@ -1,10 +1,10 @@
 ┌──────────────────────────────────────────────────────────────────┐
 │                    PHAROS AGENT DEV SUITE                         │
-│          42 Instruction Subskills + 18 Executable MCP Tools       │
+│          42 Instruction Subskills + 21 Executable MCP Tools       │
 ├─────────────────────────────┬────────────────────────────────────┤
 │                             │                                     │
 │   LAYER 1: SKILLS           │   LAYER 2: MCP TOOLS               │
-│   42 Prompt-Only Subskills  │   18 Executable Tools               │
+│   42 Prompt-Only Subskills  │   21 Executable Tools               │
 │                             │                                     │
 │   • contract-architecture   │   • pharos_deploy_contract         │
 │   • solidity-authoring      │   • pharos_deploy_erc20            │

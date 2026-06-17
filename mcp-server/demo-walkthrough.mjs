@@ -23,7 +23,7 @@ async function main() {
   // Wait for server ready
   await sleep(1500);
   console.log("  ✓ Server started on stdio");
-  console.log("  Tools registered: 18\n");
+  console.log("  Tools registered: 21\n");
 
   // ── List tools request ──
   const listReq = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} });
