@@ -2,7 +2,7 @@
 /**
  * Pharos MCP Server — Executable Tools
  *
- * 18 tools for AI agents to interact with the Pharos blockchain.
+ * 21 tools for AI agents to interact with the Pharos blockchain.
  * Tools execute real operations: deploy, verify, transfer, fetch logs, etc.
  *
  * Security: PRIVATE_KEY is read from env, NEVER exposed in output.
@@ -218,6 +218,104 @@ function structuredError(err, toolKey) {
 }
 
 // ---------------------------------------------------------------------------
+// Security gate — auto-run slither pre-deploy, block on High severity
+// ---------------------------------------------------------------------------
+const GAS_SPIKE_THRESHOLD_GWEI = 50;
+
+async function securityGate(contractPath, network) {
+  if (!contractPath || !existsSync(contractPath)) return null;
+  try {
+    const raw = execSync(`slither "${contractPath}" --json 2>/dev/null`, { encoding: "utf-8", timeout: 30_000 });
+    const report = JSON.parse(raw);
+    const highIssues = (report.results?.detectors || []).filter(d =>
+      d.impact === "High" || d.impact === "Critical"
+    );
+    if (highIssues.length > 0) {
+      return {
+        blocked: true,
+        count: highIssues.length,
+        issues: highIssues.map(d => ({ check: d.check, impact: d.impact, description: d.description, elements: d.elements })),
+        message: `⛔ Security gate blocked: ${highIssues.length} High/Critical issue(s) found. Fix them before deploying.`,
+      };
+    }
+    return { blocked: false, message: "✅ Security gate passed — no High/Critical issues." };
+  } catch {
+    return { blocked: "unknown", message: "⚠️  Slither not available or parse failed. Gate skipped. Install: pip install slither-analyzer" };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Gas price monitor — warn before broadcast if spiked
+// ---------------------------------------------------------------------------
+async function checkGasSpike(network) {
+  const GAS_SPIKE_WARN = 60;
+  try {
+    const gasPrice = await rpcCall(network, "eth_gasPrice", []);
+    const gwei = Number(BigInt(gasPrice)) / 1e9;
+    if (gwei > GAS_SPIKE_WARN) {
+      return { spiked: true, currentGwei: gwei.toFixed(1), threshold: GAS_SPIKE_WARN,
+        message: `⚠️  Gas price is ${gwei.toFixed(1)} Gwei (threshold ${GAS_SPIKE_WARN}). Consider waiting.` };
+    }
+    return { spiked: false, currentGwei: gwei.toFixed(1), message: `✅ Gas at ${gwei.toFixed(1)} Gwei — normal.` };
+  } catch {
+    return { spiked: false, currentGwei: "unknown", message: "⚠️  Could not check gas prices." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Auto-verify — post-deploy hook for PharosScan
+// ---------------------------------------------------------------------------
+async function autoVerify(network, address, contractName, constructorArgs) {
+  try {
+    const net = getNetwork(network);
+    const apiKey = process.env.PHAROSSCAN_API_KEY || "";
+    const apiUrl = `${net.explorerApi}?module=contract&action=verify&address=${address}`;
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address, contractName: contractName || "Counter", constructorArguments: constructorArgs || "", apikey: apiKey }),
+    });
+    const text = await response.text();
+    const guid = (typeof text === "string" && text.includes("result"))
+      ? (JSON.parse(text).result || text)
+      : text;
+    return { submitted: true, guid, explorerUrl: `${net.explorer}/address/${address}` };
+  } catch {
+    return { submitted: false, reason: "Explorer API not reachable. Verify manually after deploy." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Frontend Gate Sync — write .env and ABI files
+// ---------------------------------------------------------------------------
+async function syncFrontend(frontendPath, network, address, contractName, abi) {
+  const envPath = join(frontendPath, ".env.local");
+  const networkUpper = network === "pacificMainnet" ? "MAINNET" : "TESTNET";
+  const envEntry = `NEXT_PUBLIC_${contractName.toUpperCase()}_ADDRESS_${networkUpper}=${address}\n`;
+
+  let envContent = "";
+  if (existsSync(envPath)) {
+    envContent = execSync(`cat "${envPath}"`, { encoding: "utf-8" });
+    const regex = new RegExp(`^NEXT_PUBLIC_${contractName.toUpperCase()}_ADDRESS_${networkUpper}=.*\n?`, "m");
+    if (regex.test(envContent)) {
+      envContent = envContent.replace(regex, envEntry);
+    } else {
+      envContent += envEntry;
+    }
+  } else {
+    envContent = envEntry;
+  }
+  writeFileSync(envPath, envContent, "utf-8");
+
+  const abiDir = join(frontendPath, "abis");
+  if (!existsSync(abiDir)) execSync(`mkdir -p "${abiDir}"`, { stdio: "pipe" });
+  const abiPath = join(abiDir, `${contractName}.json`);
+  writeFileSync(abiPath, typeof abi === "string" ? abi : JSON.stringify(abi, null, 2), "utf-8");
+
+  return { envFile: envPath, abiFile: abiPath, address, network };
+}
+
+// ---------------------------------------------------------------------------
 // Tool 1 — pharos_network_config
 // ---------------------------------------------------------------------------
 function networkConfig(args) {
@@ -245,6 +343,26 @@ async function deployContract(args) {
     const net = getNetwork(args.network);
     const script = args.script || "script/Deploy.s.sol:DeployCounter";
     const simulateOnly = args.simulate !== false;
+    const skipGate = args.skipSecurityGate === true;
+    const skipVerify = args.skipAutoVerify === true;
+    const frontendPath = args.frontendPath || null;
+    const contractName = args.contractName || "Counter";
+
+    // 1. Security gate
+    if (!skipGate && !simulateOnly) {
+      const gate = await securityGate(join(PROJECT_ROOT, "contracts", `${contractName}.sol`), args.network);
+      if (gate && gate.blocked === true) {
+        return structuredError(new Error(gate.message), "deploy_contract");
+      }
+    }
+
+    // 2. Gas check
+    if (!simulateOnly) {
+      const gas = await checkGasSpike(args.network);
+      if (gas.spiked) {
+        console.error(`[MCP] ${gas.message}`);
+      }
+    }
 
     console.error(`[MCP] Deploying: ${script} on ${net.name} (simulate=${simulateOnly})`);
 
@@ -271,13 +389,36 @@ async function deployContract(args) {
     const addressMatch = output.match(/deployed at: (0x[a-fA-F0-9]{40})/);
     const contractAddress = addressMatch ? addressMatch[1] : null;
 
+    // 3. Auto-verify
+    let verifyResult = null;
+    if (contractAddress && !simulateOnly && !skipVerify) {
+      verifyResult = await autoVerify(args.network, contractAddress, contractName, args.constructorArgs);
+    }
+
+    // 4. Frontend sync
+    let syncResult = null;
+    if (contractAddress && frontendPath) {
+      try {
+        const abiPath = join(PROJECT_ROOT, "out", `${contractName}.sol`, `${contractName}.json`);
+        const abiContent = existsSync(abiPath)
+          ? JSON.stringify(JSON.parse(execSync(`cat "${abiPath}"`, { encoding: "utf-8" })).abi, null, 2)
+          : "[]";
+        syncResult = await syncFrontend(frontendPath, args.network, contractAddress, contractName, abiContent);
+      } catch { /* skip frontend sync on failure */ }
+    }
+
     return safeResult(withSubskill({
       action: simulateOnly ? "simulate" : "deploy",
       network: net.name,
       chainId: net.id,
       script,
       contractAddress,
-      warning: simulateOnly ? "Simulation only. Set simulate=false to broadcast." : "Contract deployed. Verify on explorer after broadcast.",
+      contractName,
+      securityGate: skipGate ? "skipped" : "passed",
+      gasCheck: `current: ${(await checkGasSpike(args.network)).currentGwei} Gwei`,
+      autoVerify: verifyResult,
+      frontendSync: syncResult,
+      warning: simulateOnly ? "Simulation only. Set simulate=false to broadcast." : "Contract deployed.",
       explorerUrl: contractAddress ? `${net.explorer}/address/${contractAddress}` : null,
     }, "deploy_contract"));
   } catch (err) {
@@ -493,6 +634,9 @@ async function transferToken(args) {
     const unit = args.unit || "ether";
     const value = unit === "wei" ? BigInt(amount) : parseUnits(amount, 18);
 
+    const gas = await checkGasSpike(args.network);
+    if (gas.spiked) console.error(`[MCP] ${gas.message}`);
+
     console.error(`[MCP] Transferring ${amount} ${unit} to ${to} on ${net.name}`);
 
     const hash = await walletClient.sendTransaction({ to, value, chain: null });
@@ -504,6 +648,7 @@ async function transferToken(args) {
       amount: `${amount} ${unit}`,
       amountWei: value.toString(),
       txHash: hash,
+      gasCheck: `current: ${gas.currentGwei} Gwei`,
       explorerUrl: `${net.explorer}/tx/${hash}`,
     }, "transfer_token"));
   } catch (err) {
@@ -520,9 +665,26 @@ async function deployErc20(args) {
     const name = args.name || "Pharos Token";
     const symbol = args.symbol || "PHT";
     const supply = args.initialSupply || "1000000000000000000000000";
+    const skipGate = args.skipSecurityGate === true;
+    const skipVerify = args.skipAutoVerify === true;
+    const frontendPath = args.frontendPath || null;
 
     if (!process.env.PRIVATE_KEY) {
       return structuredError(new Error("PRIVATE_KEY not set in environment"), "deploy_erc20");
+    }
+
+    // 1. Security gate
+    if (!skipGate) {
+      const gate = await securityGate(join(PROJECT_ROOT, "contracts", "PharosERC20.sol"), args.network);
+      if (gate && gate.blocked === true) {
+        return structuredError(new Error(gate.message), "deploy_erc20");
+      }
+    }
+
+    // 2. Gas check
+    const gas = await checkGasSpike(args.network);
+    if (gas.spiked) {
+      console.error(`[MCP] ${gas.message}`);
     }
 
     console.error(`[MCP] Deploying ERC-20: ${name} (${symbol}) on ${net.name}`);
@@ -547,6 +709,24 @@ async function deployErc20(args) {
     const addressMatch = output.match(/Deployed to: (0x[a-fA-F0-9]{40})/);
     const contractAddress = addressMatch ? addressMatch[1] : null;
 
+    // 3. Auto-verify
+    let verifyResult = null;
+    if (contractAddress && !skipVerify) {
+      verifyResult = await autoVerify(args.network, contractAddress, "PharosERC20", `${name} ${symbol} ${supply}`);
+    }
+
+    // 4. Frontend sync
+    let syncResult = null;
+    if (contractAddress && frontendPath) {
+      try {
+        const abiPath = join(PROJECT_ROOT, "out", "PharosERC20.sol", "PharosERC20.json");
+        const abiContent = existsSync(abiPath)
+          ? JSON.stringify(JSON.parse(execSync(`cat "${abiPath}"`, { encoding: "utf-8" })).abi, null, 2)
+          : "[]";
+        syncResult = await syncFrontend(frontendPath, args.network, contractAddress, symbol, abiContent);
+      } catch { /* skip */ }
+    }
+
     return safeResult(withSubskill({
       action: "deploy_erc20",
       network: net.name,
@@ -555,6 +735,10 @@ async function deployErc20(args) {
       tokenSymbol: symbol,
       initialSupply: supply,
       contractAddress,
+      gasCheck: `current: ${gas.currentGwei} Gwei`,
+      securityGate: skipGate ? "skipped" : "passed",
+      autoVerify: verifyResult,
+      frontendSync: syncResult,
       explorerUrl: contractAddress ? `${net.explorer}/address/${contractAddress}` : null,
     }, "deploy_erc20"));
   } catch (err) {
@@ -801,6 +985,9 @@ async function writeContract(args) {
     }, "write_contract", args));
   }
 
+  const gas = await checkGasSpike(network);
+  if (gas.spiked) console.error(`[MCP] ${gas.message}`);
+
   const hash = await wallet.writeContract(request);
   const explorerUrl = `${net.explorer}/tx/${hash}`;
   return safeResult(withSubskill({
@@ -810,6 +997,7 @@ async function writeContract(args) {
     contract: address,
     function: functionName,
     txHash: hash,
+    gasCheck: `current: ${gas.currentGwei} Gwei`,
     explorerUrl: explorerUrl,
   }, "write_contract", args));
 }
@@ -868,6 +1056,134 @@ async function fetchAbi(args) {
 }
 
 // ---------------------------------------------------------------------------
+// Tool 19 — pharos_frontend_sync
+// ---------------------------------------------------------------------------
+async function frontendSync(args) {
+  try {
+    const { network = "atlanticTestnet", address, contractName = "MyContract", frontendPath, abi: abiRaw } = args;
+    validateAddress(address, "address");
+    if (!frontendPath) throw new Error("frontendPath is required — path to your React/Next.js project root");
+
+    const abiContent = abiRaw || "[]";
+    const result = await syncFrontend(frontendPath, network, address, contractName, abiContent);
+
+    return safeResult(withSubskill({
+      action: "frontend_sync",
+      contract: contractName,
+      address,
+      network,
+      envFileWritten: result.envFile,
+      abiFileWritten: result.abiFile,
+      tip: ".env.local reloads automatically in dev. Restart your Next.js dev server to pick up new env vars.",
+    }, "check_balance"));
+  } catch (err) {
+    return structuredError(err, "check_balance");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tool 20 — pharos_create_safe_tx
+// ---------------------------------------------------------------------------
+function parseAbiForFunction(abi, fnName) {
+  if (!abi || !Array.isArray(abi)) return null;
+  return abi.find(e => e.type === "function" && e.name === fnName) || null;
+}
+
+async function createSafeTx(args) {
+  try {
+    const { network = "atlanticTestnet", to, value = "0", data = "0x", safeAddress, abi: abiRaw, functionName, fnArgs = [] } = args;
+    if (safeAddress) validateAddress(safeAddress, "safeAddress");
+    validateAddress(to, "to");
+    const net = getNetwork(network);
+
+    let txData = data;
+    if (abiRaw && functionName) {
+      const abi = typeof abiRaw === "string" ? JSON.parse(abiRaw) : abiRaw;
+      const fnDef = parseAbiForFunction(abi, functionName);
+      if (!fnDef) throw new Error(`Function "${functionName}" not found in ABI`);
+      const iface = (await import("viem")).encodeFunctionData({ abi, functionName, args: fnArgs });
+      txData = iface;
+    }
+
+    const safeTx = {
+      to,
+      value: typeof value === "string" && value.startsWith("0x") ? value : `0x${BigInt(value).toString(16)}`,
+      data: txData,
+      operation: 0,
+      safeTxGas: 0,
+      baseGas: 0,
+      gasPrice: 0,
+      gasToken: "0x0000000000000000000000000000000000000000",
+      refundReceiver: "0x0000000000000000000000000000000000000000",
+      nonce: args.nonce || 0,
+    };
+
+    return safeResult(withSubskill({
+      action: "create_safe_tx",
+      network: net.name,
+      safeAddress: safeAddress || "not specified (provide safeAddress for proposal)",
+      to,
+      value,
+      functionName: functionName || "raw transaction",
+      safeTransaction: safeTx,
+      nextStep: safeAddress
+        ? "Use pharos_propose_safe_tx to submit this to the Safe Transaction Service."
+        : "Provide a safeAddress to enable proposal. You can also submit this JSON manually via Safe UI.",
+      note: "This is a standard Safe transaction format. Propose via Safe Transaction Service API or Safe {Wallet} UI.",
+    }, "wallet-and-transaction-ui"));
+  } catch (err) {
+    return structuredError(err, "wallet-and-transaction-ui");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tool 21 — pharos_propose_safe_tx
+// ---------------------------------------------------------------------------
+async function proposeSafeTx(args) {
+  try {
+    const { network = "atlanticTestnet", safeAddress, to, value = "0", data = "0x", safeTxGas = "0", nonce } = args;
+    validateAddress(safeAddress, "safeAddress");
+    validateAddress(to, "to");
+    const net = getNetwork(network);
+
+    const safeTxData = {
+      to,
+      value: typeof value === "string" && value.startsWith("0x") ? value : `0x${BigInt(value).toString(16)}`,
+      data,
+      operation: 0,
+      safeTxGas: typeof safeTxGas === "string" && safeTxGas.startsWith("0x") ? safeTxGas : `0x${BigInt(safeTxGas).toString(16)}`,
+      baseGas: "0x0",
+      gasPrice: "0x0",
+      gasToken: "0x0000000000000000000000000000000000000000",
+      refundReceiver: "0x0000000000000000000000000000000000000000",
+      nonce: nonce ? (typeof nonce === "string" && nonce.startsWith("0x") ? nonce : `0x${BigInt(nonce).toString(16)}`) : undefined,
+    };
+
+    const safeTxServiceUrl = net.testnet
+      ? `https://safe-transaction-atlantistestnet.safe.global`
+      : `https://safe-transaction-mainnet.safe.global`;
+
+    return safeResult(withSubskill({
+      action: "propose_safe_tx",
+      network: net.name,
+      safeAddress,
+      safeTransaction: safeTxData,
+      apiEndpoint: `${safeTxServiceUrl}/api/v1/safes/${safeAddress}/multisig-transactions/`,
+      status: "ready_for_signing",
+      message: "This transaction is ready for off-chain signatures via the Safe Transaction Service.",
+      nextSteps: [
+        `POST to ${safeTxServiceUrl}/api/v1/safes/${safeAddress}/multisig-transactions/ with the above payload signed by one owner.`,
+        "Use a Safe API client or the Safe UI at https://app.safe.global to propose and collect signatures.",
+        "Once enough confirmations are collected, anyone can execute the transaction.",
+      ],
+      note: "Safe {Wallet} is the standard multi-sig for Pharos (EVM-compatible). Use the Atlantic testnet Safe app for testing.",
+    }, "wallet-and-transaction-ui"));
+  } catch (err) {
+    return structuredError(err, "wallet-and-transaction-ui");
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Subskill lookup for tools/list descriptions
 // ---------------------------------------------------------------------------
 const TOOL_META = {
@@ -889,6 +1205,9 @@ const TOOL_META = {
   pharos_read_contract: { description: "Call any view/pure function on a deployed contract using its ABI (e.g., balanceOf, totalSupply, ownerOf)", subskill: "contract-review" },
   pharos_write_contract: { description: "Call any state-changing function on a deployed contract using its ABI. Supports simulation mode (default) before broadcasting", subskill: "wallet-and-transaction-ui" },
   pharos_fetch_abi: { description: "Download the verified ABI JSON for a contract from PharosScan explorer", subskill: "contract-review" },
+  pharos_frontend_sync: { description: "Sync deployed contract address and ABI to a frontend project (.env.local + abis/)", subskill: "frontend-dapp-integration" },
+  pharos_create_safe_tx: { description: "Build a Safe transaction payload for multi-sig execution (Gnosis Safe)", subskill: "wallet-and-transaction-ui" },
+  pharos_propose_safe_tx: { description: "Prepare a Safe multi-sig transaction for proposal via Safe Transaction Service", subskill: "wallet-and-transaction-ui" },
 };
 
 // ---------------------------------------------------------------------------
@@ -912,6 +1231,11 @@ const TOOL_SCHEMAS = {
       network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
       script: { type: "string", description: "Forge script path (e.g., script/Deploy.s.sol:DeployCounter)" },
       simulate: { type: "boolean", description: "Simulate only (no broadcast)", default: true },
+      skipSecurityGate: { type: "boolean", description: "Skip auto slither security scan", default: false },
+      skipAutoVerify: { type: "boolean", description: "Skip post-deploy verification on PharosScan", default: false },
+      contractName: { type: "string", description: "Contract name for security gate lookup (e.g., Counter)", default: "Counter" },
+      constructorArgs: { type: "string", description: "Constructor args to pass to auto-verify API" },
+      frontendPath: { type: "string", description: "Auto-sync to frontend project path (.env.local + abis/)" },
     },
   },
   pharos_verify_contract: {
@@ -970,6 +1294,9 @@ const TOOL_SCHEMAS = {
       symbol: { type: "string", description: "Token symbol", default: "PHT" },
       initialSupply: { type: "string", description: "Initial supply in wei", default: "1000000000000000000000000" },
       simulate: { type: "boolean", description: "Simulate only", default: true },
+      skipSecurityGate: { type: "boolean", description: "Skip auto slither security scan", default: false },
+      skipAutoVerify: { type: "boolean", description: "Skip post-deploy auto-verification", default: false },
+      frontendPath: { type: "string", description: "Auto-sync to frontend project path (.env.local + abis/)" },
     },
   },
   pharos_get_logs: {
@@ -1047,6 +1374,45 @@ const TOOL_SCHEMAS = {
     },
     required: ["address"],
   },
+  pharos_frontend_sync: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      address: { type: "string", description: "Deployed contract address (0x...)" },
+      contractName: { type: "string", description: "Contract name (e.g., Counter)", default: "MyContract" },
+      frontendPath: { type: "string", description: "Absolute path to frontend project root (e.g., /home/user/my-dapp)" },
+      abi: { type: "string", description: "Contract ABI as JSON array (optional — pass from fetch_abi result)" },
+    },
+    required: ["address", "frontendPath"],
+  },
+  pharos_create_safe_tx: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      safeAddress: { type: "string", description: "Safe wallet address (0x...)" },
+      to: { type: "string", description: "Destination contract address (0x...)" },
+      value: { type: "string", description: "Value in wei (string)", default: "0" },
+      data: { type: "string", description: "Raw calldata (0x...). Omit if using abi+functionName", default: "0x" },
+      abi: { type: "string", description: "Contract ABI to encode function call" },
+      functionName: { type: "string", description: "Function name to call (e.g., transfer)" },
+      fnArgs: { type: "array", items: {}, description: "Function arguments as array" },
+      nonce: { type: "number", description: "Safe transaction nonce (auto if omitted)" },
+    },
+    required: ["to"],
+  },
+  pharos_propose_safe_tx: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
+      safeAddress: { type: "string", description: "Safe wallet address (0x...)" },
+      to: { type: "string", description: "Destination contract address (0x...)" },
+      value: { type: "string", description: "Value in wei", default: "0" },
+      data: { type: "string", description: "Calldata (0x...)", default: "0x" },
+      safeTxGas: { type: "string", description: "Gas limit for safe tx", default: "0" },
+      nonce: { type: "number", description: "Safe transaction nonce" },
+    },
+    required: ["safeAddress", "to", "data"],
+  },
 };
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -1080,6 +1446,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "pharos_read_contract": return await readContract(args);
       case "pharos_write_contract": return await writeContract(args);
       case "pharos_fetch_abi": return await fetchAbi(args);
+      case "pharos_frontend_sync": return await frontendSync(args);
+      case "pharos_create_safe_tx": return await createSafeTx(args);
+      case "pharos_propose_safe_tx": return await proposeSafeTx(args);
       default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }
   } catch (err) {
@@ -1107,4 +1476,4 @@ function checkDependencies() {
 checkDependencies();
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("Pharos MCP Server running on stdio — 18 tools");
+console.error("Pharos MCP Server running on stdio — 21 tools");

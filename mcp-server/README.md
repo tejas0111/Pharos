@@ -1,10 +1,10 @@
 # Pharos MCP Server
 
 [![tests](https://img.shields.io/badge/tests-21%20passing-brightgreen)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-18-purple)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 
-MCP server for AI agents to interact with the Pharos blockchain. Exposes **18 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, and more.
+MCP server for AI agents to interact with the Pharos blockchain. Exposes **21 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, frontend sync, and multi-sig support.
 
 ## Tools
 
@@ -28,6 +28,19 @@ MCP server for AI agents to interact with the Pharos blockchain. Exposes **18 ex
 | 16 | `pharos_read_contract` | Call any view/pure function on a deployed contract via its ABI | ✅ Yes |
 | 17 | `pharos_write_contract` | Call any state-changing function via ABI (simulate then broadcast) | ✅ Yes |
 | 18 | `pharos_fetch_abi` | Download verified ABI JSON from PharosScan explorer | ✅ Yes |
+| 19 | `pharos_frontend_sync` | Sync deployed contract address + ABI to frontend `.env.local` + `abis/` | ✅ Yes |
+| 20 | `pharos_create_safe_tx` | Build a Gnosis Safe transaction payload for multi-sig | ✅ Yes |
+| 21 | `pharos_propose_safe_tx` | Prepare Safe multi-sig tx for proposal via Safe Transaction Service | ✅ Yes |
+
+## Security Gates
+
+The server now includes automatic safety checks before any broadcast:
+
+- **🔒 Security Gate**: Runs `slither` automatically before deployment and refuses to proceed if High/Critical issues are found. Skip with `skipSecurityGate=true`.
+- **⛽ Gas Monitor**: Checks current gas prices before any broadcast transaction. Warns if price exceeds 60 Gwei threshold.
+- **✅ Auto-Verify**: Triggers PharosScan verification automatically after successful deployment. Skip with `skipAutoVerify=true`.
+- **🔄 Frontend Sync**: Pass `frontendPath` to auto-update `.env.local` + ABI files in your React/Next.js project after deploy.
+- **🏛️ Multi-Sig**: Two new tools for Safe (Gnosis) multi-sig workflows — build and propose transactions without exposing a single private key.
 
 ## Security
 

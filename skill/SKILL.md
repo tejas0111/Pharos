@@ -59,7 +59,7 @@ You: "Design the architecture for a staking contract"
 
 ## MCP Server Setup
 
-The Pharos MCP server provides 18 on-chain tools (balanceOf, deployContract, traceTx, etc.). Set it up once before any on-chain workflow:
+The Pharos MCP server provides **21 on-chain tools** (balanceOf, deployContract, traceTx, frontendSync, Safe multi-sig, etc.). Set it up once before any on-chain workflow:
 
 1. **Install dependencies** (if not already done):
    ```bash
@@ -77,7 +77,7 @@ The Pharos MCP server provides 18 on-chain tools (balanceOf, deployContract, tra
    ```bash
    node mcp-server/index.js
    ```
-   It should print "Pharos MCP Server running on stdio" and list 18 registered tools.
+   It should print "Pharos MCP Server running on stdio" and list 21 registered tools.
 
 4. **Integrate with your AI client** (one-time config):
 
@@ -128,7 +128,10 @@ Use `contract-review` and `security-audit` to identify issues before deployment.
 Use `deployment-and-verification` for prep, then `testnet-deployment` or `mainnet-deployment` for broadcasting. **Simulation is mandatory.**
 
 ### 5. "Post-Deploy & Verification"
-Use `post-deploy` to capture artifacts, verify on PharosScan, and update frontend contract addresses/ABIs.
+Use `post-deploy` to capture artifacts, verify on PharosScan, and update frontend contract addresses/ABIs. Or use `pharos_frontend_sync` directly to push address + ABI to `.env.local` and `abis/` in your frontend project.
+
+### 6. "Multi-Sig / Safe Transaction"
+Use `pharos_create_safe_tx` to build a Safe transaction payload with optional ABI encoding, then `pharos_propose_safe_tx` to prepare it for the Safe Transaction Service. Supports both Atlantic testnet and Pacific mainnet Safe instances.
 
 ## Routing Decision Tree
 
@@ -166,16 +169,18 @@ Classify the request by asking these questions in order:
 
 ## Deploy Protocol
 
-Every broadcast requires explicit approval. No exceptions.
+Every broadcast requires explicit approval. No exceptions. The MCP server enforces automatic gates:
 
 1. **Pre-flight**:
     - **.env Check**: Verify `.env` exists and contains `PRIVATE_KEY` and necessary RPC/API URLs.
     - **Validation**: Validate RPC, Chain ID (1672/688689), Signer balance, and Compiler version.
-2. **Gate Fix**: Check for and fix any 'gate' issues in the frontend/contract interaction layer before proceeding.
-3. **Simulation**: Run `SIMULATE_ONLY=1` (Foundry) or Hardhat dry-run to confirm success.
-4. **Approval**: Present the final command and env vars (hidden) for explicit user confirmation.
-5. **Broadcast**: Execute only after approval.
-6. **Verify**: Automate explorer verification on PharosScan after success.
+2. **🔒 Security Gate** (automatic): The MCP server runs `slither` on the contract source before deployment. If High/Critical issues are found, the deploy **refuses to proceed**. The agent should present the findings to the user for fixes. Can be skipped with `skipSecurityGate=true`.
+3. **⛽ Gas Monitor** (automatic): Before any broadcast, the server checks current gas prices. If above 60 Gwei, the agent MUST warn the user and recommend waiting.
+4. **Simulation**: Run `SIMULATE_ONLY=1` (Foundry) or Hardhat dry-run to confirm success.
+5. **Approval**: Present the final command and env vars (hidden) for explicit user confirmation.
+6. **Broadcast**: Execute only after approval.
+7. **✅ Auto-Verify** (automatic): After successful deploy, the server triggers PharosScan verification automatically. Can be skipped with `skipAutoVerify=true`.
+8. **🔄 Frontend Sync** (optional): Pass `frontendPath` to automatically update `.env.local` + `abis/` in the frontend project on deploy. The UI is never out of sync.
 
 ## Troubleshooting
 

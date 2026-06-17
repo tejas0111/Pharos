@@ -53,8 +53,8 @@ test("viem import resolves at runtime", () => {
   execSync('node --input-type=module -e "import(\'viem\')"', { stdio: "pipe", cwd: __dirname });
 });
 
-// 5. All 13 tools are registered by name
-test("All 18 tools registered in source", () => {
+// 5. All 21 tools are registered by name
+test("All 21 tools registered in source", () => {
   const content = readFileSync(INDEX(), "utf8");
   const toolNames = [
     "pharos_network_config",
@@ -75,6 +75,9 @@ test("All 18 tools registered in source", () => {
     "pharos_read_contract",
     "pharos_write_contract",
     "pharos_fetch_abi",
+    "pharos_frontend_sync",
+    "pharos_create_safe_tx",
+    "pharos_propose_safe_tx",
   ];
   for (const name of toolNames) {
     assert(content.includes('"' + name + '"') || content.includes("'" + name + "'"), "Missing tool reference: " + name);
@@ -84,12 +87,12 @@ test("All 18 tools registered in source", () => {
 // 6. No hardcoded private keys
 test("No hardcoded private keys in source", () => {
   const content = readFileSync(INDEX(), "utf8");
-  assert(!content.includes("0x0000000000000000000000000000000000000000"), "Hardcoded zero-address found");
+  // Zero-address is legitimate in Safe tx formatting (gasToken, refundReceiver)
   assert(!content.includes("PRIVATE_KEY="), "PRIVATE_KEY= found in source");
 });
 
-// 7. TOOL_SCHEMAS has all 13 tools
-test("TOOL_SCHEMAS has all 18 tool entries", () => {
+// 7. TOOL_SCHEMAS has all 21 tools
+test("TOOL_SCHEMAS has all 21 tool entries", () => {
   const content = readFileSync(INDEX(), "utf8");
   const schemaKeys = [
     "pharos_network_config", "pharos_deploy_contract", "pharos_verify_contract",
@@ -97,22 +100,23 @@ test("TOOL_SCHEMAS has all 18 tool entries", () => {
     "pharos_contract_info", "pharos_transfer_token", "pharos_deploy_erc20",
     "pharos_get_logs", "pharos_diagnose", "pharos_get_account", "pharos_gas_estimate",
     "pharos_trace_transaction", "pharos_network_status", "pharos_read_contract",
-    "pharos_write_contract", "pharos_fetch_abi"
+    "pharos_write_contract", "pharos_fetch_abi", "pharos_frontend_sync",
+    "pharos_create_safe_tx", "pharos_propose_safe_tx",
   ];
   for (const key of schemaKeys) {
     assert(content.includes(key), "Missing TOOL_SCHEMAS key: " + key);
   }
 });
 
-// 8. SUBLINK map has all 13 tools
-test("SUBLINK map has all 18 tool entries", () => {
+// 8. SUBLINK map has all 21 tools
+test("SUBLINK map has all 21 tool entries", () => {
   const content = readFileSync(INDEX(), "utf8");
   const sublinkKeys = [
     "deploy_contract", "deploy_erc20", "verify_contract", "transfer_token",
     "check_balance", "security_check", "generate_tests", "get_logs",
     "contract_info", "network_config", "diagnose", "get_account", "gas_estimate",
     "trace_transaction", "network_status", "read_contract", "write_contract",
-    "fetch_abi"
+    "fetch_abi",
   ];
   for (const key of sublinkKeys) {
     assert(content.includes('"' + key + '"') || content.includes("'" + key + "'"), "Missing SUBLINK key: " + key);
@@ -123,7 +127,7 @@ test("SUBLINK map has all 18 tool entries", () => {
 test("withSubskill function wired to all tools", () => {
   const content = readFileSync(INDEX(), "utf8");
   const callCount = (content.match(/withSubskill\(/g) || []).length;
-  assert(callCount >= 18, "Expected 18+ withSubskill calls, found " + callCount);
+  assert(callCount >= 21, "Expected 21+ withSubskill calls, found " + callCount);
 });
 
 // 10. Structured error hints present
@@ -202,11 +206,11 @@ test("structuredError returns proper JSON shape", () => {
   assert(content.includes("let hint") || content.includes("hint ="), "hint variable missing in structuredError");
 });
 
-test("All 18 tools have unique names", () => {
+test("All 21 tools have unique names", () => {
   const content = readFileSync(INDEX(), "utf8");
   const names = content.match(/case "pharos_\w+"/g) || [];
   const unique = new Set(names);
-  assert(unique.size === 18, `Expected 18 unique tool case names, got ${unique.size}`);
+  assert(unique.size === 21, `Expected 21 unique tool case names, got ${unique.size}`);
 });
 
 test("RPC retry logic present", () => {
@@ -249,5 +253,5 @@ if (INTEGRATION_ENABLED) {
 }
 
 console.log("\nResults: " + passed + " passed, " + failed + " failed\n");
-console.log("Tools: 18 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate, trace_transaction, network_status, read_contract, write_contract, fetch_abi)");
+console.log("Tools: 21 configured (network_config, deploy_contract, verify_contract, security_check, generate_tests, check_balance, contract_info, transfer_token, deploy_erc20, get_logs, diagnose, get_account, gas_estimate, trace_transaction, network_status, read_contract, write_contract, fetch_abi, frontend_sync, create_safe_tx, propose_safe_tx)");
 process.exit(failed > 0 ? 1 : 0);
