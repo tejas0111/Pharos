@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "node test.js",
+    "demo": "node demo-walkthrough.mjs",
     "dev": "node --watch index.js"
   },
   "dependencies": {
