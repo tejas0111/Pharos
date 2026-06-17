@@ -198,7 +198,7 @@ Every broadcast requires explicit approval. No exceptions. The MCP server enforc
 
 - **Strict .env Enforcement**:
     - **Storage**: All environment variables (especially `PRIVATE_KEY` and `PHAROSSCAN_API_KEY`) MUST be stored in a `.env` file in the project root.
-    - **Mandatory Check**: The Agent MUST check for the existence of `.env` and valid values before attempting any deployment or on-chain action.
+    - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
     - **No Exports**: Never instruct the user to `export VAR=...`. Instead, tell them to add the variable to `.env`.
     - **Security**: The `.env` file MUST be ignored by git.
 - **Use Env Var Expansion**: Never hardcode keys. Use `${PRIVATE_KEY}` in config files. Private keys must be added to `.env` and never exposed in prompts or logs.

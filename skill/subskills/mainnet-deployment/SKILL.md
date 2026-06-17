@@ -35,7 +35,7 @@ Hardhat deployment command:
 npx hardhat run scripts/deploy.ts --network pharosMainnet
 ```
 6. Pre-deploy checklist:
-- **Strict .env Check**: Verify `.env` exists in project root and contains `PRIVATE_KEY`, `PHAROSSCAN_API_KEY`, and required RPC URLs. Do NOT proceed if missing or if the user suggests using `export`.
+- **Strict .env Check**: Confirm `.env` exists with `test -f .env` and check variables via `grep -q` (without printing values). NEVER print `.env` contents. Do NOT proceed if missing or if the user suggests `export`.
 - Multi-sig approval obtained from all required signers
 - Simulation passed on testnet rehearsal (deploy to Atlantic Testnet 688689 first)
 - PROS gas funded with 20% buffer above estimated cost
