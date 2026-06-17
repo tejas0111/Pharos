@@ -5,11 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PHAROS // ADS</title>
 <meta name="description" content="Pharos Agent Dev Suite — 42 subskills × 18 MCP tools. Dual cascade blockchain agent framework.">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
+<script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--black:#000;--white:#fff;--gray:#888;--gray-dark:#222;--gray-mid:#555;--gray-light:#ccc;--bg:#000;--font:'JetBrains Mono',monospace}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--white);line-height:1.5;overflow-x:hidden;cursor:none}
+body{font-family:var(--font);background:var(--bg);color:var(--white);line-height:1.5;overflow-x:hidden;cursor:none;opacity:0;transition:opacity .7s cubic-bezier(.16,1,.3,1)}
+html{scrollbar-width:thin;scrollbar-color:var(--gray-dark) transparent}
+html::-webkit-scrollbar{width:4px}
+html::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb{background:var(--gray-dark);border-radius:2px}
+body.loaded{opacity:1}
 ::selection{background:var(--white);color:var(--black)}
 
 /* CURSOR — LIGHT, FAST */
@@ -26,23 +35,15 @@ body::after{content:'';position:fixed;left:0;right:0;top:0;height:100%;backgroun
 .marquee-inner{display:flex;animation:marquee 30s linear infinite;gap:0}
 .marquee-inner>*{flex-shrink:0}
 
-/* SCROLL REVEAL */
-.reveal{opacity:0;transform:translateY(50px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-delay-1{transition-delay:.1s}
-.reveal-delay-2{transition-delay:.2s}
-.reveal-delay-3{transition-delay:.3s}
-.reveal-delay-4{transition-delay:.4s}
-
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:1.25rem 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-dark);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em}
-nav .logo{font-weight:800;font-size:1.1rem;letter-spacing:.15em}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:3.5rem;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:2px solid var(--gray-dark);font-size:clamp(.6rem,1.5vw,.7rem);text-transform:uppercase;letter-spacing:.12em}
+nav .logo{font-weight:800;font-size:clamp(.85rem,2vw,1rem);letter-spacing:.15em}
 nav .logo span{color:var(--gray-light)}
-nav a{color:var(--gray);text-decoration:none;margin-left:2rem;transition:color .3s}
+nav a{color:var(--gray);text-decoration:none;margin-left:1.5rem;transition:color .3s}
 nav a:hover{color:var(--white);cursor:none}
 
 /* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 2rem 4rem;position:relative}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 2rem 4rem;position:relative}
 .hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2}
 .hero-marquee{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);z-index:0;opacity:.04;font-size:clamp(4rem,10vw,10rem);font-weight:900;letter-spacing:.02em;color:var(--white);pointer-events:none;overflow:hidden;height:10rem;line-height:10rem}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
@@ -50,26 +51,26 @@ nav a:hover{color:var(--white);cursor:none}
 .hero-left .big{font-size:clamp(4rem,10vw,9rem);font-weight:900;line-height:.85;letter-spacing:-.04em}
 .hero-left .big .num{color:var(--white)}
 .hero-left .big .op{color:var(--gray-mid);font-weight:300}
-.hero-left .byline{font-size:clamp(.8rem,2vw,1.2rem);text-transform:uppercase;letter-spacing:.25em;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--gray-mid);display:inline-block;color:var(--gray)}
-.hero-left .tag{font-size:.65rem;color:var(--gray-mid);margin-top:2rem;text-transform:uppercase;letter-spacing:.15em}
+.hero-left .byline{font-size:clamp(.65rem,2vw,1.2rem);text-transform:uppercase;letter-spacing:.25em;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--gray-mid);display:inline-block;color:var(--gray)}
+.hero-left .tag{font-size:clamp(.5rem,1.3vw,.65rem);color:var(--gray-mid);margin-top:2rem;text-transform:uppercase;letter-spacing:.15em}
 .hero-right{border:1px solid var(--gray-dark);padding:2.5rem;display:flex;flex-direction:column;gap:1.5rem;background:rgba(255,255,255,.02)}
 .hero-right .stat{text-align:center}
 .hero-right .stat-num{font-size:3.5rem;font-weight:900;line-height:1;color:var(--white)}
-.hero-right .stat-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.25em;color:var(--gray);margin-top:.5rem}
+.hero-right .stat-label{font-size:clamp(.45rem,1.2vw,.6rem);text-transform:uppercase;letter-spacing:.25em;color:var(--gray);margin-top:.5rem}
 .hero-right .divider{height:1px;background:var(--gray-dark);margin:.5rem 0}
 .cta-row{display:flex;gap:1rem;margin-top:2.5rem;flex-wrap:wrap}
-.cta{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--white);color:var(--white);text-decoration:none;padding:.75rem 2rem;font-family:var(--font);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .3s;background:transparent;cursor:none}
+.cta{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--white);color:var(--white);text-decoration:none;padding:.75rem 2rem;font-family:var(--font);font-size:clamp(.6rem,1.5vw,.75rem);text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .3s;background:transparent;cursor:none}
 .cta:hover{background:var(--white);color:var(--black)}
 
 /* SECTION BASE */
 section{padding:6rem 2rem;position:relative;border-bottom:1px solid var(--gray-dark)}
 section:last-of-type{border-bottom:none}
 .section-inner{max-width:1100px;margin:0 auto;width:100%}
-.section-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:1rem}
+.section-label{font-size:clamp(.5rem,1.2vw,.6rem);text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:1rem}
 .section-label .num{color:var(--gray-light)}
-h2{font-size:clamp(1.8rem,4vw,3.5rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:3rem;line-height:1.1}
+h2{font-size:clamp(1.3rem,4vw,3.5rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:3rem;line-height:1.1}
 h2 .light{font-weight:300;color:var(--gray-mid)}
-p{font-size:.85rem;color:var(--gray);line-height:1.8;margin-bottom:1.5rem;max-width:680px}
+p{font-size:clamp(.75rem,1.6vw,.85rem);color:var(--gray);line-height:1.8;margin-bottom:1.5rem;max-width:680px}
 
 /* CASCADE */
 .cascade-grid{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:1rem;border:1px solid var(--gray-dark);padding:3rem 2rem}
@@ -101,16 +102,36 @@ p{font-size:.85rem;color:var(--gray);line-height:1.8;margin-bottom:1.5rem;max-wi
 .why-card p{font-size:.8rem;color:var(--gray);line-height:1.7}
 
 /* NETWORKS */
-.networks{background:var(--black);padding:1.5rem 2rem;display:flex;justify-content:center;align-items:center;gap:2.5rem;flex-wrap:wrap;font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;color:var(--gray);border-bottom:1px solid var(--gray-dark);border-top:1px solid var(--gray-dark)}
+.networks{background:var(--black);padding:1.5rem 2rem;display:flex;justify-content:center;align-items:center;gap:2.5rem;flex-wrap:wrap;font-size:clamp(.5rem,1.3vw,.65rem);text-transform:uppercase;letter-spacing:.15em;color:var(--gray);border-bottom:1px solid var(--gray-dark);border-top:1px solid var(--gray-dark)}
 .networks .label{color:var(--gray-mid);font-weight:600}
 .networks .dot{width:6px;height:6px;background:var(--gray-light);display:inline-block;margin-right:.4rem;vertical-align:middle}
 .networks .dot.t{background:var(--gray-mid)}
 
 /* FOOTER */
-footer{border-top:1px solid var(--gray-dark);padding:3rem 2rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;font-size:.65rem;color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
+footer{border-top:1px solid var(--gray-dark);padding:3rem 2rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;font-size:clamp(.55rem,1.3vw,.65rem);color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
 footer a{color:var(--gray);text-decoration:none;transition:color .3s}
 footer a:hover{color:var(--white);cursor:none}
-footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
+footer .r{text-align:right;font-size:clamp(.45rem,1.1vw,.55rem);color:var(--gray-dark)}
+
+/* MOBILE RESPONSIVE — layout only, typography is fluid via clamp() */
+@media(max-width:768px){
+  nav{padding:0 1rem;height:3rem}
+  nav a{margin-left:.75rem}
+  .hero{padding:5rem 1rem 3rem}
+  .cta-row{flex-direction:column}
+  .cta{width:100%;justify-content:center}
+  section{padding:3rem 1rem;overflow:hidden}
+  .section-inner{max-width:100%}
+  .networks{padding:1rem;gap:1rem}
+  footer{padding:2rem 1rem;flex-direction:column;text-align:center;gap:1rem}
+  footer .r{text-align:center}
+  .why-card{padding:1.5rem}
+  .why-card .num{font-size:2.5rem}
+  .cascade-grid{padding:1.5rem 1rem}
+  .c-step{padding:1rem}
+  .tools-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .tool-card{padding:1rem}
+}
 </style>
 </head>
 <body>
@@ -121,7 +142,7 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   <div class="logo">PHAROS <span>//</span> ADS</div>
   <div>
     <a href="docs.html">DOCS</a>
-    <a href="https://github.com/AnomalyCo/Pharos" target="_blank" rel="noopener">GITHUB</a>
+    <a href="https://github.com/tejas0111/Pharos" target="_blank" rel="noopener">GITHUB</a>
   </div>
 </nav>
 
@@ -136,16 +157,16 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   </div>
   <div class="hero-inner">
     <div class="hero-grid">
-      <div class="hero-left reveal visible">
+      <div class="hero-left reveal">
         <div class="big"><span class="num">42</span> <span class="op">+</span> <span class="num">18</span></div>
         <div class="byline">Subskills / Tools</div>
         <div class="tag">Pharos Agent Dev Suite — Dual Cascade</div>
         <div class="cta-row">
           <a href="docs.html" class="cta">DOCS →</a>
-          <a href="https://github.com/AnomalyCo/Pharos" target="_blank" class="cta">GITHUB →</a>
+          <a href="https://github.com/tejas0111/Pharos" target="_blank" class="cta">GITHUB →</a>
         </div>
       </div>
-      <div class="hero-right reveal visible reveal-delay-2">
+      <div class="hero-right reveal">
         <div class="stat"><div class="stat-num">42</div><div class="stat-label">Agent Subskills</div></div>
         <div class="divider"></div>
         <div class="stat"><div class="stat-num">18</div><div class="stat-label">MCP Tools</div></div>
@@ -219,8 +240,8 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
     <div class="section-label reveal"><span class="num">03</span> / Workflow</div>
     <h2 class="reveal">Deploy <span class="light">in 3 Commands</span></h2>
     <p class="reveal reveal-delay-1">From zero to verified contract in under 60 seconds. No config files, no boilerplate.</p>
-    <div class="code-block reveal reveal-delay-2" style="border:2px solid var(--gray-dark);padding:2rem;margin-top:1rem">
-      <pre style="font-size:.9rem;line-height:2"><span class="p">$</span> forge build
+    <div class="code-block reveal reveal-delay-2" style="border:2px solid var(--gray-dark);padding:2rem;margin-top:1rem;overflow-x:auto">
+      <pre style="font-size:clamp(.65rem,1.8vw,.9rem);line-height:2;white-space:pre;min-width:500px"><span class="p">$</span> forge build
 <span class="c">// Compiles Solidity → ABI + bytecode</span>
 
 <span class="p">$</span> forge create src/Counter.sol:Counter \
@@ -281,44 +302,73 @@ footer .r{text-align:right;font-size:.55rem;color:var(--gray-dark)}
   <span class="label">Networks</span>
   <span><span class="dot t"></span>Atlantic Testnet · 688689</span>
   <span><span class="dot"></span>Pacific Mainnet · 1672</span>
-  <span style="color:var(--gray-mid)">github.com/AnomalyCo/Pharos</span>
+  <span style="color:var(--gray-mid)">github.com/tejas0111/Pharos</span>
 </div>
 
 <footer>
   <div>
     <div style="font-weight:700;color:var(--white);margin-bottom:.5rem">PHAROS AGENT DEV SUITE</div>
-    <div>© 2026 — MIT — <a href="https://github.com/AnomalyCo/Pharos" target="_blank">GITHUB</a></div>
+    <div>© 2026 — MIT — <a href="https://github.com/tejas0111/Pharos" target="_blank">GITHUB</a></div>
   </div>
   <div class="r">BUILT FOR PHAROS<br>SKILL-TO-AGENT HACKATHON</div>
 </footer>
 
 <script>
-// CUSTOM CURSOR — BULKY + SMOOTH
+// CURSOR — LIGHT PROXIMITY
 const cursor = document.getElementById('cursor');
+let mx = 0, my = 0, cx = 0, cy = 0, tickCursor;
 if (!('ontouchstart' in window)) {
-  let mx = 0, my = 0, cx = 0, cy = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  const smooth = () => {
-    cx += (mx - cx) * .25;
-    cy += (my - cy) * .25;
+  const hoverTargets = () => document.querySelectorAll('a, button, .tool-card, .cta');
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    let near = false;
+    hoverTargets().forEach(el => {
+      const r = el.getBoundingClientRect();
+      const pad = 12;
+      if (mx >= r.left - pad && mx <= r.right + pad && my >= r.top - pad && my <= r.bottom + pad) near = true;
+    });
+    cursor.classList.toggle('hover', near);
+  });
+  tickCursor = () => {
+    cx += (mx - cx) * .35;
+    cy += (my - cy) * .35;
     cursor.style.left = cx + 'px';
     cursor.style.top = cy + 'px';
-    requestAnimationFrame(smooth);
   };
-  smooth();
-  document.querySelectorAll('a, button, .tool-card, .cta').forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-  });
 } else { cursor.style.display = 'none'; }
 
-// SCROLL REVEAL
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); }
-  });
-}, { threshold: .15, rootMargin: '0px 0px -60px 0px' });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+// PAGE LOAD FADE-IN
+requestAnimationFrame(() => document.body.classList.add('loaded'));
+
+// LENIS SMOOTH SCROLL — MOMENTUM
+const lenis = new Lenis({ lerp: .12, wheelMultiplier: 2.0 });
+
+// GSAP SCROLLTRIGGER — reveal animations
+// Single ticker: GSAP + Lenis + cursor all in one rAF
+gsap.registerPlugin(ScrollTrigger);
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => {
+  lenis.raf(time * 1000);
+  if (tickCursor) tickCursor();
+});
+gsap.ticker.lagSmoothing(0);
+
+ScrollTrigger.batch('.reveal', {
+  onEnter: batch => gsap.fromTo(batch, 
+    { y: 100, opacity: 0 },
+    { y: 0, opacity: 1, duration: 1.1, stagger: 0.15, ease: 'power4.out', overwrite: true }
+  ),
+  once: true
+});
+
+// Re-check hero elements already in viewport on page load
+setTimeout(() => ScrollTrigger.refresh(), 150);
+
+// PARALLAX
+const marqueeInner = document.querySelector('.hero-marquee .marquee-inner');
+lenis.on('scroll', ({ scroll }) => {
+  if (marqueeInner) marqueeInner.style.transform = `translateY(${scroll * .15}px)`;
+});
 </script>
 </body>
 </html>

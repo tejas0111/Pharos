@@ -13,10 +13,18 @@
     "dev": "node --watch index.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.6.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "viem": "^2.0.0"
   },
-  "keywords": ["pharos", "mcp", "blockchain", "agent-tools"],
+  "overrides": {
+    "ws": "^8.20.2"
+  },
+  "keywords": [
+    "pharos",
+    "mcp",
+    "blockchain",
+    "agent-tools"
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"

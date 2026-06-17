@@ -57,6 +57,46 @@ You: "Design the architecture for a staking contract"
  → Execution: Write the Solidity files and tests.
 ```
 
+## MCP Server Setup
+
+The Pharos MCP server provides 18 on-chain tools (balanceOf, deployContract, traceTx, etc.). Set it up once before any on-chain workflow:
+
+1. **Install dependencies** (if not already done):
+   ```bash
+   cd mcp-server && npm install
+   ```
+
+2. **Set environment variables** in `.env`:
+   ```bash
+   PRIVATE_KEY=0x...
+   PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
+   PHAROS_MAINNET_RPC_URL=https://rpc.pharos.xyz
+   ```
+
+3. **Verify the server works**:
+   ```bash
+   node mcp-server/index.js
+   ```
+   It should print "Pharos MCP Server running on stdio" and list 18 registered tools.
+
+4. **Integrate with your AI client** (one-time config):
+
+   | Client | Config |
+   |---|---|
+   | Claude Desktop | Add to `claude_desktop_config.json` (see `mcp-server/README.md`) |
+   | OpenCode | Add to `.opencode/mcp.json` |
+   | Cursor | Add to `.cursor/mcp.json` |
+   | Windsurf | Add MCP server via Settings → MCP |
+
+   The agent can run the server locally via `node mcp-server/index.js` and connect via stdio.
+
+5. **Run demos** (no key needed for read-only):
+   ```bash
+   node agent/mcp-demo.mjs        # 6 read-only tools
+   node agent/cascade-demo.mjs    # skill→tool→blockchain flow
+   node agent/token-workflow.mjs  # full workflow (set PRIVATE_KEY for real tx)
+   ```
+
 ## When to Use
 
 Trigger when the user says any of:
