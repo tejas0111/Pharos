@@ -7,7 +7,7 @@ If you discover a security vulnerability in the Pharos Agent Dev Suite, please r
 **Do not** open a public GitHub issue for security vulnerabilities.
 
 **How to report:**
-- Email: [tejasvi.sharma011@gmail.com](mailto:tejasvi.sharma011@gmail.com)
+- Email: [tejas.yonk@gmail.com](mailto:tejas.yonk@gmail.com)
 - GitHub: Open a [private security advisory](https://github.com/tejas0111/Pharos/security/advisories/new)
 
 You should receive a response within 48 hours. If not, follow up via email.
