@@ -19,8 +19,8 @@ import {
   parseUnits,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { execSync } from "child_process";
-import { writeFileSync, existsSync } from "fs";
+import { execFileSync } from "child_process";
+import { writeFileSync, existsSync, readFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -190,6 +190,14 @@ function validateAddress(address, label) {
   }
 }
 
+function isSafePath(base, candidate) {
+  const resolved = join(base, candidate);
+  if (!resolved.startsWith(base)) {
+    throw new Error(`Path traversal blocked: ${candidate} escapes ${base}`);
+  }
+  return resolved;
+}
+
 function structuredError(err, toolKey) {
   const msg = err.message || String(err);
   let hint;
@@ -228,7 +236,7 @@ const GAS_SPIKE_THRESHOLD_GWEI = 50;
 async function securityGate(contractPath, network) {
   if (!contractPath || !existsSync(contractPath)) return null;
   try {
-    const raw = execSync(`slither "${contractPath}" --json 2>/dev/null`, { encoding: "utf-8", timeout: 30_000 });
+    const raw = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 30_000, stdio: ["pipe", "pipe", "ignore"] });
     const report = JSON.parse(raw);
     const highIssues = (report.results?.detectors || []).filter(d =>
       d.impact === "High" || d.impact === "Critical"
@@ -292,13 +300,16 @@ async function autoVerify(network, address, contractName, constructorArgs) {
 // Frontend Gate Sync — write .env and ABI files
 // ---------------------------------------------------------------------------
 async function syncFrontend(frontendPath, network, address, contractName, abi) {
+  if (typeof frontendPath !== "string" || frontendPath.includes("..")) {
+    throw new Error(`Invalid frontendPath: "${frontendPath}"`);
+  }
   const envPath = join(frontendPath, ".env.local");
   const networkUpper = network === "pacificMainnet" ? "MAINNET" : "TESTNET";
   const envEntry = `NEXT_PUBLIC_${contractName.toUpperCase()}_ADDRESS_${networkUpper}=${address}\n`;
 
   let envContent = "";
   if (existsSync(envPath)) {
-    envContent = execSync(`cat "${envPath}"`, { encoding: "utf-8" });
+    envContent = readFileSync(envPath, "utf-8");
     const regex = new RegExp(`^NEXT_PUBLIC_${contractName.toUpperCase()}_ADDRESS_${networkUpper}=.*\n?`, "m");
     if (regex.test(envContent)) {
       envContent = envContent.replace(regex, envEntry);
@@ -311,7 +322,7 @@ async function syncFrontend(frontendPath, network, address, contractName, abi) {
   writeFileSync(envPath, envContent, "utf-8");
 
   const abiDir = join(frontendPath, "abis");
-  if (!existsSync(abiDir)) execSync(`mkdir -p "${abiDir}"`, { stdio: "pipe" });
+  if (!existsSync(abiDir)) mkdirSync(abiDir, { recursive: true });
   const abiPath = join(abiDir, `${contractName}.json`);
   writeFileSync(abiPath, typeof abi === "string" ? abi : JSON.stringify(abi, null, 2), "utf-8");
 
@@ -345,11 +356,13 @@ async function deployContract(args) {
   try {
     const net = getNetwork(args.network);
     const script = args.script || "script/Deploy.s.sol:DeployCounter";
+    if (!/^[\w./]+\.sol:\w+$/.test(script)) throw new Error(`Invalid script format: "${script}". Expected path/Contract.s.sol:ContractName`);
     const simulateOnly = args.simulate !== false;
     const skipGate = args.skipSecurityGate === true;
     const skipVerify = args.skipAutoVerify === true;
     const frontendPath = args.frontendPath || null;
     const contractName = args.contractName || "Counter";
+    if (!/^\w+$/.test(contractName)) throw new Error(`Invalid contractName: "${contractName}"`);
 
     // 1. Security gate
     if (!skipGate && !simulateOnly) {
@@ -380,7 +393,7 @@ async function deployContract(args) {
     }
 
     const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
-    const output = execSync(cmd.join(" "), {
+    const output = execFileSync("forge", cmd.slice(1), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
@@ -404,7 +417,7 @@ async function deployContract(args) {
       try {
         const abiPath = join(PROJECT_ROOT, "out", `${contractName}.sol`, `${contractName}.json`);
         const abiContent = existsSync(abiPath)
-          ? JSON.stringify(JSON.parse(execSync(`cat "${abiPath}"`, { encoding: "utf-8" })).abi, null, 2)
+          ? JSON.stringify(JSON.parse(readFileSync(abiPath, "utf-8")).abi, null, 2)
           : "[]";
         syncResult = await syncFrontend(frontendPath, args.network, contractAddress, contractName, abiContent);
       } catch { /* skip frontend sync on failure */ }
@@ -476,14 +489,16 @@ async function verifyContract(args) {
 // ---------------------------------------------------------------------------
 async function runSecurityCheck(args) {
   try {
-    const contractPath = args.contract
+    const contractArg = args.contract;
+    if (contractArg && !/^[\w./]+$/.test(contractArg)) throw new Error(`Invalid contract path: "${contractArg}"`);
+    const contractPath = contractArg
       ? join(PROJECT_ROOT, "contracts", args.contract.endsWith(".sol") ? args.contract : `${args.contract}.sol`)
       : null;
 
     let slitherOutput = null;
     if (contractPath && existsSync(contractPath)) {
       try {
-        slitherOutput = execSync(`slither "${contractPath}" --json 2>/dev/null`, { encoding: "utf-8", timeout: 30_000 });
+        slitherOutput = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 30_000, stdio: ["pipe", "pipe", "ignore"] });
       } catch (slitherErr) {
         slitherOutput = `slither not available: ${slitherErr.message}`;
       }
@@ -667,6 +682,8 @@ async function deployErc20(args) {
     const net = getNetwork(args.network);
     const name = args.name || "Pharos Token";
     const symbol = args.symbol || "PHT";
+    if (!/^[\w\s-]+$/.test(name)) throw new Error(`Invalid token name: "${name}"`);
+    if (!/^\w{2,10}$/.test(symbol)) throw new Error(`Invalid token symbol: "${symbol}"`);
     const supply = args.initialSupply || "1000000000000000000000000";
     const skipGate = args.skipSecurityGate === true;
     const skipVerify = args.skipAutoVerify === true;
@@ -700,7 +717,7 @@ async function deployErc20(args) {
     ];
 
     const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
-    const output = execSync(cmd.join(" "), {
+    const output = execFileSync("forge", cmd.slice(1), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
@@ -724,7 +741,7 @@ async function deployErc20(args) {
       try {
         const abiPath = join(PROJECT_ROOT, "out", "PharosERC20.sol", "PharosERC20.json");
         const abiContent = existsSync(abiPath)
-          ? JSON.stringify(JSON.parse(execSync(`cat "${abiPath}"`, { encoding: "utf-8" })).abi, null, 2)
+          ? JSON.stringify(JSON.parse(readFileSync(abiPath, "utf-8")).abi, null, 2)
           : "[]";
         syncResult = await syncFrontend(frontendPath, args.network, contractAddress, symbol, abiContent);
       } catch { /* skip */ }
@@ -794,7 +811,7 @@ async function diagnose(args) {
 
   for (const cmd of ["forge", "cast", "node", "git"]) {
     try {
-      execSync(`which ${cmd} 2>/dev/null`, { stdio: "pipe" });
+      execFileSync("which", [cmd], { stdio: ["pipe", "pipe", "ignore"] });
       results[cmd] = "installed";
     } catch {
       results[cmd] = "missing";
@@ -802,7 +819,7 @@ async function diagnose(args) {
   }
 
   try {
-    const chainId = execSync("cast chain-id --rpc-url https://atlantic.dplabs-internal.com 2>/dev/null", { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] }).trim();
+    const chainId = execFileSync("cast", ["chain-id", "--rpc-url", "https://atlantic.dplabs-internal.com"], { encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] }).trim();
     results.rpc = chainId === "688689" ? `reachable (chain ${chainId})` : `wrong chain: ${chainId}`;
   } catch {
     results.rpc = "unreachable";
@@ -1465,7 +1482,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 function checkDependencies() {
   for (const cmd of ["forge", "cast", "node"]) {
     try {
-      execSync(`which ${cmd} 2>/dev/null || command -v ${cmd} 2>/dev/null`, { stdio: "pipe" });
+      execFileSync("which", [cmd], { stdio: "pipe" });
     } catch {
       console.error(`WARNING: ${cmd} not found in PATH. Tools that depend on it will fail.`);
     }
