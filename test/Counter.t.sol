@@ -10,8 +10,9 @@ contract CounterTest is Test {
     address private constant USER = address(0x5678);
 
     function setUp() public {
-        vm.prank(OWNER);
+        vm.startPrank(OWNER);
         s_counter = new Counter();
+        vm.stopPrank();
     }
 
     // --- Constructor ---

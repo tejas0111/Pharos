@@ -12,8 +12,9 @@ contract PharosERC20Invariants is StdInvariant, Test {
 
     function setUp() public {
         address owner = address(0x1234);
-        vm.prank(owner);
+        vm.startPrank(owner);
         s_token = new PharosERC20("InvariantToken", "INV", 1_000_000 ether);
+        vm.stopPrank();
         s_handler = new PharosERC20Handler(s_token, owner);
         targetContract(address(s_handler));
     }

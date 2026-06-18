@@ -12,8 +12,9 @@ contract PharosERC20Test is Test {
     uint256 private constant INITIAL_SUPPLY = 1_000_000 ether;
 
     function setUp() public {
-        vm.prank(OWNER);
+        vm.startPrank(OWNER);
         s_token = new PharosERC20("PharosToken", "PHT", INITIAL_SUPPLY);
+        vm.stopPrank();
     }
 
     // --- Constructor ---
