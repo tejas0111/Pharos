@@ -282,17 +282,17 @@ async function securityGate(contractPath, network) {
 // Gas price monitor — warn before broadcast if spiked
 // ---------------------------------------------------------------------------
 async function checkGasSpike(network) {
-  const GAS_SPIKE_WARN = 60;
+  const GAS_SPIKE_REJECT = 200;
   try {
     const gasPrice = await rpcCall(network, "eth_gasPrice", []);
     const gwei = Number(BigInt(gasPrice)) / 1e9;
-    if (gwei > GAS_SPIKE_WARN) {
-      return { spiked: true, currentGwei: gwei.toFixed(1), threshold: GAS_SPIKE_WARN,
-        message: `⚠️  Gas price is ${gwei.toFixed(1)} Gwei (threshold ${GAS_SPIKE_WARN}). Consider waiting.` };
+    if (gwei > GAS_SPIKE_REJECT) {
+      return { spiked: true, currentGwei: gwei.toFixed(1), threshold: GAS_SPIKE_REJECT,
+        message: `Gas price ${gwei.toFixed(1)} Gwei exceeds hard ceiling of ${GAS_SPIKE_REJECT}. Transaction rejected.` };
     }
-    return { spiked: false, currentGwei: gwei.toFixed(1), message: `✅ Gas at ${gwei.toFixed(1)} Gwei — normal.` };
+    return { spiked: false, currentGwei: gwei.toFixed(1), message: `Gas at ${gwei.toFixed(1)} Gwei — within ceiling.` };
   } catch {
-    return { spiked: false, currentGwei: "unknown", message: "⚠️  Could not check gas prices." };
+    return { spiked: false, currentGwei: "unknown", message: "Could not check gas prices — proceeding." };
   }
 }
 
@@ -537,10 +537,15 @@ async function runSecurityCheck(args) {
     let slitherOutput = null;
     if (contractPath && existsSync(contractPath)) {
       try {
+        execFileSync("which", ["slither"], { encoding: "utf-8", stdio: "pipe" });
+      } catch {
+        return structuredError(new Error("slither not installed. Install: pip install slither-analyzer"), "security_check");
+      }
+      try {
         const raw = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 60_000, stdio: ["pipe", "pipe", "ignore"] });
     slitherOutput = raw.replaceAll(PROJECT_ROOT, ".");
       } catch (slitherErr) {
-        slitherOutput = `slither not available: ${slitherErr.message}`;
+        slitherOutput = `slither analysis failed: ${slitherErr.message}`;
       }
     }
 
@@ -548,7 +553,7 @@ async function runSecurityCheck(args) {
       action: "security_check",
       contract: args.contract || "unknown",
       contractPath: contractPath || "not specified",
-      slitherAvailable: slitherOutput && !slitherOutput.includes("not available"),
+      slitherAvailable: slitherOutput && !slitherOutput.includes("analysis failed"),
       slitherOutput,
       pharosSpecificChecks: [
         "PHRS has no 2300 gas stipend — use pull-over-push pattern for native transfers",
@@ -709,8 +714,24 @@ async function transferToken(args) {
       throw new Error(`Amount exceeds uint256 max. Use a smaller value.`);
     }
 
+    const simulateOnly = args.simulate !== false;
+
     const gas = await checkGasSpike(args.network);
-    if (gas.spiked) console.error(`[MCP] ${gas.message}`);
+    if (gas.spiked) {
+      throw new Error(gas.message);
+    }
+
+    if (simulateOnly) {
+      return safeResult(withSubskill({
+        action: "simulate",
+        network: net.name,
+        to,
+        amount: `${amount} ${unit}`,
+        amountWei: value.toString(),
+        gasCheck: `current: ${gas.currentGwei} Gwei`,
+        warning: "Simulation only. Set simulate=false to broadcast the transfer.",
+      }, "transfer_token"));
+    }
 
     console.error(`[MCP] Transferring ${amount} ${unit} to ${to} on ${net.name}`);
 
@@ -1388,6 +1409,7 @@ const TOOL_SCHEMAS = {
       toAddress: { type: "string", description: "Recipient address (0x...)" },
       amount: { type: "string", description: "Amount to send" },
       unit: { type: "string", enum: ["ether", "wei"], default: "ether" },
+      simulate: { type: "boolean", description: "Simulate only (no broadcast)", default: true },
     },
     required: ["toAddress", "amount"],
   },
