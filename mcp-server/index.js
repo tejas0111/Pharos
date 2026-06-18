@@ -416,7 +416,7 @@ async function deployContract(args) {
     // 2. Gas check
     const gasCheckResult = simulateOnly ? null : await checkGasSpike(args.network);
     if (gasCheckResult?.spiked) {
-      console.error(`[MCP] ${gasCheckResult.message}`);
+      throw new Error(gasCheckResult.message);
     }
 
     console.error(`[MCP] Deploying: ${script} on ${net.name} (simulate=${simulateOnly})`);
@@ -782,7 +782,7 @@ async function deployErc20(args) {
     // 2. Gas check
     const gas = await checkGasSpike(args.network);
     if (gas.spiked) {
-      console.error(`[MCP] ${gas.message}`);
+      throw new Error(gas.message);
     }
 
     console.error(`[MCP] Deploying ERC-20: ${name} (${symbol}) on ${net.name}`);
