@@ -13,11 +13,10 @@ Read the user's request and map it to one of 6 categories:
 | Category | Primary subskills |
 |---|---|---|
 | Contract Work | contract-architecture, solidity-authoring, interface-abi-design, protocol-integration-planning, upgrade-patterns, rwa-compliance |
-| UI Work | frontend-dapp-integration, wallet-and-transaction-ui |
+| Frontend & UI | frontend-dapp-integration, wallet-and-transaction-ui, dapp-ui-workflow, dapp-quality |
 | Testing & Review | testing-strategy, test-generation, contract-review, bug-finding-and-debugging, contract-testing-for-testnet-and-mainnet |
 | Framework & Tooling | framework-integration, ci-and-build-troubleshooting, repo-onboarding, dependency-upgrade-management, monorepo-workspace-management, repo-automation-and-tooling, code-review-templates-and-checklists, deployment-for-testnet-and-mainnet, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow |
 | Integration | cross-chain-bridge, spn-development |
-| UI & Frontend | frontend-dapp-integration, wallet-and-transaction-ui, dapp-ui-workflow, dapp-quality |
 | Quality & Performance | refactoring-and-code-health, performance-optimization, gas-optimization, security-audit |
 | Operations | production-ops |
 | Workflow | workflow-orchestrator |
@@ -87,7 +86,7 @@ Do NOT read: unrelated modules, third-party libraries (unless you need their typ
 
 ## Risk Levels (Registry Source of Truth)
 
-Derived from `src/registry/subskills.ts`. The registry is authoritative; this list mirrors it for quick reference.
+Derived from each subskill's `SKILL.md` metadata. This list mirrors the authoritative declarations in the subskill files for quick reference.
 
 ### High Risk (approvalRequired: true) — 14 subskills
 
@@ -108,7 +107,7 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | spn-development | SPN configuration affects network resources |
 | rwa-compliance | Compliance errors have legal and regulatory consequences |
 
-### Medium Risk (approvalRequired: true) — 14 subskills
+### Medium Risk (approvalRequired: true) — 13 subskills
 
 | Subskill | Why |
 |---|---|
@@ -126,7 +125,7 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | monorepo-workspace-management | Changes workspace boundaries |
 | gas-optimization | Optimizations are low-risk but change contract bytecode |
 
-### Low Risk (approvalRequired: false) — 15 subskills
+### Low Risk (approvalRequired: false) — 12 subskills
 
 | Subskill | Why |
 |---|---|
@@ -138,7 +137,6 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | wagmi-viem-dapp-workflow | Integration patterns |
 | foundry-hardhat-contract-workflow | Workflow setup |
 | remix-contract-workflow | Browser workflow |
-| dapp-quality | UI quality patterns (a11y, i18n, state) |
 | release-notes-and-changelog | Documentation-only |
 | code-scaffolding-and-generation | Creates new files, no existing code change |
 | docs-and-example-generation | Documentation-only |

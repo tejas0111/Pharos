@@ -350,7 +350,7 @@ Deployment receipts are saved as build artifacts:
   "address": "0x...",
   "txHash": "0x...",
   "blockNumber": 1234567,
-  "timestamp": "2026-01-01T00:00:00Z",
+  "timestamp": "<deploy-timestamp>",
   "verificationStatus": "verified"
 }
 ```

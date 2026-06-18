@@ -99,7 +99,7 @@ contract PharosERC20Test is Test {
         uint256 maxSupply = s_token.MAX_SUPPLY();
         uint256 remaining = maxSupply - s_token.totalSupply() + 1;
         vm.prank(OWNER);
-        vm.expectRevert(PharosERC20.PharosERC20__InvalidTransfer.selector);
+        vm.expectRevert(PharosERC20.PharosERC20__MaxSupplyExceeded.selector);
         s_token.mint(USER, remaining);
     }
 

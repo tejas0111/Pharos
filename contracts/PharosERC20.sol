@@ -12,6 +12,10 @@ contract PharosERC20 {
     error PharosERC20__InsufficientAllowance();
     error PharosERC20__ZeroAddress();
     error PharosERC20__NotOwner();
+    error PharosERC20__InvalidInput();
+    error PharosERC20__MaxSupplyExceeded();
+    error PharosERC20__PermitExpired();
+    error PharosERC20__InvalidSignature();
 
     // --- Events ---
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -25,6 +29,8 @@ contract PharosERC20 {
     uint256 private s_totalSupply;
     mapping(address => uint256) private s_balances;
     mapping(address => mapping(address => uint256)) private s_allowances;
+    mapping(address => uint256) private s_nonces;
+    bytes32 private immutable i_domainSeparator;
 
     // --- Modifiers ---
     modifier onlyOwner() {
@@ -34,14 +40,23 @@ contract PharosERC20 {
 
     // --- Constructor ---
     constructor(string memory _name, string memory _symbol, uint256 _initialSupply) {
-        if (bytes(_name).length == 0) revert PharosERC20__InvalidTransfer();
-        if (bytes(_symbol).length == 0) revert PharosERC20__InvalidTransfer();
+        if (bytes(_name).length == 0) revert PharosERC20__InvalidInput();
+        if (bytes(_symbol).length == 0) revert PharosERC20__InvalidInput();
         i_owner = msg.sender;
         s_name = _name;
         s_symbol = _symbol;
         s_decimals = 18;
         s_totalSupply = _initialSupply;
         s_balances[msg.sender] = _initialSupply;
+        i_domainSeparator = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(_name)),
+                keccak256(bytes("1")),
+                block.chainid,
+                address(this)
+            )
+        );
         emit Transfer(address(0), msg.sender, _initialSupply);
     }
 
@@ -107,9 +122,48 @@ contract PharosERC20 {
     // --- Mint (owner only) ---
     function mint(address to, uint256 value) external onlyOwner {
         if (to == address(0)) revert PharosERC20__ZeroAddress();
-        if (s_totalSupply + value > MAX_SUPPLY) revert PharosERC20__InvalidTransfer();
+        if (s_totalSupply + value > MAX_SUPPLY) revert PharosERC20__MaxSupplyExceeded();
         s_totalSupply += value;
         s_balances[to] += value;
         emit Transfer(address(0), to, value);
+    }
+
+    // --- Burn ---
+    function burn(address from, uint256 value) external onlyOwner {
+        if (from == address(0)) revert PharosERC20__ZeroAddress();
+        if (s_balances[from] < value) revert PharosERC20__InsufficientBalance();
+        s_balances[from] -= value;
+        s_totalSupply -= value;
+        emit Transfer(from, address(0), value);
+    }
+
+    // --- EIP-2612 Permit ---
+    function nonces(address owner) external view returns (uint256) {
+        return s_nonces[owner];
+    }
+
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return i_domainSeparator;
+    }
+
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external
+    {
+        if (deadline < block.timestamp) revert PharosERC20__PermitExpired();
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                owner,
+                spender,
+                value,
+                s_nonces[owner]++,
+                deadline
+            )
+        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", i_domainSeparator, structHash));
+        address recovered = ecrecover(digest, v, r, s);
+        if (recovered == address(0) || recovered != owner) revert PharosERC20__InvalidSignature();
+        s_allowances[owner][spender] = value;
+        emit Approval(owner, spender, value);
     }
 }

@@ -63,11 +63,11 @@ Contracts can also be verified through the explorer UI at the Verification API e
 |---|---|---|
 | Pharos Safe Master Copy | `0x41675C099F32341bf84BFc5382aF534df5C7461a` | Multi-sig wallet factory |
 | Pharos Safe Proxy Factory | `0xa6B71E26C5cCB7B5A8cEa1E73cF9B7c8D0bC1a2b` | Creates new Safe instances |
-| Pharlias (PROS) | Check docs.pharos.xyz | Native token contract |
-| Pharos Bridge | Check docs.pharos.xyz | Native bridge contract |
-| SPN Manager | Check docs.pharos.xyz | Manages SPN instances |
-| SPN Mailbox | Check docs.pharos.xyz | Cross-SPN messaging |
-| SPN Adapter | Check docs.pharos.xyz | Bridges main chain to SPN |
+| Pharlias (PROS) | `TODO: fetch from docs.pharos.xyz` | Native token contract |
+| Pharos Bridge | `TODO: fetch from docs.pharos.xyz` | Native bridge contract |
+| SPN Manager | `TODO: fetch from docs.pharos.xyz` | Manages SPN instances |
+| SPN Mailbox | `TODO: fetch from docs.pharos.xyz` | Cross-SPN messaging |
+| SPN Adapter | `TODO: fetch from docs.pharos.xyz` | Bridges main chain to SPN |
 
 ## Common RPC Methods
 
@@ -205,9 +205,9 @@ Pharos uses a two-tier governance model:
 
 | Contract | Address | Purpose |
 |---|---|---|
-| Governance | Check docs.pharos.xyz | Proposal creation and voting |
-| Timelock | Check docs.pharos.xyz | Delays execution of passed proposals |
-| Treasury | Check docs.pharos.xyz | Ecosystem fund management |
+| Governance | `TODO: fetch from docs.pharos.xyz` | Proposal creation and voting |
+| Timelock | `TODO: fetch from docs.pharos.xyz` | Delays execution of passed proposals |
+| Treasury | `TODO: fetch from docs.pharos.xyz` | Ecosystem fund management |
 
 ## FAQ
 

@@ -455,7 +455,7 @@ Extended descriptions of all 42 developer subskills. Each entry includes: trigge
 
 ## Subskill Families
 
-The 39 subskills are grouped into three families for organizational clarity:
+The subskills are grouped into three families for organizational clarity:
 
 - **Repo automation and maintenance**: repo-onboarding, repo-automation-and-tooling, dependency-upgrade-management, monorepo-workspace-management, code-review-templates-and-checklists
 - **Framework-specific implementation**: framework-integration, wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, remix-contract-workflow, dapp-ui-workflow, dapp-quality
