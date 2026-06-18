@@ -57,7 +57,7 @@ async function main() {
 
   // ── pharos_network_config ──
   console.log("Phase 3: Network config\n");
-  const netReq = JSON.stringify({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "pharos_network_config", arguments: { network: "atlantic" } } });
+  const netReq = JSON.stringify({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "pharos_network_config", arguments: { network: "atlanticTestnet" } } });
   buf = "";
   server.stdin.write(netReq + "\n");
   await sleep(800);

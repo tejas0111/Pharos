@@ -1,5 +1,5 @@
 name: pharos-deployment-and-verification
-description: "Prepare Pharos deploy scripts, env variables, explorer verification, and post-deploy checks for testnet and mainnet. Use when preparing deployment, writing deploy scripts, configuring verification, or setting up release pipelines for Pharos contracts (Atlantic testnet 688689 / mainnet 1672). Keywords: deploy, verification, explorer, release, publish contract, deploy script, verification flow, Pharos, Foundry, Hardhat, forge script, hardhat deploy, 688689, 1672, PHAROSSCAN_API_KEY, contract verification, gate fix."
+description: "Prepare Pharos deploy scripts, env variables, explorer verification, and post-deploy checks for testnet and mainnet. Use when preparing deployment, writing deploy scripts, configuring verification, or setting up release pipelines for Pharos contracts (Atlantic testnet 688689 / mainnet 1672). Keywords: deploy, verification, explorer, release, publish contract, deploy script, verification flow, Pharos, Foundry, Hardhat, forge script, hardhat deploy, 688689, 1672, PHAROSSCAN_API_KEY, contract verification."
 metadata:
   audience: developer
   version: 1.2.0
@@ -13,14 +13,13 @@ Prepare deploy scripts, env variables, explorer verification, and post-deploy ch
 
 ## When to Use
 
-deploy, verification, explorer, release, publish contract, deployment prep, deploy script, verification flow, gate fix
+deploy, verification, explorer, release, publish contract, deployment prep, deploy script, verification flow
 
 ## When NOT to Use
 
 actually broadcasting a transaction (requires user approval before execution), or planning deployment across networks (use deployment-for-testnet-and-mainnet)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -37,7 +36,7 @@ actually broadcasting a transaction (requires user approval before execution), o
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Confirm the deployment target, network, and required config (`config/pharos.json`).
-4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. **Gate Fix check** must be performed. Ask the user for any missing values before proceeding.
+4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Run the pre-flight checklist from root `SKILL.md` (Deploy Protocol section). Ask the user for any missing values before proceeding.
 5. Draft the deploy and verification steps explicitly using Pharos-specific commands.
 6. Present the plan and wait for approval before any deploy-side change.
 7. Verify the deployed artifact on PharosScan and capture the outcome.
@@ -118,7 +117,6 @@ forge verify-contract \
 - [ ] Chain ID confirmed (mainnet: 1672, testnet: 688689)
 - [ ] Deployer wallet funded with sufficient native token (PROS/PHRS) for gas
 - [ ] Gas price checked against Pharos current average
-- [ ] **Gate Fix**: Frontend/contract interaction check passed.
 - [ ] `config/pharos.json` network parameters reviewed
 - [ ] Private key set in `.env` (PRIVATE_KEY)
 - [ ] Contract compiled without errors (`forge build` / `npx hardhat compile`)
@@ -144,7 +142,7 @@ forge verify-contract \
 - "Set up the deploy scripts and env variables for testnet deployment"
 - "Deploy my contract to Pharos mainnet and verify on PharosScan"
 - "Show me the forge command to deploy and verify on Pharos"
-- "Run gate fix before preparing deployment"
+- "Run pre-flight checks before preparing deployment (see root `SKILL.md` → Deploy Protocol)"
 
 ## Verification
 

@@ -104,13 +104,13 @@ Create `anvita-agent.json` in the repo root:
     "pharos_create_safe_tx",
     "pharos_propose_safe_tx"
   ],
-  "x402": {
+    "x402": {
     "enabled": true,
     "pricing": {
-      "pharos_deploy_contract": { "type": "fixed", "amount": "0.001", "token": "PHRS" },
+      "pharos_deploy_contract": { "type": "fixed", "amount": "0.001", "token": "PROS" },
       "pharos_check_balance": { "type": "free" },
-      "pharos_transfer_token": { "type": "fixed", "amount": "0.0005", "token": "PHRS" },
-      "default": { "type": "fixed", "amount": "0.0001", "token": "PHRS" }
+      "pharos_transfer_token": { "type": "fixed", "amount": "0.0005", "token": "PROS" },
+      "default": { "type": "fixed", "amount": "0.0001", "token": "PROS" }
     }
   },
   "env": {

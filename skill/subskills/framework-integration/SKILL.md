@@ -21,7 +21,6 @@ Next.js, Wagmi, Viem, ethers, Foundry, Hardhat, Remix, framework setup, add Phar
 working within an already-configured framework (use the workflow-specific subskill, e.g., wagmi-viem-dapp-workflow)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -66,17 +65,17 @@ Mainnet and Testnet chain configuration shared across all frameworks:
 const pharosMainnet = {
   chainId: 1672,
   name: 'Pharos Mainnet',
-  rpcUrl: '$PHAROS_MAINNET_RPC_URL',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  rpcUrl: process.env.PHAROS_MAINNET_RPC_URL!,
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
   explorer: 'https://www.pharosscan.xyz',
 }
 
 const pharosTestnet = {
   chainId: 688689,
   name: 'Pharos Testnet',
-  rpcUrl: '$PHAROS_TESTNET_RPC_URL',
+  rpcUrl: process.env.PHAROS_TESTNET_RPC_URL!,
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  explorer: 'https://www.pharosscan.xyz',
+  explorer: 'https://atlantic.pharosscan.xyz',
 }
 ```
 
@@ -85,7 +84,7 @@ const pharosTestnet = {
 ```typescript
 import { ethers } from 'ethers'
 
-const provider = new ethers.JsonRpcProvider('$PHAROS_MAINNET_RPC_URL', {
+const provider = new ethers.JsonRpcProvider(process.env.PHAROS_MAINNET_RPC_URL!, {
   chainId: 1672,
   name: 'pharos-mainnet',
 })
@@ -110,8 +109,8 @@ import { defineChain } from 'viem'
 const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -160,8 +159,8 @@ import '@rainbow-me/rainbowkit/styles.css'
 const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -254,7 +253,7 @@ pharos-mainnet = "$PHAROS_MAINNET_RPC_URL"
 pharos-testnet = "$PHAROS_TESTNET_RPC_URL"
 
 [etherscan]
-pharos-mainnet = { key = "${ETHERSCAN_API_KEY}", url = "$PHAROSSCAN_MAINNET_API_URL" }
+pharos-mainnet = { key = "${PHAROSSCAN_API_KEY}", url = "$PHAROSSCAN_MAINNET_API_URL" }
 ```
 
 ## Verification
@@ -263,7 +262,7 @@ npm run build or framework-specific config check.
 
 ## Related
 
-wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, nextjs-app-router-and-server-actions, remix-contract-workflow, tailwind-shadcn-ui-workflow
+wagmi-viem-dapp-workflow, foundry-hardhat-contract-workflow, dapp-ui-workflow, remix-contract-workflow
 
 ## Gate
 

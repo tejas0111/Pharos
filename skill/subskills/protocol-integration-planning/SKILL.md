@@ -10,7 +10,7 @@ slash: true
 
 # Protocol Integration Planning
 
-Plan read/write flows, approvals, and call order for integrating a protocol or contract surface on Pharos mainnet (chain 1672).
+Plan read/write flows, approvals, and call order for integrating a protocol or contract surface on Pharos mainnet (chain 1672, native currency PROS).
 
 ## Pharos Integration Patterns
 
@@ -36,10 +36,10 @@ function getPrice(IPharosPriceFeed feed) internal view returns (uint256) {
 ### PHRS Staking Integration Flow
 
 ```
-1. Check user PHRS balance (useBalance / getBalance)
-2. Approve spending if ERC-20 (skip for native PHRS)
+1. Check user PROS balance (useBalance / getBalance)
+2. Approve spending if ERC-20 (skip for native PROS)
 3. Estimate gas: cast gas-estimate --rpc-url $PHAROS_MAINNET_RPC_URL
-4. Execute stake() with msg.value in PHRS
+4. Execute stake() with msg.value in PROS
 5. Wait for receipt (Pharos ~2s block time → poll every 1s)
 6. Confirm state: call stakes(user) to verify
 7. Emit/display PharosScan link: https://www.pharosscan.xyz/tx/{hash}
@@ -48,7 +48,7 @@ function getPrice(IPharosPriceFeed feed) internal view returns (uint256) {
 ### Call Order for DeFi Integration on Pharos
 
 ```solidity
-// 1. Approve (ERC-20) — if not native PHRS
+// 1. Approve (ERC-20) — if not native PROS
 IERC20(token).approve(spender, amount);
 // 2. Check allowance
 require(IERC20(token).allowance(msg.sender, spender) >= amount);
@@ -80,7 +80,6 @@ integration, protocol flow, call sequence, approval flow, contract interaction p
 writing the actual integration code (use frontend-dapp-integration or solidity-authoring), or reviewing existing integrations (use contract-review)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

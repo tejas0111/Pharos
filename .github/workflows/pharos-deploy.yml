@@ -40,13 +40,18 @@ jobs:
 
       - name: Check formatting
         run: forge fmt --check
-        continue-on-error: true
 
       - name: Build contracts
         run: forge build --sizes
 
       - name: Run tests
         run: forge test -vvv
+
+      - name: Slither security scan
+        run: |
+          pip install slither-analyzer --quiet
+          slither contracts/ --checklist --print human-summary || true
+        continue-on-error: true
 
   deploy-testnet:
     needs: lint-and-test
@@ -62,9 +67,6 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
-
-      - name: Build contracts
-        run: forge build --sizes
 
       - name: Deploy to Pharos Atlantic Testnet
         env:
@@ -99,10 +101,9 @@ jobs:
         with:
           version: nightly
 
-      - name: Build contracts
-        run: forge build --sizes
-
       - name: Verify mainnet intent
+        env:
+          MAINNET_CONFIRM: ${{ secrets.MAINNET_CONFIRM }}
         run: |
           echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
           echo "!!     PHAROS PACIFIC MAINNET DEPLOY      !!"

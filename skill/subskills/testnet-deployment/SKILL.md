@@ -1,5 +1,5 @@
 name: pharos-testnet-deployment
-description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Atlantic Testnet (chain ID: 688689). Use when deploying to testnet, running testnet rehearsal, verifying contracts on testnet explorer, or configuring PHAROS_TESTNET_RPC_URL for Pharos testnet releases. Keywords: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release, Atlantic testnet, 688689, Pharos, Foundry, Hardhat, forge script, broadcast, simulation, dry-run, gate fix."
+description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Atlantic Testnet (chain ID: 688689). Use when deploying to testnet, running testnet rehearsal, verifying contracts on testnet explorer, or configuring PHAROS_TESTNET_RPC_URL for Pharos testnet releases. Keywords: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release, Atlantic testnet, 688689, Pharos, Foundry, Hardhat, forge script, broadcast, simulation, dry-run."
 metadata:
   audience: developer
   version: 1.2.0
@@ -13,7 +13,7 @@ Prepare, simulate, broadcast, and verify Pharos contract deployments on testnet.
 
 ## When to Use
 
-deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release, gate fix
+deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release
 
 ## When NOT to Use
 
@@ -24,7 +24,7 @@ mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-d
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Confirm the contract artifact, testnet RPC, signer, and verification target.
-4. Run pre-flight checks: RPC reachable, balance sufficient, **Gate Fix check**, simulation passes.
+4. Run pre-flight checks: RPC reachable, balance sufficient, env vars set, simulation passes. (See root `SKILL.md` → Deploy Protocol for full checklist.)
 5. Start from scripts/deploy-testnet.sh for Foundry or scripts/deploy-testnet-hardhat.sh for Hardhat, or use the repo's existing deploy flow.
 Forge deployment command:
 ```
@@ -39,7 +39,6 @@ npx hardhat run scripts/deploy.ts --network pharosTestnet
 - Funded wallet with testnet PHRS
 - Chain ID confirmed as 688689 (Atlantic Testnet)
 - Gas price checked and within budget
-- **Gate Fix**: Run a frontend/contract interaction check to ensure consistency.
 - **Private Key**: Ensure `${PRIVATE_KEY}` is loaded from a `.env` file; never hardcode or expose.
 - Previous deployment artifacts backed up (`deployments/testnet/` directory)
 - Simulation passes with `SIMULATE_ONLY=1`
@@ -49,7 +48,7 @@ npx hardhat run scripts/deploy.ts --network pharosTestnet
 10. Post-deploy: verify contract on testnet PharosScan at `https://atlantic.pharosscan.xyz/address/<DEPLOYED_ADDRESS>` and update `config/pharos.json` with the new contract address.
 ## Output
 
-- testnet deployment plan (including gate fix results)
+- testnet deployment plan (including pre-flight check results — see root `SKILL.md` → Deploy Protocol)
 - deploy command
 - verification command
 - explorer link
@@ -60,7 +59,7 @@ npx hardhat run scripts/deploy.ts --network pharosTestnet
 - "Deploy this contract to Pharos testnet"
 - "Verify this deployment on testnet"
 - "Simulate the testnet deployment before broadcasting"
-- "Run gate fix before testnet deploy"
+- "Run pre-flight checks before testnet deploy (see root `SKILL.md` → Deploy Protocol)"
 
 ## Verification
 

@@ -25,7 +25,6 @@ security audit, security review, vulnerability assessment, penetration test, aud
 - **MEV strategy design** — If the user wants to build an MEV bot or arbitrage strategy (not audit for MEV exposure), use `contract-architecture` or a dedicated MEV subskill.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -57,7 +56,7 @@ security audit, security review, vulnerability assessment, penetration test, aud
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Map the threat model: trust boundaries, asset flows (PHRS deposits/withdrawals), privileged roles, external dependencies (Pharos bridge endpoints, oracles).
 4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-5. Check Pharos-specific attack surfaces: cross-chain bridge reentrancy (reentrancy in message relay functions), PHRS flash loan attacks (price manipulation via PHRS flash loans), chain ID validation (verify chain ID 1672 for mainnet, 688689 for testnet-v2, 688689 for Atlantic testnet), oracle manipulation (use redundant oracles: Supra DORA + Chainlink), access control drift (role admin changes, proxy admin safety).
+5. Check Pharos-specific attack surfaces: cross-chain bridge reentrancy (reentrancy in message relay functions), PHRS flash loan attacks (price manipulation via PHRS flash loans), chain ID validation (verify chain ID 1672 for mainnet, 688689 for Atlantic testnet), oracle manipulation (use redundant oracles: Supra DORA + Chainlink), access control drift (role admin changes, proxy admin safety).
 6. Analyze code for standard vulnerability classes: reentrancy (especially in PHRS withdrawal functions — "unprotected" means no reentrancy guard, no CEI pattern, or no pull-over-push in withdraw/claim), integer overflow (reward calculations), front-running (unstake/claim operations), flash loan composability, price manipulation — plus Pharos-specific findings: incorrect chain ID checks (must validate 1672/688689/688689 in bridge functions), bridge message validation issues, PHRS `.call{value:}` has no 2300 gas stipend (full gas forwarded — protect with gas limits or reentrancy guards).
 7. Verify against Pharos audit partner standards (ExVul, OpenZeppelin, Zellic). Configure PharosScan source verification: `https://api.atlantic.pharosscan.xyz/pharos-testnet/v1/explorer/command_api/contract`. Target critical bug density below 0.4 per 1k LOC Solidity.
 8. Present the threat model and findings with severity ratings, then ask for confirmation before finalizing the audit report.

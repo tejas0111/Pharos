@@ -24,7 +24,6 @@ Use when the user needs a safe deployment plan for both Pharos networks.
 | Deploy risk      | high (real value)       | low (test environment)   |
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -97,7 +96,7 @@ forge script script/DeployPharosStaking.s.sol --rpc-url pharos_testnet --broadca
 forge verify-contract \
   --chain-id 688689 \
   --verifier custom \
-  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
+  --verifier-url $PHAROSSCAN_TESTNET_API_URL \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(uint256,address)" 1000000 0xRecipient) \
   0xDeployedAddress src/PharosStaking.sol:PharosStaking

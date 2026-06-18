@@ -25,7 +25,6 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 - **Pure learning / Q&A** — If the user asks "How does UUPS work?" without wanting implementation, answer directly without triggering a multi-step workflow.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -44,7 +43,7 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 5. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
 6. For each stage, route to the narrowest subskill. Preserve context (repo path, contract names, design decisions, Pharos chain ID, RPC URLs) across subskill boundaries.
 7. Execute subskills sequentially — complete each stage before starting the next. Verify at each stage before proceeding.
-8. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s $PHAROS_MAINNET_RPC_URL/health` (mainnet) or `curl -s $PHAROS_TESTNET_RPC_URL/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet_v2`).
+8. At each Pharos-specific checkpoint, verify the network (confirm chain ID matches the target from step 0), RPC health check (`curl -s $PHAROS_MAINNET_RPC_URL/health` (mainnet) or `curl -s $PHAROS_TESTNET_RPC_URL/health` (testnet), using the RPC adapted in step 0), PHRS gas estimation (`cast gas-estimate --rpc-url pharos_mainnet` or `cast gas-estimate --rpc-url pharos_testnet`).
 9. At handoff points, pass a context bundle: decisions made, files created, verification results, and open questions.
 10. If a stage fails, stop and report. Do not proceed to the next stage without user direction.
 11. Show the plan and ask for approval before implementing each stage.
@@ -64,7 +63,7 @@ User request spans multiple subskills (e.g., architect → code → test → dep
 
 - **Compile:** `forge build --optimize --optimizer-runs 200`
 - **Test (fork):** `forge test --fork-url $PHAROS_TESTNET_RPC_URL --match-path test/*`
-- **Deploy:** `forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_MAINNET_API_URL`
+- **Deploy:** `forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_TESTNET_API_URL`
 - **Frontend:** `npx create-next-app@latest my-dapp && npm install wagmi viem @tanstack/react-query`
 - **Deploy frontend:** `vercel deploy --prod`
 - **Monitor:** `npx forta-agent run --json-rpc $PHAROS_MAINNET_RPC_URL`
@@ -111,21 +110,21 @@ Across subskill boundaries, maintain these context fields:
 name: Pharos CI/CD
 on: [push]
 env:
-  PHAROS_RPC_URL: ${{ secrets.PHAROS_RPC_URL }}
-  PHAROS_PRIVATE_KEY: ${{ secrets.PHAROS_PRIVATE_KEY }}
+  PHAROS_TESTNET_RPC_URL: ${{ secrets.PHAROS_TESTNET_RPC_URL }}
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
   PHAROSSCAN_API_KEY: ${{ secrets.PHAROSSCAN_API_KEY }}
-  PHAROS_CHAIN_ID: "688689"  # Atlantic Testnet
+  PHAROSSCAN_TESTNET_API_URL: ${{ secrets.PHAROSSCAN_TESTNET_API_URL }}
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: forge build
-      - run: forge test --fork-url $PHAROS_RPC_URL
+      - run: forge test --fork-url $PHAROS_TESTNET_RPC_URL
   deploy:
     needs: test
     steps:
-      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_MAINNET_API_URL
+      - run: forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --broadcast --verify --verifier-url $PHAROSSCAN_TESTNET_API_URL
 ```
 
 ## Verification

@@ -10,7 +10,7 @@ metadata:
 
 # Pharos Agent Dev Suite
 
-The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 39 developer subskills + 3 high-risk deployment subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
+The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 42 developer subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
 
 ## Core Workflow: Requirement → Plan → Execute
 
@@ -36,16 +36,20 @@ To ensure high-fidelity delivery and zero assumptions, follow this lifecycle for
     - Implement the changes exactly as outlined in the approved `PLAN.md`.
     - For High-Risk tasks (Deploy/Broadcast/Critical Security): Prepare everything (scripts, artifacts) but **ASK AGAIN** before the final execution/broadcast.
 
-## Quick Reference
+## Mandatory Subskill Routing Protocol
 
-| Action | Rule |
-|---|---|
-| Requirement Chk | Mandatory for all first-time or complex tasks |
-| `PLAN.md` | Required for every task; must be committed or shared |
-| User Approval | Mandatory before starting execution phase |
-| Risk-Gated Deploy | Simulation + Approval + Final "Ready to Broadcast?" check |
-| Network Truth | Atlantic (688689, PHRS) or Pacific (1672, PROS) |
-| No Assumptions | If in doubt, ASK. Never guess RPCs, addresses, or logic. |
+**ALWAYS follow this BEFORE answering any user request:**
+
+1. **Parse request intent** against the Routing Decision Tree (below) and `When to Use` keywords.
+2. **Identify the single most-specific matching subskill(s)** (e.g. `frontend-dapp-integration` for "wire up a frontend", NOT the root `dapp-ui-workflow`).
+3. **LOAD the subskill**: Read `skill/subskills/<name>/SKILL.md` in full before generating any code or plan.
+4. **Follow its instructions** — the subskill contains required Prerequisites, Workflow steps, and Anti-Generic Rules. Ignoring these produces low-quality output.
+5. **Delegate to sub-agents if needed**: For multi-step workflows (e.g. "build and deploy a staking dapp"), chain subskills sequentially via `workflow-orchestrator`.
+6. **Do NOT skip step 3-4** — the subskill file is the authoritative spec. Without it, the agent defaults to generic blockchain knowledge and produces incorrect or non-functional code for Pharos.
+
+> **Why this matters**: Subskills contain Pharos-specific constraints (SALI opcodes, DTVM costing, PROS vs PHRS, testnet vs mainnet explorer URLs, chain ID validation) that are NOT in the agent's training data. Skipping the subskill = shipping broken code.
+
+## Quick Reference
 
 ## Quick Start
 
@@ -139,9 +143,11 @@ Classify the request by asking these questions in order:
 
 ```
 1. Is the request about BROADCASTING or DEPLOYING to a network?
-   ├── Testnet / dry-run / simulation?            → testnet-deployment
-   ├── Mainnet / production / go-live?            → mainnet-deployment
-   └── Verification / post-deploy artifacts?       → post-deploy
+   ├── Preparing deployment (scripts, env, verification config)? → deployment-and-verification
+   ├── Planning deployment strategy across networks?             → deployment-for-testnet-and-mainnet
+   ├── Testnet / dry-run / simulation?                           → testnet-deployment
+   ├── Mainnet / production / go-live?                           → mainnet-deployment
+   └── Verification / post-deploy artifacts?                     → post-deploy
 
 2. Is the request about writing/designing SOLIDITY or CONTRACT code?
    ├── System-level design before code?           → contract-architecture
@@ -172,7 +178,7 @@ Classify the request by asking these questions in order:
 Every broadcast requires explicit approval. No exceptions. The MCP server enforces automatic gates:
 
 1. **Pre-flight**:
-    - **.env Check**: Verify `.env` exists and contains `PRIVATE_KEY` and necessary RPC/API URLs.
+    - **.env Check**: Verify `.env` exists and contains `PRIVATE_KEY` and necessary RPC URLs. `PHAROSSCAN_API_KEY` is only required for mainnet verification (testnet Blockscout verifier doesn't need one).
     - **Validation**: Validate RPC, Chain ID (1672/688689), Signer balance, and Compiler version.
 2. **🔒 Security Gate** (automatic): The MCP server runs `slither` on the contract source before deployment. If High/Critical issues are found, the deploy **refuses to proceed**. The agent should present the findings to the user for fixes. Can be skipped with `skipSecurityGate=true`.
 3. **⛽ Gas Monitor** (automatic): Before any broadcast, the server checks current gas prices. If above 60 Gwei, the agent MUST warn the user and recommend waiting.
@@ -192,7 +198,7 @@ Every broadcast requires explicit approval. No exceptions. The MCP server enforc
 | Plan is too broad | Using general subskill instead of narrow | Route to most specific subskill (e.g. `contract-review`) |
 | Env var not expanded | Using literal name instead of `${VAR}` | Use `${VAR_NAME}` syntax in config/commands |
 | Mainnet deploy blocked | Safety gate or insufficient funds | Re-run balance check; ensure network is Pacific (1672) |
-| Gate Fix failure | Inconsistent frontend/contract state | Run `gate-fix` diagnostic before re-attempting deploy |
+| Pre-flight check failure | Inconsistent frontend/contract state | Run the full Deploy Protocol in this SKILL.md (section 'Deploy Protocol') — verify .env, RPC, balance, and simulation |
 
 ## Best Practices
 

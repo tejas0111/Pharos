@@ -117,7 +117,6 @@ scaffold, starter, boilerplate, generate files, template, create a new, initiali
 editing existing code (use the relevant subskill for that code), or writing documentation (use docs-and-example-generation)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -162,6 +161,5 @@ File structure check. `forge build` on the generated scaffold. `forge test --for
 docs-and-example-generation (content, not structure), framework-integration (configuration setup)
 
 ## Gate
-
 
 Low risk. Show the file tree and `.env.example` keys before writing; generate files only after user confirms scaffold type and target path.

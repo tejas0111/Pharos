@@ -10,40 +10,40 @@ slash: true
 
 # Interface and ABI Design
 
-Define interfaces, events, errors, and typed bindings so downstream tooling can integrate cleanly on Pharos mainnet (chain ID 1672).
+Define interfaces, events, errors, and typed bindings so downstream tooling can integrate cleanly on Pharos mainnet (chain ID 1672, native currency PROS).
 
 ## Pharos Interface Patterns
 
-### IPharosStaking (PHRS Native)
+### IPharosStaking (PROS Native)
 
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @notice PHRS staking pool interface for Pharos mainnet (1672)
+/// @notice PROS staking pool interface for Pharos mainnet (1672)
 interface IPharosStaking {
     // --- Errors ---
-    /// @dev PHRS .call{value:} has no 2300 gas stipend — use pull-over-push
-    error PhrsTransferFailed();
+    /// @dev PROS .call{value:} has no 2300 gas stipend — use pull-over-push
+    error ProsTransferFailed();
     error InsufficientStake(uint256 have, uint256 want);
     error WrongChain(uint256 actual, uint256 expected);
 
     // --- Events ---
     /// @param user staker address
-    /// @param amount PHRS amount (18 decimals)
+    /// @param amount PROS amount (18 decimals)
     event Staked(address indexed user, uint256 amount);
     event Unstaked(address indexed user, uint256 amount);
     event RewardClaimed(address indexed user, uint256 amount);
     event RewardRateUpdated(uint256 oldRate, uint256 newRate);
 
     // --- State-changing ---
-    /// @notice Stake PHRS — msg.value is the stake amount
+    /// @notice Stake PROS — msg.value is the stake amount
     function stake() external payable;
-    /// @notice Unstake PHRS — uses pull-over-push with gas cap
+    /// @notice Unstake PROS — uses pull-over-push with gas cap
     function unstake(uint256 amount) external;
-    /// @notice Claim accrued PHRS rewards
+    /// @notice Claim accrued PROS rewards
     function getReward() external;
-    /// @notice Owner-only: set reward rate in PHRS per second
+    /// @notice Owner-only: set reward rate in PROS per second
     function setRewardRate(uint256 rate) external;
 
     // --- Views ---
@@ -77,7 +77,7 @@ interface IPharosRewardDistributor {
 /// @notice one-line what this does
 /// @param paramName description
 /// @return returnName description
-/// @dev Pharos-specific: mention PHRS gas stipend, chain ID, Safe integration
+/// @dev Pharos-specific: mention PROS gas stipend, chain ID, Safe integration
 /// @custom:pharos-chain 1672 — Pharos Mainnet
 ```
 
@@ -98,7 +98,7 @@ This produces `wagmi.generated.ts` with typed `useReadPharosStakingStakes`, `use
 # Flatten and verify — ABI must match deployed bytecode exactly
 forge verify-contract \
   --chain-id 1672 \
-  --verifier-url https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/contract_verify \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   0xDeployedAddress src/IPharosStaking.sol:IPharosStaking
 ```
@@ -121,7 +121,6 @@ ABI, interface, events, errors, typed bindings, contract surface, define the int
 writing the full contract implementation (use solidity-authoring), or integrating the ABI into frontend (use frontend-dapp-integration)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -159,7 +158,7 @@ writing the full contract implementation (use solidity-authoring), or integratin
 
 ```bash
 # Confirm event signature selector matches deployed contract
-cast sig "Staked(address,uint256)" --rpc-url pharos_testnet_v2
+cast sig "Staked(address,uint256)" --rpc-url pharos_testnet
 
 # Dump deployed contract interface
 cast interface 0xDeployedAddress --rpc-url pharos_mainnet

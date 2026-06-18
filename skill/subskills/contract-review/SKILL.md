@@ -35,7 +35,7 @@ PHRS has **no 2300 gas stipend** on `.call{value:}` — full gas is forwarded.
 
 - [ ] Constructor or initializer checks `block.chainid == 1672` (mainnet) or `688689` (testnet)
 - [ ] Deploy script validates chain ID before broadcast
-- [ ] No hardcoded old Atlantic chain ID (688689)
+- [ ] No hardcoded deprecated chain ID (688688) — current Atlantic testnet is 688689
 
 ### UUPS / Upgradeable Storage Collision
 
@@ -74,7 +74,6 @@ review contract, audit, security review, Solidity review, gas review, check this
 fixing specific bugs (use bug-finding-and-debugging), writing new code (use solidity-authoring), or automated analysis (use forge test or slither directly)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

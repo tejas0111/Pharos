@@ -1,6 +1,6 @@
 # Subskill Reference
 
-Extended descriptions of all 39 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
+Extended descriptions of all 42 developer subskills. Each entry includes: trigger keywords, when to use, when NOT to use, workflow, verification commands, and cross-references to related subskills.
 
 ## Contract Work
 

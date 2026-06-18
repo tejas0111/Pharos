@@ -40,6 +40,9 @@ flowchart TB
         T16[pharos_read_contract]
         T17[pharos_write_contract]
         T18[pharos_fetch_abi]
+        T19[pharos_frontend_sync]
+        T20[pharos_create_safe_tx]
+        T21[pharos_propose_safe_tx]
     end
 
     subgraph Pharos["Pharos Blockchain"]
@@ -235,6 +238,9 @@ flowchart LR
     T16 --> S6
     T17 --> S7
     T18 --> S6
+    T19 --> S5
+    T20 --> S7
+    T21 --> S7
 
     style Tools fill:#16213e,color:#e0e0e0,stroke:#4a90d9
     style Skills fill:#1a1a2e,color:#e0e0e0,stroke:#4a90d9

@@ -52,7 +52,6 @@ Native PHRS staking with auto-compound rewards.
 ## Upgrade Instructions (Mainnet 1672)
 
 ### Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -119,7 +118,6 @@ Native PHRS staking with auto-compound rewards.
 - **Deployment announcements** — For deploy flow, use `deployment-and-verification`.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -150,6 +148,5 @@ Native PHRS staking with auto-compound rewards.
 
 Visual review; verify version numbers match actual `foundry.toml` and `package.json` files.
 ## Gate
-
 
 Low risk. Present changelog outline and commit sample first; edit `CHANGELOG.md` or publish release text only after user confirms version, scope, and deploy appendix accuracy.

@@ -18,10 +18,9 @@ frontend, dapp, UI integration, wallet connect, view state, transaction preview,
 
 ## When NOT to Use
 
-designing pure UI without contract interaction (use react-ui-patterns-and-hooks or tailwind-shadcn-ui-workflow), or planning the integration (use protocol-integration-planning)
+designing pure UI without contract interaction (use dapp-ui-workflow), or planning the integration (use protocol-integration-planning)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -63,7 +62,7 @@ designing pure UI without contract interaction (use react-ui-patterns-and-hooks 
 ### Network Details
 - **Pharos Mainnet**: Chain ID 1672, RPC `$PHAROS_MAINNET_RPC_URL`, Explorer https://www.pharosscan.xyz
 - **Pharos Atlantic Testnet**: Chain ID 688689, RPC `$PHAROS_TESTNET_RPC_URL`, Explorer https://atlantic.pharosscan.xyz
-- **Native currency**: PHRS (mainnet & testnet, 18 decimals)
+- **Native currency**: PROS (mainnet) / PHRS (testnet), 18 decimals
 
 ### Wallet Connect (wagmi + viem)
 ```typescript
@@ -72,8 +71,8 @@ import { defineChain } from 'viem'
 export const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -81,8 +80,8 @@ export const pharosTestnet = defineChain({
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
+  rpcUrls: { default: { http: [process.env.PHAROS_TESTNET_RPC_URL!] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' } },
 })
 ```
 
@@ -158,7 +157,7 @@ const response = await fetch(API_URL, {
 - Use `useWriteContract` / `useSendTransaction` for writes; ensure wallet is on correct Pharos chain
 - Transaction preview: estimate gas via `estimateGas` on Pharos RPC, show PHRS fee
 - Pharos transaction receipts: block time ≈ 2s — use `waitForTransactionReceipt` with shorter polling
-- Link tx hashes to PharosScan: `https://www.pharosscan.xyz/tx/{txHash}`
+- Link tx hashes to PharosScan: `https://www.pharosscan.xyz/tx/{txHash}` (mainnet) or `https://atlantic.pharosscan.xyz/tx/{txHash}` (testnet)
 
 #### Writing with useWriteContract + TX Confirmation
 

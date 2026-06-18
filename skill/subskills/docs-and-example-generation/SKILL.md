@@ -99,7 +99,7 @@ forge verify-contract --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL
   "spn_id": "spn_0xabcd",
   "validator": "0x...",
   "missed_checkpoints": 6,
-  "slashed_amount": "1000 PHRS",
+  "slashed_amount": "1000 PROS",
   "reason": "Missed 6 consecutive checkpoints (threshold: 5)",
   "block": 12345678,
   "tx": "https://www.pharosscan.xyz/pharos/tx/0x..."
@@ -124,7 +124,6 @@ Visual review; verify links point to correct PharosScan URLs for the target netw
 - **Release notes** — For changelogs and version bumps, use `release-notes-and-changelog`.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -157,6 +156,5 @@ Visual review; verify links point to correct PharosScan URLs for the target netw
 code-scaffolding-and-generation (file structure), release-notes-and-changelog (changelogs), deployment-and-verification (deploy flow), wallet-and-transaction-ui (dApp integration)
 
 ## Gate
-
 
 Low risk. Present the outline and sample commands first; write or edit doc files only after the user confirms scope and paths.

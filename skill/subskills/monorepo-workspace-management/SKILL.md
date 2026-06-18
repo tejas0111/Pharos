@@ -49,8 +49,8 @@ import { defineChain } from 'viem'
 export const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -58,8 +58,8 @@ export const pharosTestnet = defineChain({
   id: 688689,
   name: 'Pharos Atlantic Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_TESTNET_RPC_URL'] } },
-  blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
+  rpcUrls: { default: { http: [process.env.PHAROS_TESTNET_RPC_URL!] } },
+  blockExplorers: { default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' } },
 })
 
 export const PHRS_DECIMALS = 18
@@ -112,7 +112,6 @@ monorepo, workspace, Turborepo, pnpm workspace, shared package, workspace bounda
 working within a single package (use the relevant feature subskill), or adding a single dependency (use dependency-upgrade-management)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

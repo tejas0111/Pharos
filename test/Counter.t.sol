@@ -60,14 +60,14 @@ contract CounterTest is Test {
         s_counter.decrement();
     }
 
-    function test_Decrement_RevertByFuzzing(uint8 increments) public {
-        vm.assume(increments > 0 && increments < 100);
+    function test_Decrement_RevertByFuzzing(uint256 increments) public {
+        increments = bound(increments, 1, 500);
         vm.prank(USER);
-        for (uint8 i = 0; i < increments; i++) {
+        for (uint256 i = 0; i < increments; i++) {
             s_counter.increment();
         }
         vm.prank(USER);
-        for (uint8 i = 0; i < increments; i++) {
+        for (uint256 i = 0; i < increments; i++) {
             s_counter.decrement();
         }
         assertEq(s_counter.getCount(), 0);

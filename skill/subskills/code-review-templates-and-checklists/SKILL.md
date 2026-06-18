@@ -65,7 +65,6 @@ _Closes #..._
 | **Deploy** | Manual broadcast | forge script with --verify | + CI matrix for testnet+mainnet |
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -94,6 +93,5 @@ _Closes #..._
 
 Visual review of the template against actual Pharos PR conventions.
 ## Gate
-
 
 Low risk. Show the template outline first; commit to `.github/` or `docs/` after user confirms structure and length.

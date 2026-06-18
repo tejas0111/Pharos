@@ -95,6 +95,14 @@ contract PharosERC20Test is Test {
         s_token.mint(address(0), 100 ether);
     }
 
+    function test_Mint_RevertsWhenExceedsMaxSupply() public {
+        uint256 maxSupply = s_token.MAX_SUPPLY();
+        uint256 remaining = maxSupply - s_token.totalSupply() + 1;
+        vm.prank(OWNER);
+        vm.expectRevert(PharosERC20.PharosERC20__InvalidTransfer.selector);
+        s_token.mint(USER, remaining);
+    }
+
     // --- Approve + TransferFrom ---
     function test_Approve_SetsAllowance() public {
         uint256 amount = 200 ether;

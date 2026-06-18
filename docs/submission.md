@@ -191,4 +191,4 @@ See [screenshots/architecture.txt](./screenshots/architecture.txt) for the archi
 2. **Run the agent**: `node agent/mcp-demo.mjs`
 3. **Inspect the code**: Browse the skill suite at `skill/subskills/*/SKILL.md`
 
-> **Demo video**: [Link to your 90-second demo](https://youtu.be/) — shows MCP server calling 6 tools live, explorer with deployed contracts, and the dual-layer architecture.
+> **Demo video**: [Watch on pharos-ads.netlify.app/demo.mp4](https://pharos-ads.netlify.app/demo.mp4) — shows MCP server calling 6 tools live, explorer with deployed contracts, and the dual-layer architecture.

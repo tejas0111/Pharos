@@ -17,26 +17,43 @@ import {
   http,
   formatUnits,
   parseUnits,
+  encodeFunctionData,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { execFileSync } from "child_process";
-import { writeFileSync, existsSync, readFileSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { writeFileSync, existsSync, readFileSync, mkdirSync, realpathSync, statSync } from "fs";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, "..");
 
+process.on("unhandledRejection", (err) => {
+  console.error("[MCP] Unhandled rejection:", err?.message || err);
+});
+process.on("SIGINT", () => { console.error("[MCP] SIGINT received, exiting"); process.exit(0); });
+process.on("SIGTERM", () => { console.error("[MCP] SIGTERM received, exiting"); process.exit(0); });
+
 // ---------------------------------------------------------------------------
 // Network configs
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Safe env for child processes — only pass what forge needs
+// ---------------------------------------------------------------------------
+function safeChildEnv() {
+  const safe = { PRIVATE_KEY: process.env.PRIVATE_KEY || "" };
+  if (process.env.PATH) safe.PATH = process.env.PATH;
+  if (process.env.HOME) safe.HOME = process.env.HOME;
+  return safe;
+}
+
 const NETWORKS = {
   atlanticTestnet: {
     id: 688689,
     name: "Atlantic Testnet",
     nativeCurrency: { name: "PHRS", symbol: "PHRS", decimals: 18 },
     rpcUrl: process.env.PHAROS_TESTNET_RPC_URL || "https://atlantic.dplabs-internal.com",
-    fallbackUrls: [],
+    fallbackUrls: ["https://infra.originstake.com/pharos/evm"],
     explorer: "https://atlantic.pharosscan.xyz",
     explorerApi: "https://atlantic.pharosscan.xyz/api",
     testnet: true,
@@ -102,6 +119,7 @@ function getWalletClient(network) {
   const account = privateKeyToAccount(pk);
   return createWalletClient({
     account,
+    chain: { id: net.id, name: net.name, nativeCurrency: net.nativeCurrency, rpcUrls: { default: { http: [net.rpcUrl] } } },
     transport: http(net.rpcUrl, { timeout: RPC_TIMEOUT }),
   });
 }
@@ -115,6 +133,9 @@ function validateBlockTag(tag) {
 }
 
 const abiCache = new Map();
+const ABI_CACHE_MAX = 200;
+// Track access order for LRU eviction
+const abiCacheAccess = [];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -190,12 +211,9 @@ function validateAddress(address, label) {
   }
 }
 
-function isSafePath(base, candidate) {
-  const resolved = join(base, candidate);
-  if (!resolved.startsWith(base)) {
-    throw new Error(`Path traversal blocked: ${candidate} escapes ${base}`);
-  }
-  return resolved;
+function safeContractPath(contractName) {
+  if (!/^\w+$/.test(contractName)) throw new Error(`Invalid contractName: "${contractName}"`);
+  return join(PROJECT_ROOT, "contracts", `${contractName}.sol`);
 }
 
 function structuredError(err, toolKey) {
@@ -231,12 +249,17 @@ function structuredError(err, toolKey) {
 // ---------------------------------------------------------------------------
 // Security gate — auto-run slither pre-deploy, block on High severity
 // ---------------------------------------------------------------------------
-const GAS_SPIKE_THRESHOLD_GWEI = 50;
-
 async function securityGate(contractPath, network) {
   if (!contractPath || !existsSync(contractPath)) return null;
+  let resolvedPath = contractPath;
   try {
-    const raw = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 30_000, stdio: ["pipe", "pipe", "ignore"] });
+    resolvedPath = realpathSync(contractPath);
+  } catch { /* fall through with original path */ }
+  if (!resolvedPath.startsWith(realpathSync(join(PROJECT_ROOT, "contracts")))) {
+    return { blocked: true, count: 0, issues: [], message: `Security gate blocked: path is outside contracts/` };
+  }
+  try {
+    const raw = execFileSync("slither", [resolvedPath, "--json"], { encoding: "utf-8", timeout: 60_000, stdio: ["pipe", "pipe", "ignore"] });
     const report = JSON.parse(raw);
     const highIssues = (report.results?.detectors || []).filter(d =>
       d.impact === "High" || d.impact === "Critical"
@@ -287,9 +310,16 @@ async function autoVerify(network, address, contractName, constructorArgs) {
       body: JSON.stringify({ address, contractName: contractName || "Counter", constructorArguments: constructorArgs || "", apikey: apiKey }),
     });
     const text = await response.text();
-    const guid = (typeof text === "string" && text.includes("result"))
-      ? (JSON.parse(text).result || text)
-      : text;
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      return { submitted: false, reason: `Explorer returned non-JSON: ${text.slice(0, 200)}` };
+    }
+    if (parsed.error || parsed.err) {
+      return { submitted: false, reason: `Explorer API error: ${parsed.error || parsed.err}` };
+    }
+    const guid = parsed.result || text;
     return { submitted: true, guid, explorerUrl: `${net.explorer}/address/${address}` };
   } catch {
     return { submitted: false, reason: "Explorer API not reachable. Verify manually after deploy." };
@@ -300,7 +330,18 @@ async function autoVerify(network, address, contractName, constructorArgs) {
 // Frontend Gate Sync — write .env and ABI files
 // ---------------------------------------------------------------------------
 async function syncFrontend(frontendPath, network, address, contractName, abi) {
-  if (typeof frontendPath !== "string" || frontendPath.includes("..")) {
+  if (typeof frontendPath !== "string") throw new Error(`Invalid frontendPath: "${frontendPath}"`);
+  try {
+    const resolved = resolve(frontendPath);
+    if (!resolved.startsWith(PROJECT_ROOT)) {
+      throw new Error(`frontendPath must be within project: "${frontendPath}"`);
+    }
+    if (!existsSync(resolved) || !statSync(resolved).isDirectory()) {
+      throw new Error(`frontendPath must be an existing directory: "${frontendPath}"`);
+    }
+    frontendPath = resolved;
+  } catch (err) {
+    if (err.message.startsWith("frontendPath")) throw err;
     throw new Error(`Invalid frontendPath: "${frontendPath}"`);
   }
   const envPath = join(frontendPath, ".env.local");
@@ -373,11 +414,9 @@ async function deployContract(args) {
     }
 
     // 2. Gas check
-    if (!simulateOnly) {
-      const gas = await checkGasSpike(args.network);
-      if (gas.spiked) {
-        console.error(`[MCP] ${gas.message}`);
-      }
+    const gasCheckResult = simulateOnly ? null : await checkGasSpike(args.network);
+    if (gasCheckResult?.spiked) {
+      console.error(`[MCP] ${gasCheckResult.message}`);
     }
 
     console.error(`[MCP] Deploying: ${script} on ${net.name} (simulate=${simulateOnly})`);
@@ -392,17 +431,16 @@ async function deployContract(args) {
       cmd.push("--broadcast", "-vvv");
     }
 
-    const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
     const output = execFileSync("forge", cmd.slice(1), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
       stdio: ["pipe", "pipe", "pipe"],
-      env,
+      env: safeChildEnv(),
     });
 
-    const addressMatch = output.match(/deployed at: (0x[a-fA-F0-9]{40})/);
+    const addressMatch = output.match(/Deployed to: (0x[a-fA-F0-9]{40})/);
     const contractAddress = addressMatch ? addressMatch[1] : null;
 
     // 3. Auto-verify
@@ -431,7 +469,7 @@ async function deployContract(args) {
       contractAddress,
       contractName,
       securityGate: skipGate ? "skipped" : "passed",
-      gasCheck: `current: ${(await checkGasSpike(args.network)).currentGwei} Gwei`,
+      gasCheck: gasCheckResult ? `current: ${gasCheckResult.currentGwei} Gwei` : "skipped (simulate only)",
       autoVerify: verifyResult,
       frontendSync: syncResult,
       warning: simulateOnly ? "Simulation only. Set simulate=false to broadcast." : "Contract deployed.",
@@ -451,6 +489,7 @@ async function verifyContract(args) {
     validateAddress(args.address, "verifyContract address");
     const address = args.address;
     const contract = args.contract || "Counter";
+    if (!/^\w+$/.test(contract)) throw new Error(`Invalid contract name: "${contract}"`);
     const constructorArgs = args.constructorArgs || "";
     const apiKey = process.env.PHAROSSCAN_API_KEY || "";
     const apiUrl = `${net.explorerApi}?module=contract&action=verify&address=${address}`;
@@ -492,13 +531,14 @@ async function runSecurityCheck(args) {
     const contractArg = args.contract;
     if (contractArg && !/^[\w./]+$/.test(contractArg)) throw new Error(`Invalid contract path: "${contractArg}"`);
     const contractPath = contractArg
-      ? join(PROJECT_ROOT, "contracts", args.contract.endsWith(".sol") ? args.contract : `${args.contract}.sol`)
+      ? safeContractPath(args.contract.replace(/\.sol$/, ""))
       : null;
 
     let slitherOutput = null;
     if (contractPath && existsSync(contractPath)) {
       try {
-        slitherOutput = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 30_000, stdio: ["pipe", "pipe", "ignore"] });
+        const raw = execFileSync("slither", [contractPath, "--json"], { encoding: "utf-8", timeout: 60_000, stdio: ["pipe", "pipe", "ignore"] });
+    slitherOutput = raw.replaceAll(PROJECT_ROOT, ".");
       } catch (slitherErr) {
         slitherOutput = `slither not available: ${slitherErr.message}`;
       }
@@ -538,6 +578,7 @@ async function runSecurityCheck(args) {
 async function generateTests(args) {
   try {
     const contract = args.contract || "MyContract";
+    if (!/^\w+$/.test(contract)) throw new Error(`Invalid contract name: "${contract}"`);
     const testDir = join(PROJECT_ROOT, "test");
     const testPath = join(testDir, `${contract}.t.sol`);
 
@@ -564,6 +605,16 @@ contract ${contract}Test is Test {
 }
 `;
 
+    if (existsSync(testPath)) {
+      return safeResult(withSubskill({
+        action: "generate_tests",
+        contract,
+        filePath: `test/${contract}.t.sol`,
+        code: null,
+        status: "exists",
+        warning: `Test file already exists at test/${contract}.t.sol. Set force=true to overwrite.`,
+      }, "generate_tests"));
+    }
     writeFileSync(testPath, testCode, "utf-8");
     console.error(`[MCP] Wrote test file: ${testPath}`);
 
@@ -649,15 +700,21 @@ async function transferToken(args) {
     const walletClient = getWalletClient(args.network);
     const to = args.toAddress;
     const amount = args.amount;
+    if (typeof amount !== "string" || !/^\d+(\.\d+)?$/.test(amount)) {
+      throw new Error(`Invalid amount: "${amount}". Use decimal format like "1.5"`);
+    }
     const unit = args.unit || "ether";
     const value = unit === "wei" ? BigInt(amount) : parseUnits(amount, 18);
+    if (value > 2n ** 256n - 1n) {
+      throw new Error(`Amount exceeds uint256 max. Use a smaller value.`);
+    }
 
     const gas = await checkGasSpike(args.network);
     if (gas.spiked) console.error(`[MCP] ${gas.message}`);
 
     console.error(`[MCP] Transferring ${amount} ${unit} to ${to} on ${net.name}`);
 
-    const hash = await walletClient.sendTransaction({ to, value, chain: null });
+    const hash = await walletClient.sendTransaction({ to, value });
 
     return safeResult(withSubskill({
       action: "transfer",
@@ -716,14 +773,13 @@ async function deployErc20(args) {
       "--constructor-args", name, symbol, supply,
     ];
 
-    const env = { ...process.env, PRIVATE_KEY: process.env.PRIVATE_KEY };
     const output = execFileSync("forge", cmd.slice(1), {
       cwd: PROJECT_ROOT,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
       stdio: ["pipe", "pipe", "pipe"],
-      env,
+      env: safeChildEnv(),
     });
 
     const addressMatch = output.match(/Deployed to: (0x[a-fA-F0-9]{40})/);
@@ -775,28 +831,39 @@ async function getLogs(args) {
     validateAddress(args.address, "getLogs address");
     const client = getClient(args.network);
     const address = args.address;
-    const fromBlock = args.fromBlock ? BigInt(args.fromBlock) : undefined;
+    const fromBlock = args.fromBlock ? BigInt(args.fromBlock) : BigInt(await client.getBlockNumber()) - 100n;
     const toBlock = args.toBlock ? BigInt(args.toBlock) : undefined;
 
     console.error(`[MCP] Fetching logs for ${address} on ${net.name}`);
 
-    const logs = await client.getLogs({ address, fromBlock, toBlock });
+    // Paginate in 100-block chunks (Pharos RPC limit)
+    const MAX_RANGE = 100n;
+    let allLogs = [];
+    let currentFrom = fromBlock;
+    const finalTo = toBlock || (await client.getBlockNumber());
+    while (currentFrom <= finalTo) {
+      const chunkTo = currentFrom + MAX_RANGE - 1n > finalTo ? finalTo : currentFrom + MAX_RANGE - 1n;
+      const chunk = await client.getLogs({ address, fromBlock: currentFrom, toBlock: chunkTo });
+      allLogs = allLogs.concat(chunk);
+      if (chunk.length < 1000n && chunkTo === finalTo) break;
+      currentFrom = chunkTo + 1n;
+    }
 
     return safeResult(withSubskill({
       action: "get_logs",
       network: net.name,
       address,
-      fromBlock: fromBlock?.toString() || "latest-100",
-      toBlock: toBlock?.toString() || "latest",
-      logCount: logs.length,
-      logs: logs.slice(-100).map((l) => ({
+      fromBlock: fromBlock.toString(),
+      toBlock: finalTo.toString(),
+      logCount: allLogs.length,
+      logs: allLogs.slice(-100).map((l) => ({
         blockNumber: l.blockNumber?.toString(),
         txHash: l.transactionHash,
         address: l.address,
         topics: l.topics,
         data: l.data,
       })),
-      warning: logs.length > 100 ? `Showing last 100 of ${logs.length} logs` : undefined,
+      warning: allLogs.length > 100 ? `Showing last 100 of ${allLogs.length} logs` : undefined,
     }, "get_logs"));
   } catch (err) {
     return structuredError(err, "get_logs");
@@ -819,7 +886,8 @@ async function diagnose(args) {
   }
 
   try {
-    const chainId = execFileSync("cast", ["chain-id", "--rpc-url", "https://atlantic.dplabs-internal.com"], { encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] }).trim();
+    const testnetRpc = process.env.PHAROS_TESTNET_RPC_URL || "https://atlantic.dplabs-internal.com";
+    const chainId = execFileSync("cast", ["chain-id", "--rpc-url", testnetRpc], { encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] }).trim();
     results.rpc = chainId === "688689" ? `reachable (chain ${chainId})` : `wrong chain: ${chainId}`;
   } catch {
     results.rpc = "unreachable";
@@ -843,12 +911,18 @@ async function diagnose(args) {
 async function getPharosAccount(args) {
   validateAddress(args.address, "address");
   try {
-    const result = await rpcCall(args.network, "eth_getAccount", [args.address, "latest"]);
+    const net = getNetwork(args.network);
+    const blockTag = args.blockTag || "latest";
+    const result = await rpcCall(args.network, "eth_getAccount", [args.address, blockTag]);
+    const balanceWei = BigInt(result.balance || "0x0");
+    const balanceFormatted = `${formatUnits(balanceWei, net.nativeCurrency.decimals)} ${net.nativeCurrency.symbol}`;
     return safeResult(withSubskill({
       action: "get_account",
-      network: getNetwork(args.network).name,
+      blockTag,
+      network: net.name,
       address: args.address,
       balance: result.balance,
+      balanceFormatted,
       nonce: result.nonce,
       codeHash: result.codeHash,
       storageRoot: result.storageRoot,
@@ -865,7 +939,9 @@ async function estimateGas(args) {
       rpcCall(args.network, "eth_gasPrice", []),
       rpcCall(args.network, "eth_maxPriorityFeePerGas", []),
     ]);
-    const baseFee = (BigInt(gasPrice) - BigInt(maxPriorityFee)).toString();
+    const gp = BigInt(gasPrice);
+    const mpf = BigInt(maxPriorityFee);
+    const baseFee = (gp > mpf ? gp - mpf : 0n).toString();
     const net = getNetwork(args.network);
     return safeResult(withSubskill({
       action: "gas_estimate",
@@ -1032,6 +1108,10 @@ async function fetchAbi(args) {
 
   const cacheKey = `${network}:${address.toLowerCase()}`;
   if (abiCache.has(cacheKey)) {
+    // Update LRU order
+    const idx = abiCacheAccess.indexOf(cacheKey);
+    if (idx > -1) abiCacheAccess.splice(idx, 1);
+    abiCacheAccess.push(cacheKey);
     const cached = abiCache.get(cacheKey);
     return safeResult(withSubskill({
       action: "fetch_abi",
@@ -1062,6 +1142,11 @@ async function fetchAbi(args) {
   const functions = abi.filter(item => item.type === "function").map(f => `${f.name}(${(f.inputs || []).map(i => i.type).join(",")}) → ${(f.outputs || []).map(o => o.type).join(",")}`);
   const events = abi.filter(item => item.type === "event").map(e => `${e.name}(${(e.inputs || []).map(i => i.type).join(",")})`);
 
+  if (abiCache.size >= ABI_CACHE_MAX) {
+    const oldestKey = abiCacheAccess.shift();
+    abiCache.delete(oldestKey);
+  }
+  abiCacheAccess.push(cacheKey);
   abiCache.set(cacheKey, { abi: data.result, functions, events });
 
   return safeResult(withSubskill({
@@ -1121,7 +1206,7 @@ async function createSafeTx(args) {
       const abi = typeof abiRaw === "string" ? JSON.parse(abiRaw) : abiRaw;
       const fnDef = parseAbiForFunction(abi, functionName);
       if (!fnDef) throw new Error(`Function "${functionName}" not found in ABI`);
-      const iface = (await import("viem")).encodeFunctionData({ abi, functionName, args: fnArgs });
+      const iface = encodeFunctionData({ abi, functionName, args: fnArgs });
       txData = iface;
     }
 
@@ -1338,6 +1423,7 @@ const TOOL_SCHEMAS = {
     properties: {
       network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], default: "atlanticTestnet" },
       address: { type: "string", description: "Wallet address (0x...)" },
+      blockTag: { type: "string", enum: ["latest", "safe", "finalized", "pending", "earliest"], default: "latest", description: "Block tag to query" },
     },
     required: ["address"],
   },
@@ -1369,7 +1455,7 @@ const TOOL_SCHEMAS = {
       abi: { type: "string", description: "Contract ABI as a JSON array string" },
       functionName: { type: "string", description: "Function name to call (e.g., balanceOf)" },
       args: { type: "array", items: {}, description: "Function arguments as JSON array" },
-      blockTag: { type: "string", default: "latest", enum: ["latest", "safe", "finalized"] },
+      blockTag: { type: "string", default: "latest", enum: ["latest", "safe", "finalized", "pending", "earliest"] },
     },
     required: ["address", "abi", "functionName"],
   },

@@ -1,6 +1,6 @@
 ---
 name: pharos-production-ops
-description: "Plan and manage Pharos contract production operations: Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PHRS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API. Use when setting up monitoring, incident response, or production ops for Pharos contracts. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall, Pharos mainnet, PharosScan."
+description: "Plan and manage Pharos contract production operations: Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PROS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API. Use when setting up monitoring, incident response, or production ops for Pharos contracts. Keywords: production ops, monitoring, alerting, incident response, emergency, pause, circuit breaker, multi-sig operations, recovery, data backup, RPC rate limit, rate limiting, Forta, Tenderly, Zeroshadow, operational security, production readiness, maintenance, observability, sentry, oncall, Pharos mainnet, PharosScan."
 metadata:
   audience: developer
   version: 1.2.0
@@ -10,7 +10,7 @@ slash: true
 
 # Production Operations
 
-Plan and manage Pharos contract production operations on Pharos mainnet (chain ID 1672): Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PHRS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API.
+Plan and manage Pharos contract production operations on Pharos mainnet (chain ID 1672): Forta bot setup monitoring Pharos RPC, Tenderly integration with Pharos mainnet, alert thresholds (PROS balance < 0.1, gas > 100 gwei, failed tx rate > 5%), emergency pause via multi-sig on Pharos, chain reorg handling (Pharos finality ~12 blocks), RPC failover, data recovery via PharosScan API.
 
 ## When to Use
 
@@ -25,7 +25,6 @@ production ops, monitoring, alerting, incident response, emergency, pause, circu
 - **Frontend monitoring UI** — If the user wants to build a custom monitoring dashboard (not configure Forta/Tenderly), use `frontend-dapp-integration`.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -56,13 +55,13 @@ export const provideHandleTransaction = (): HandleTransaction => async (txEvent)
   const findings: Finding[] = [];
   if (txEvent.to !== CONTRACT_ADDRESS) return findings;
 
-  // Monitor PHRS transfers over threshold
+  // Monitor PROS transfers over threshold
   const phrsTransfers = txEvent.filterLog("Transfer(address,address,uint256)");
   for (const transfer of phrsTransfers) {
     if (transfer.args.value.gt(ethers.parseEther("100000"))) {
       findings.push(Finding.fromObject({
-        name: "Large PHRS Transfer",
-        description: `${ethers.formatEther(transfer.args.value)} PHRS transferred`,
+        name: "Large PROS Transfer",
+        description: `${ethers.formatEther(transfer.args.value)} PROS transferred`,
         alertId: "PHAROS-LARGE-TRANSFER",
         severity: FindingSeverity.High,
         type: FindingType.Suspicious,
@@ -98,10 +97,10 @@ module.exports = async (event: any) => {
 
 ### 3. Alert Thresholds
 
-- PHRS wallet balance < 0.1 (mainnet deployer)
+- PROS wallet balance < 0.1 (mainnet deployer)
 - Gas price spike > 100 gwei (above Pharos typical 1-10 gwei base fee)
 - Failed transaction rate > 5% over 1 hour
-- Large transfers > 100,000 PHRS (native) or > 100,000 PHRS in ERC-20
+- Large transfers > 100,000 PROS (native) or > 100,000 PROS in ERC-20
 - Ownership changes, pause/unpause events, proxy upgrades
 
 ### 4. Incident Response Runbook
@@ -137,7 +136,7 @@ Replay events on new contract using recovered data. Document RPC rate limits: `e
 
 - Forta bot config monitoring Pharos RPC
 - Tenderly project configured with Pharos mainnet RPC
-- alert threshold config (PHRS balance, gas price, failed tx rate, large transfers)
+- alert threshold config (PROS balance, gas price, failed tx rate, large transfers)
 - incident response runbook with Pharos reorg handling and RPC failover
 - emergency pause command and multi-sig operations guide
 - PharosScan API data recovery procedure
@@ -146,7 +145,7 @@ Replay events on new contract using recovered data. Document RPC rate limits: `e
 ## Examples
 
 - **Query:** "Set up Forta monitoring for my Pharos staking contract" → **Action:** Deploy Forta detection bot monitoring Pharos RPC with detection logic for stake/unstake events, large delegation changes, ownership transfers; configure alert severity levels and notification channels.
-- **Query:** "Create a Tenderly alert for large withdrawals from the vault on Pharos" → **Action:** Configure Tenderly project with Pharos mainnet RPC ($PHAROS_MAINNET_RPC_URL), create Web3 Action monitoring vault `Withdraw` events above threshold (e.g., 10,000 PHRS), set up Slack/email notification, test with simulated transaction.
+- **Query:** "Create a Tenderly alert for large withdrawals from the vault on Pharos" → **Action:** Configure Tenderly project with Pharos mainnet RPC ($PHAROS_MAINNET_RPC_URL), create Web3 Action monitoring vault `Withdraw` events above threshold (e.g., 10,000 PROS), set up Slack/email notification, test with simulated transaction.
 - **Query:** "Design the emergency pause mechanism for the lending protocol on Pharos" → **Action:** Implement `Pausable` with pause guardian role (multi-sig), emergency pause via `cast send --rpc-url $PHAROS_MAINNET_RPC_URL $CONTRACT "pause()"`, define pause-triggering conditions (oracle deviation, abnormal liquidation volume), write unpause procedure with timelock.
 - **Query:** "Write incident response runbook for Zeroshadow with Pharos-specific reorg handling" → **Action:** Document detection → triage → containment (emergency pause) → recovery → post-mortem steps, include Pharos chain reorg detection (finality ~12 blocks), RPC failover between endpoints, assign on-call roles, integrate Zeroshadow alert routing.
 - **Query:** "Plan around Pharos RPC rate limits for indexer" → **Action:** Document limits (`eth_getLogs`: 100 blocks, `trace_filter`: 500 blocks), design pagination/backoff strategy, recommend caching layer and WebSocket subscriptions for real-time data.

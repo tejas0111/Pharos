@@ -25,7 +25,6 @@ RWA, real-world asset, tokenized asset, stablecoin, depeg protection, circuit br
 - **KYC/off-chain identity** — If the user needs an off-chain identity or KYC provider integration (not on-chain whitelist enforcement), route to `contract-architecture` or a dedicated identity subskill.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

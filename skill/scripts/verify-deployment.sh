@@ -7,10 +7,8 @@
 #   ./scripts/verify-deployment.sh mainnet 0x123... 0xOwnerAddr
 set -euo pipefail
 
-# === Source .env if present ===
-if [ -f .env ]; then
-  set -a; source .env; set +a
-fi
+# === .env must be loaded externally (security: never source files in scripts) ===
+# Before running: source .env  or  export PRIVATE_KEY=... PHAROS_TESTNET_RPC_URL=...
 
 # === Dependency checks ===
 if ! command -v cast &> /dev/null; then

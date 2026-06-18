@@ -1,5 +1,5 @@
 name: pharos-mainnet-deployment
-description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Pacific Mainnet (chain ID: 1672). Use when deploying to mainnet, running production release, verifying contracts on mainnet explorer, or configuring PHAROS_MAINNET_RPC_URL for Pharos go-live. Keywords: deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live, Pacific mainnet, 1672, Pharos, Foundry, Hardhat, forge script, broadcast, simulation, dry-run, gate fix."
+description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Pacific Mainnet (chain ID: 1672). Use when deploying to mainnet, running production release, verifying contracts on mainnet explorer, or configuring PHAROS_MAINNET_RPC_URL for Pharos go-live. Keywords: deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live, Pacific mainnet, 1672, Pharos, Foundry, Hardhat, forge script, broadcast, simulation, dry-run."
 metadata:
   audience: developer
   version: 1.2.0
@@ -13,7 +13,7 @@ Prepare, simulate, broadcast, and verify Pharos contract deployments on mainnet.
 
 ## When to Use
 
-deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live, gate fix
+deploy to mainnet, mainnet release, verify on mainnet, PHAROS_MAINNET_RPC_URL, mainnet deploy, production release, go live
 
 ## When NOT to Use
 
@@ -24,7 +24,7 @@ testnet rehearsal (use testnet-deployment first), contract coding (use pharos-ag
 1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
 2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
 3. Confirm the contract artifact, mainnet RPC, signer, verification target, and release assumptions.
-4. Run all pre-flight checks: RPC reachable, balance sufficient for gas, **Gate Fix check**, simulation passes, chain ID confirmed.
+4. Run all pre-flight checks: RPC reachable, balance sufficient for gas, env vars set, simulation passes, chain ID confirmed. (See root `SKILL.md` → Deploy Protocol for full checklist.)
 5. Start from scripts/deploy-mainnet.sh for Foundry or scripts/deploy-mainnet-hardhat.sh for Hardhat, or use the repo's existing deploy flow.
 Forge deployment command:
 ```
@@ -39,7 +39,6 @@ npx hardhat run scripts/deploy.ts --network pharosMainnet
 - Multi-sig approval obtained from all required signers
 - Simulation passed on testnet rehearsal (deploy to Atlantic Testnet 688689 first)
 - PROS gas funded with 20% buffer above estimated cost
-- **Gate Fix**: Run a frontend/contract interaction check to ensure consistency.
 - **Private Key**: Ensure `${PRIVATE_KEY}` is loaded from a `.env` file; never hardcode or expose.
 - Deployer wallet confirmed (address whitelisted if needed)
 - Emergency rollback plan ready (previous version artifacts, revert scripts)
@@ -51,7 +50,7 @@ npx hardhat run scripts/deploy.ts --network pharosMainnet
 11. Log explorer URL and prompt the user to tag the release commit.
 ## Output
 
-- mainnet deployment plan (including gate fix results)
+- mainnet deployment plan (including pre-flight check results — see root `SKILL.md` → Deploy Protocol)
 - deploy command
 - verification command
 - explorer link
@@ -62,7 +61,7 @@ npx hardhat run scripts/deploy.ts --network pharosMainnet
 - "Deploy this contract to Pharos mainnet"
 - "Prepare the mainnet release"
 - "Verify the mainnet deployment on explorer"
-- "Run gate fix before mainnet deploy"
+- "Run pre-flight checks before mainnet deploy (see root `SKILL.md` → Deploy Protocol)"
 
 ## Verification
 
@@ -80,7 +79,7 @@ Pacific Mainnet runs on chain ID `1672` with currency **PROS** (not PHRS). PROS 
 
 ```bash
 # RPC
-PHAROS_MAINNET_RPC_URL=https://pacific.dplabs-internal.com
+PHAROS_MAINNET_RPC_URL=https://rpc.pharos.xyz
 
 # Forge deployment with gas price control
 forge script script/Deploy.s.sol \

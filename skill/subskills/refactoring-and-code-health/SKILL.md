@@ -83,7 +83,6 @@ refactor, code health, cleanup, simplify, remove duplication, technical debt, re
 adding new features (use the relevant authoring subskill), or fixing bugs (use bug-finding-and-debugging)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

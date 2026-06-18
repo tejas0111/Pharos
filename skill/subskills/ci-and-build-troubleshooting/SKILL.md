@@ -40,7 +40,7 @@ forge build --via-ir --locked
 
 ### 3. Hardhat HardhatEtherscan verification fails in CI
 
-Ensure CI has `PHAROSSCAN_API_KEY` set. The Pharos PharosScan API key is required for both mainnet (1672) and testnet (688689).
+Ensure CI has `PHAROSSCAN_API_KEY` set for mainnet verification. Testnet (Blockscout) does not require an API key.
 
 ## GitHub Actions Workflows
 
@@ -118,7 +118,6 @@ CI, build failure, lint failure, type error, pipeline, broken test job, build is
 runtime bugs (use bug-finding-and-debugging), or performance improvements (use performance-optimization)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -182,7 +181,7 @@ When the CI failure involves Pharos-specific configs, add these checks:
 |---|---|
 | `foundry.toml` rpc_endpoints | Verify Atlantic Testnet (688689) and mainnet (1672) use correct RPCs from pharos-context.md |
 | wagmi/viem typecheck errors | Check chain ID constants (1672/688689) match pharos-context.md; check `defineChain` blocks |
-| Contract test fails on forked testnet | Confirm `PHAROS_TESTNET_V2_RPC_URL` env var is set in CI secrets, not hardcoded |
+| Contract test fails on forked testnet | Confirm `PHAROS_TESTNET_RPC_URL` env var is set in CI secrets, not hardcoded |
 | Deploy script simulation | Check `--chain-id` flag matches target network; verify `PRIVATE_KEY` is CI-only |
 | ABI/type drift between Foundry and TS | Check turbo `dependsOn` ordering: Foundry build → typechain → tsc |
 | Missing `CI=true` env impact | wallet mocks or fork URLs may behave differently; add `CI` flag checks to test setup |
@@ -200,5 +199,5 @@ git fetch origin && gh run view <run-id> --log-failed
 pnpm install --frozen-lockfile && pnpm exec tsc --noEmit
 
 # Check chain IDs against canonical values
-cast chain-id --rpc-url $PHAROS_TESTNET_V2_RPC_URL
+cast chain-id --rpc-url $PHAROS_TESTNET_RPC_URL
 ```

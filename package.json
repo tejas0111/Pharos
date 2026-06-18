@@ -5,12 +5,14 @@
   "private": true,
   "scripts": {
     "compile": "forge build",
-    "test": "forge test",
+    "test": "forge test && node mcp-server/test.js",
+"test:sol": "forge test",
+"test:mcp": "node mcp-server/test.js",
     "demo": "node agent/mcp-demo.mjs",
     "demo:token": "node agent/token-workflow.mjs",
     "demo:cascade": "node agent/cascade-demo.mjs",
     "deploy:testnet": "bash skill/scripts/deploy-testnet.sh",
-    "lint:sol": "solhint 'contracts/**/*.sol'"
+    "lint:sol": "forge fmt --check"
   },
   "keywords": ["pharos", "blockchain", "solidity", "agent-skills", "ai-coding", "web3"]
 }

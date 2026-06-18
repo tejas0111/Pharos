@@ -24,6 +24,17 @@ contract DeployPharosERC20 is Script {
         console.log("Token symbol:", tokenSymbol);
         console.log("Supply:", initialSupply);
 
+        uint256 expectedChainId = vm.envOr("EXPECTED_CHAIN_ID", uint256(0));
+        if (expectedChainId != 0 && block.chainid != expectedChainId) {
+            revert(
+                string(
+                    abi.encodePacked(
+                        "Wrong chain ID. Expected ", vm.toString(expectedChainId), ", got ", vm.toString(block.chainid)
+                    )
+                )
+            );
+        }
+
         vm.startBroadcast(deployerPrivateKey);
 
         PharosERC20 token = new PharosERC20(tokenName, tokenSymbol, initialSupply);
@@ -32,9 +43,8 @@ contract DeployPharosERC20 is Script {
 
         console.log("PharosERC20 deployed at:", address(token));
 
-        string memory explorerUrl = block.chainid == 688689
-            ? "https://atlantic.pharosscan.xyz"
-            : "https://www.pharosscan.xyz";
+        string memory explorerUrl =
+            block.chainid == 688689 ? "https://atlantic.pharosscan.xyz" : "https://www.pharosscan.xyz";
         console.log("Explorer:", explorerUrl);
         console.log("Address:", address(token));
     }

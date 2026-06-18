@@ -44,7 +44,7 @@ async function main() {
         `→ Learns: read contract state, fetch ABI, verify bytecode`,
         `→ Learns: safe/finalized block tags for production reads`,
       ],
-      "network-configuration": [
+      "framework-integration": [
         `→ Learns: RPC, chain ID 688689, explorer URL, gas model`,
       ],
     })) {
@@ -67,7 +67,7 @@ async function main() {
     ]);
 
     const deployResult = await safeCall(server, client, "pharos_deploy_contract", {
-      network: "atlanticTestnet", contractFile: "script/Counter.s.sol",
+      network: "atlanticTestnet",
       simulate: !hasKey,
     }, null);
     box("Tool 2: pharos_deploy_contract", [
@@ -78,7 +78,7 @@ async function main() {
     const verifyResult = await safeCall(server, client, "pharos_verify_contract", {
       network: "atlanticTestnet",
       address: deployResult?.contractAddress || "0x55ec4b1e32537b6f72aa20153735709837488e4e",
-      contract: "contracts/Counter.sol:Counter",
+      contract: "Counter",
     }, null);
     box("Tool 3: pharos_verify_contract", [
       `→ Using Blockscout verifier (no API key)`,

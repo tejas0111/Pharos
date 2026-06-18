@@ -1,6 +1,6 @@
 ---
 name: pharos-wagmi-viem-dapp-workflow
-description: "Handle Pharos wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when implementing wallet connect, contract read/write, useContractRead, useContractWrite, useAccount, useWalletClient, or dapp workflows for Pharos web3 frontends. Keywords: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient, Pharos, 688689, 1672, Atlantic, Pacific, Next.js, React, TypeScript."
+description: "Handle Pharos wallet connection, contract reads, writes, and dapp integration patterns using Wagmi and Viem. Use when implementing wallet connect, contract read/write, useReadContract, useWriteContract, useAccount, useWalletClient, or dapp workflows for Pharos web3 frontends. Keywords: Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useReadContract, useWriteContract, useAccount, useWalletClient, Pharos, 688689, 1672, Atlantic, Pacific, Next.js, React, TypeScript."
 metadata:
   audience: developer
   version: 1.2.0
@@ -14,14 +14,13 @@ Handle wallet connection, contract reads, writes, and dapp integration patterns 
 
 ## When to Use
 
-Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useContractRead, useContractWrite, useAccount, useWalletClient
+Wagmi, Viem, wallet connect, contract read, contract write, dapp workflow, useReadContract, useWriteContract, useAccount, useWalletClient
 
 ## When NOT to Use
 
-general React patterns (use react-ui-patterns-and-hooks), or full frontend layout (use tailwind-shadcn-ui-workflow)
+general React patterns (use dapp-ui-workflow), or full frontend layout (use dapp-ui-workflow)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -66,9 +65,9 @@ import { defineChain } from 'viem'
 export const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
   rpcUrls: {
-    default: { http: ['$PHAROS_MAINNET_RPC_URL'] },
+    default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] },
   },
   blockExplorers: {
     default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
@@ -80,10 +79,10 @@ export const pharosTestnet = defineChain({
   name: 'Pharos Testnet',
   nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
   rpcUrls: {
-    default: { http: ['$PHAROS_TESTNET_RPC_URL'] },
+    default: { http: [process.env.PHAROS_TESTNET_RPC_URL!] },
   },
   blockExplorers: {
-    default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' },
+    default: { name: 'PharosScan', url: 'https://atlantic.pharosscan.xyz' },
   },
 })
 ```
@@ -99,8 +98,8 @@ export const config = createConfig({
   chains: [pharosMainnet, pharosTestnet],
   connectors: [metaMask()],
   transports: {
-    [pharosMainnet.id]: http('$PHAROS_MAINNET_RPC_URL'),
-    [pharosTestnet.id]: http('$PHAROS_TESTNET_RPC_URL'),
+    [pharosMainnet.id]: http(process.env.PHAROS_MAINNET_RPC_URL!),
+    [pharosTestnet.id]: http(process.env.PHAROS_TESTNET_RPC_URL!),
   },
 })
 ```
@@ -120,9 +119,9 @@ connectors: [
 ## Contract Read Example
 
 ```typescript
-import { useContractRead } from 'wagmi'
+import { useReadContract } from 'wagmi'
 
-const { data: balance, isError, isLoading } = useContractRead({
+const { data: balance, isError, isLoading } = useReadContract({
   address: '0xYourPharosContractAddress',
   abi: [...], // contract ABI
   functionName: 'balanceOf',
@@ -134,9 +133,9 @@ const { data: balance, isError, isLoading } = useContractRead({
 ## Contract Write Example
 
 ```typescript
-import { useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { useSimulateContract, useWriteContract } from 'wagmi'
 
-const { config: writeConfig } = usePrepareContractWrite({
+const { data: simulateData } = useSimulateContract({
   address: '0xYourPharosContractAddress',
   abi: [...],
   functionName: 'transfer',
@@ -144,7 +143,9 @@ const { config: writeConfig } = usePrepareContractWrite({
   chainId: 1672,
 })
 
-const { data: writeData, write } = useContractWrite(writeConfig)
+const { writeContract, data: writeData } = useWriteContract()
+
+// Call writeContract(simulateData!.request) when user confirms
 ```
 
 ## Viem Public Client
@@ -155,7 +156,7 @@ import { pharosMainnet } from './pharosChain'
 
 const publicClient = createPublicClient({
   chain: pharosMainnet,
-  transport: http('$PHAROS_MAINNET_RPC_URL'),
+  transport: http(process.env.PHAROS_MAINNET_RPC_URL!),
 })
 
 const blockNumber = await publicClient.getBlockNumber()
@@ -181,7 +182,7 @@ Pharos RPC may return these error codes:
 
 | Code | Description |
 |------|-------------|
-| -32700 | Parse error — malformed request |
+| -32700 | Parse error — malformed request (standard JSON-RPC) |
 | -32000 | Pharos execution reverted — check gas or contract logic |
 | -32001 | Pharos transaction underpriced — increase gas price |
 | -32002 | Pharos nonce too low — increment and retry |

@@ -1,11 +1,11 @@
 # Pharos Agent Dev Suite
 
-[![tests](https://img.shields.io/badge/tests-30%20passing-brightgreen)]()
-[![contracts](https://img.shields.io/badge/contracts-3%20verified-blue)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)]()
-[![subskills](https://img.shields.io/badge/subskills-42-orange)]()
-[![license](https://img.shields.io/badge/license-MIT-green)]()
-[![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)]()
+[![tests](https://img.shields.io/badge/tests-55%20passing-brightgreen)](https://github.com/tejas0111/Pharos/actions)
+[![contracts](https://img.shields.io/badge/contracts-3%20verified-blue)](https://atlantic.pharosscan.xyz)
+[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)](https://pharos-ads.netlify.app/docs.html)
+[![subskills](https://img.shields.io/badge/subskills-42-orange)](#skill-map)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)](https://docs.pharos.xyz)
 
 **A dual-layer Pharos Skill — 42 instruction subskills for human developers + 21 executable MCP tools for autonomous AI agents.**
 
@@ -276,7 +276,7 @@ skill/
   references/*.md       # network context, deployment patterns, harness
   scripts/*.sh          # deploy and verify scripts (Foundry)
 contracts/              # example Solidity contracts (3 deployed on testnet)
-test/                   # Foundry tests (30 passing)
+test/                   # Foundry tests (34) + MCP server tests (21) = 55 total
 script/                 # Forge deploy scripts
 config/                 # Pharos network configuration
 shared/                 # viem defineChain configs

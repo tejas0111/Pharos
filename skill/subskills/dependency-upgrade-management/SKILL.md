@@ -58,7 +58,7 @@ forge test --fork-url http://localhost:8545 --chain-id 688689 -vvv
 # 2. PharosScan verification
 forge verify-contract \
   --chain-id 1672 \
-  --verifier-url https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/contract_verify \
+  --verifier-url https://www.pharosscan.xyz/api \
   --etherscan-api-key $PHAROSSCAN_API_KEY \
   0xNewContract src/Contract.sol:Contract
 ```
@@ -72,7 +72,6 @@ dependency upgrade, package update, toolchain update, version bump, upgrade depe
 adding a new dependency (use framework-integration), or refactoring code to work with a new version (use refactoring-and-code-health)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

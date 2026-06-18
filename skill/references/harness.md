@@ -4,7 +4,7 @@ Operational reference for the Pharos dev skill suite. This document contains the
 
 ## Decision Tree (Detailed)
 
-The master skill routes to 39 developer subskills + 3 deployment subskills. Classification follows this process:
+The master skill routes to 42 developer subskills. Classification follows this process:
 
 ### Step 1: Broad Category
 
@@ -142,7 +142,6 @@ Derived from `src/registry/subskills.ts`. The registry is authoritative; this li
 | release-notes-and-changelog | Documentation-only |
 | code-scaffolding-and-generation | Creates new files, no existing code change |
 | docs-and-example-generation | Documentation-only |
-| workflow-orchestrator | Planning meta-subskill, no code changes on its own |
 | workflow-orchestrator | Planning meta-subskill, no code changes on its own |
 
 ## What Not To Do

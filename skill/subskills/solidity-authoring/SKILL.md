@@ -21,7 +21,6 @@ write Solidity, implement contract, refactor contract, contract code, Solidity, 
 designing architecture (use contract-architecture), reviewing code (use contract-review), or writing tests (use test-generation)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -50,9 +49,9 @@ modifier onlyPharosMainnet() {
 }
 ```
 
-### PHRS Native Currency Handling
+### Native Currency Handling (PROS/PHRS)
 
-PHRS is the native currency (18 decimals). Unlike ETH, PHRS forwards **all remaining gas** in `.call{value:}` — there is **no 2300 gas stipend**. Always specify a gas limit or use a pull-over-push pattern:
+The native currency (PROS on mainnet, PHRS on testnet, 18 decimals) forwards **all remaining gas** in `.call{value:}` — there is **no 2300 gas stipend**. Always specify a gas limit or use a pull-over-push pattern:
 
 ```solidity
 // WRONG — forwards all gas, dangerous in loops

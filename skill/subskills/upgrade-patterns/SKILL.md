@@ -25,7 +25,6 @@ upgrade, proxy, UUPS, transparent proxy, beacon proxy, storage collision, upgrad
 - **Diamond (EIP-2535) exploration** — If the user is unfamiliar with upgrade patterns and just exploring, route to `contract-architecture` for a broader design discussion first.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

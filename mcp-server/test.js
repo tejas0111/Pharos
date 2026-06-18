@@ -116,7 +116,7 @@ test("SUBLINK map has all 21 tool entries", () => {
     "check_balance", "security_check", "generate_tests", "get_logs",
     "contract_info", "network_config", "diagnose", "get_account", "gas_estimate",
     "trace_transaction", "network_status", "read_contract", "write_contract",
-    "fetch_abi",
+    "fetch_abi", "frontend_sync", "create_safe_tx", "propose_safe_tx",
   ];
   for (const key of sublinkKeys) {
     assert(content.includes('"' + key + '"') || content.includes("'" + key + "'"), "Missing SUBLINK key: " + key);

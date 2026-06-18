@@ -46,11 +46,25 @@ contract PharosERC20 {
     }
 
     // --- ERC-20 Standard ---
-    function name() external view returns (string memory) { return s_name; }
-    function symbol() external view returns (string memory) { return s_symbol; }
-    function decimals() external view returns (uint8) { return s_decimals; }
-    function totalSupply() external view returns (uint256) { return s_totalSupply; }
-    function balanceOf(address account) external view returns (uint256) { return s_balances[account]; }
+    function name() external view returns (string memory) {
+        return s_name;
+    }
+
+    function symbol() external view returns (string memory) {
+        return s_symbol;
+    }
+
+    function decimals() external view returns (uint8) {
+        return s_decimals;
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return s_totalSupply;
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return s_balances[account];
+    }
 
     function transfer(address to, uint256 value) external returns (bool) {
         if (to == address(0)) revert PharosERC20__ZeroAddress();
@@ -84,11 +98,16 @@ contract PharosERC20 {
     }
 
     // --- Owner ---
-    function owner() external view returns (address) { return i_owner; }
+    function owner() external view returns (address) {
+        return i_owner;
+    }
+
+    uint256 public constant MAX_SUPPLY = 1_000_000_000e18; // 1 billion
 
     // --- Mint (owner only) ---
     function mint(address to, uint256 value) external onlyOwner {
         if (to == address(0)) revert PharosERC20__ZeroAddress();
+        if (s_totalSupply + value > MAX_SUPPLY) revert PharosERC20__InvalidTransfer();
         s_totalSupply += value;
         s_balances[to] += value;
         emit Transfer(address(0), to, value);

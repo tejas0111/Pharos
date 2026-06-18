@@ -25,7 +25,6 @@ SPN, Special Processing Network, custom execution, validator restaking, Mailbox,
 - **Simple subnet / sidechain** — If the user just wants a standard sidechain without SPN-specific features (Mailbox, escape hatches, SLA), use `contract-architecture` for a simpler design.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -93,7 +92,7 @@ Step 8: Verify all contracts on PharosScan
 
 ## Verification
 
-Deploy SPN Manager, Adapter, and Mailbox contracts on Pharos Atlantic Testnet. Register a new SPN via `pharos spn register --network testnet-v2`. Verify SPN status via `pharos spn status --spn-id <id>`. Send messages through Mailbox cross-SPN, verify delivery on PharosScan. Test escape hatch by simulating SPN unavailability. Confirm slashing conditions fire after missed checkpoints.
+Deploy SPN Manager, Adapter, and Mailbox contracts on Pharos Atlantic Testnet. Register a new SPN via `pharos spn register --network pharos-testnet`. Verify SPN status via `pharos spn status --spn-id <id>`. Send messages through Mailbox cross-SPN, verify delivery on PharosScan. Test escape hatch by simulating SPN unavailability. Confirm slashing conditions fire after missed checkpoints.
 
 ## Related
 

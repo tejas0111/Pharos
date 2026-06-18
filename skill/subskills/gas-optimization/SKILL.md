@@ -25,7 +25,6 @@ gas optimization, gas golf, save gas, reduce gas cost, optimize contract, gas ef
 - **L1 Ethereum optimization** — If the user is deploying on Ethereum (not Pharos), standard Solidity gas techniques apply; this subskill is Pharos-specific (SALI, DTVM, 1B block gas limit).
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -73,4 +72,5 @@ performance-optimization (frontend), contract-architecture (storage layout desig
 
 
 ## Gate
+
 Medium risk. Show baseline gas report and proposed optimization before changing contract code. Do not trade safety (reentrancy, overflow) for gas savings without user approval.

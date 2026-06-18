@@ -95,7 +95,6 @@ PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL
 - **Scaffolding** — For generating boilerplate files, use `code-scaffolding-and-generation`.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -124,6 +123,5 @@ PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL
 
 N/A — read-only exploration. Optionally ask the user if the map matches expectations.
 ## Gate
-
 
 Low risk. Present the repo map and open questions first; proceed to implementation only after the user confirms the map is accurate.

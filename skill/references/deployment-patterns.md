@@ -14,7 +14,7 @@ foundryup
 export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
 export PHAROS_MAINNET_RPC_URL=https://rpc.pharos.xyz
 export PRIVATE_KEY=0x...
-export ETHERSCAN_API_KEY=...
+export PHAROSSCAN_API_KEY=...
 ```
 
 ### Deploy Script Template
@@ -49,16 +49,16 @@ contract DeployTokenScript is Script {
 ### Deploy Commands
 ```bash
 # Simulate (dry run)
-forge script script/DeployToken.s.sol --rpc-url pharos-testnet
+forge script script/DeployToken.s.sol --rpc-url pharos-testnet --chain-id 688689
 
 # Deploy to testnet
-forge script script/DeployToken.s.sol --rpc-url pharos-testnet --broadcast
+forge script script/DeployToken.s.sol --rpc-url pharos-testnet --broadcast --chain-id 688689
 
 # Deploy + verify on testnet
-forge script script/DeployToken.s.sol --rpc-url pharos-testnet --broadcast --verify --etherscan-api-key $ETHERSCAN_API_KEY
+forge script script/DeployToken.s.sol --rpc-url pharos-testnet --broadcast --verify --etherscan-api-key $PHAROSSCAN_API_KEY --chain-id 688689
 
 # Deploy to mainnet (use --slow to wait for confirmations)
-forge script script/DeployToken.s.sol --rpc-url pharos-mainnet --broadcast --verify --etherscan-api-key $ETHERSCAN_API_KEY --slow
+forge script script/DeployToken.s.sol --rpc-url pharos-mainnet --broadcast --verify --etherscan-api-key $PHAROSSCAN_API_KEY --slow --chain-id 1672
 ```
 
 ### Deployment Manager Script
@@ -321,7 +321,7 @@ forge script script/DeployCCTP.s.sol --rpc-url pharos-testnet --broadcast
 
 ## CI/CD Pipeline Template
 
-See `.github/workflows/deploy.yml` for the GitHub Actions pipeline template.
+See `.github/workflows/pharos-deploy.yml` for the GitHub Actions pipeline template.
 
 ### Environment Variables Required
 ```bash
@@ -329,11 +329,13 @@ See `.github/workflows/deploy.yml` for the GitHub Actions pipeline template.
 PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
 PHAROS_MAINNET_RPC_URL=https://rpc.pharos.xyz
 PRIVATE_KEY=0x...  # CI secret
-ETHERSCAN_API_KEY=...  # CI secret
+PHAROSSCAN_API_KEY=...  # CI secret
+PHAROSSCAN_MAINNET_API_URL=https://www.pharosscan.xyz/api
+PHAROSSCAN_TESTNET_API_URL=https://atlantic.pharosscan.xyz/api
 ```
 
 ### Pipeline Stages
-1. **Lint**: Run solhint, prettier, TypeScript checks
+1. **Lint**: Run `forge fmt --check`, prettier, TypeScript checks
 2. **Test**: Run forge tests (unit + integration) and Hardhat tests
 3. **Deploy to Testnet**: Simulate only (no broadcast in CI unless manually triggered)
 4. **Deploy to Mainnet**: Manual approval required, simulate first, then broadcast
@@ -359,7 +361,7 @@ Deployment receipts are saved as build artifacts:
 - `skill/subskills/cross-chain-bridge/SKILL.md` — LayerZero, CCTP, SPN Mailbox
 - `skill/subskills/upgrade-patterns/SKILL.md` — UUPS, Transparent, Beacon proxy
 - `skill/subskills/deployment-and-verification/SKILL.md` — deploy prep in dev suite
-- `deploy-skill/skill/subskills/post-deploy/SKILL.md` — post-deployment operations
+- `skill/subskills/post-deploy/SKILL.md` — post-deployment operations
 
 ## Related Subskills
 

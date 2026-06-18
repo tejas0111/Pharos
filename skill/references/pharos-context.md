@@ -120,13 +120,13 @@ Common env vars:
 | `PHAROS_TESTNET_RPC_URL` | Atlantic Testnet RPC override |
 | `PHAROS_MAINNET_RPC_URL` | Mainnet RPC override |
 | `PRIVATE_KEY` | Deployer key for scripts (Stored in .env) |
-| `ETHERSCAN_API_KEY` | Explorer verification (when supported) |
+| `PHAROSSCAN_API_KEY` | PharosScan verification (required for mainnet) |
 
 ## Deploy Command Template
 
 For Atlantic Testnet:
 ```bash
-forge script script/Deploy.s.sol:Deploy \
+forge script script/Deploy.s.sol:DeployCounter \
   --rpc-url pharos_testnet \
   --broadcast \
   --chain-id 688689 \
@@ -135,7 +135,7 @@ forge script script/Deploy.s.sol:Deploy \
 
 For mainnet:
 ```bash
-forge script script/Deploy.s.sol:Deploy \
+forge script script/Deploy.s.sol:DeployCounter \
   --rpc-url pharos_mainnet \
   --broadcast \
   --chain-id 1672 \
@@ -150,7 +150,7 @@ cast chain-id --rpc-url pharos_testnet
 
 ## Security and Verification
 
-1. **Gate Fix Check**: Always run a frontend/contract interaction check ('gate fix') before deployment to ensure consistency.
+1. **Pre-flight Consistency Check**: Always verify that the deployed contract matches the frontend ABI and the .env variables are correct before deployment. See the root `SKILL.md` 'Deploy Protocol' section for the full checklist.
 2. **Private Key**: Never hardcode private keys. Use `${PRIVATE_KEY}` and ensure it is loaded from a `.env` file that is ignored by git.
 3. **Simulation**: Mandatory `SIMULATE_ONLY=1` or dry-run before any broadcast.
 

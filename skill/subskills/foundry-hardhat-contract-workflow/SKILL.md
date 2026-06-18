@@ -21,7 +21,6 @@ Foundry, Hardhat, forge, anvil, Solidity workflow, contract workflow, forge init
 writing individual contracts (use solidity-authoring), or debugging build failures (use ci-and-build-troubleshooting)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -136,12 +135,12 @@ import { HardhatUserConfig } from "hardhat/config";
 const config: HardhatUserConfig = {
   networks: {
     pharosMainnet: {
-      url: "$PHAROS_MAINNET_RPC_URL",
+      url: process.env.PHAROS_MAINNET_RPC_URL!,
       chainId: 1672,
       accounts: [process.env.PRIVATE_KEY!],
     },
     pharosTestnet: {
-      url: "$PHAROS_TESTNET_RPC_URL",
+      url: process.env.PHAROS_TESTNET_RPC_URL!,
       chainId: 688689,
       accounts: [process.env.PRIVATE_KEY!],
     },
@@ -164,8 +163,8 @@ const config: HardhatUserConfig = {
         network: "pharosTestnet",
         chainId: 688689,
         urls: {
-          apiURL: "$PHAROSSCAN_MAINNET_API_URL",
-          browserURL: "https://www.pharosscan.xyz",
+          apiURL: "$PHAROSSCAN_TESTNET_API_URL",
+          browserURL: "https://atlantic.pharosscan.xyz",
         },
       },
     ],

@@ -7,7 +7,7 @@
 #   SCRIPT_TARGET=script/MyDeploy.s.sol:MyDeploy ./scripts/deploy-testnet.sh
 set -euo pipefail
 
-# === Source .env if present ===
+# === Auto-source .env if it exists ===
 if [ -f .env ]; then
   set -a; source .env; set +a
 fi
@@ -28,7 +28,7 @@ PHAROS_TESTNET_RPC_URL="${PHAROS_TESTNET_RPC_URL:-https://atlantic.dplabs-intern
 : "${PRIVATE_KEY:?             Set PRIVATE_KEY in .env (deployer private key, hex with or without 0x)}"
 
 # === Optional Env Vars ===
-SCRIPT_TARGET="${SCRIPT_TARGET:-script/Deploy.s.sol:Deploy}"
+SCRIPT_TARGET="${SCRIPT_TARGET:-script/Deploy.s.sol:DeployCounter}"
 SIMULATE_ONLY="${SIMULATE_ONLY:-0}"
 VERIFY="${VERIFY:-0}"
 
@@ -45,7 +45,7 @@ echo "  Chain ID: $DETECTED_CHAIN_ID ✓"
 
 # === Pre-flight: check deployer balance ===
 echo "--- Pre-flight: Checking deployer balance ---"
-DEPLOYER_ADDR=$(cast wallet address --private-key "$PRIVATE_KEY" 2>/dev/null || echo "unknown")
+DEPLOYER_ADDR=$(cast wallet address 2>/dev/null || echo "unknown")
 echo "  Deployer: $DEPLOYER_ADDR"
 BALANCE=$(cast balance --rpc-url "$PHAROS_TESTNET_RPC_URL" "$DEPLOYER_ADDR" 2>/dev/null || echo "0")
 echo "  Balance: $BALANCE (wei)"
@@ -60,7 +60,6 @@ cmd=(
   script
   "$SCRIPT_TARGET"
   --rpc-url "$PHAROS_TESTNET_RPC_URL"
-  --private-key "$PRIVATE_KEY"
 )
 
 if [[ "$SIMULATE_ONLY" != "1" ]]; then
@@ -68,8 +67,8 @@ if [[ "$SIMULATE_ONLY" != "1" ]]; then
 fi
 
 if [[ "$VERIFY" == "1" ]]; then
-  : "${ETHERSCAN_API_KEY:?  Set ETHERSCAN_API_KEY when VERIFY=1}"
-  cmd+=(--verify --etherscan-api-key "$ETHERSCAN_API_KEY")
+  : "${PHAROSSCAN_API_KEY:?  Set PHAROSSCAN_API_KEY when VERIFY=1}"
+  cmd+=(--verify --etherscan-api-key "$PHAROSSCAN_API_KEY")
 fi
 
 cmd+=("$@")

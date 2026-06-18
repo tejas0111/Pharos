@@ -37,14 +37,20 @@ export function createClient(server) {
   });
 
   server.stderr.on("data", () => { });
-  server.on("error", (e) => { throw e; });
+  server.on("error", (e) => {
+    for (const [, reject] of pending) reject(new Error(`Server error: ${e.message}`));
+    pending.clear();
+  });
   server.on("exit", (code) => {
-    if (code !== 0 && code !== null) {
+    if (code !== null) {
       for (const [, reject] of pending) reject(new Error(`Server exited with code ${code}`));
       pending.clear();
     }
   });
-  server.stdin.on("error", () => { });
+  server.stdin.on("error", (e) => {
+    for (const [, reject] of pending) reject(new Error(`Server stdin error: ${e.message}`));
+    pending.clear();
+  });
 
   function send(method, params) {
     return new Promise((resolve, reject) => {

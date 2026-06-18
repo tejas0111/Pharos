@@ -193,15 +193,15 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <p>Clone the repo, install deps, configure your environment. Requires <strong>Node.js ≥18</strong> + <strong>Foundry</strong>.</p>
         <div class="code-block">
-          <button class="copy-btn" data-cmd="npx skills add https://github.com/tejas0111/pharos">COPY</button>
-          <pre><span class="p">$</span> npx skills add https://github.com/tejas0111/pharos </pre>
+          <button class="copy-btn" data-cmd="npx skills add https://github.com/tejas0111/Pharos">COPY</button>
+          <pre><span class="p">$</span> npx skills add https://github.com/tejas0111/Pharos </pre>
         </div>
         <div class="code-block">
-          <button class="copy-btn" data-cmd='export PRIVATE_KEY=0x... && export RPC_URL=https://rpc.atlantic.pharos.network'>COPY</button>
+          <button class="copy-btn" data-cmd='export PRIVATE_KEY=0x... && export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com'>COPY</button>
           <pre><span class="p">$</span> export PRIVATE_KEY=0x...
-<span class="p">$</span> export RPC_URL=https://rpc.atlantic.pharos.network</pre>
+<span class="p">$</span> export PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com</pre>
         </div>
-        <p>Verify: <code>npm test</code> — 21 tools should register.</p>
+        <p>Verify: <code>npm test</code> — 55 tests (34 Solidity + 21 MCP) should pass.</p>
         <div class="note">No testnet PHRS? Use the Atlantic Faucet.</div>
       </div>
     </div>
@@ -213,16 +213,16 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <p>Three demos — real MCP clients, zero bash stubs.</p>
         <h3>Quick Demo — <code>npm run demo</code></h3>
-        <p>6 read-only tools: balanceOf, getBlock, chainId, getCode, getStorage, getTx.</p>
+        <p>6 read-only tools: checkBalance, networkStatus, networkConfig, contractInfo, getAccount, getLogs.</p>
         <div class="code-block">
           <button class="copy-btn" data-cmd="npm run demo">COPY</button>
           <pre><span class="p">$</span> npm run demo
 <span class="c">// 6 tools · 3 seconds · zero config</span>
 ✓ Tools registered: 21
-✓ balanceOf(0x...) → 0 PHRS
-✓ getBlock(latest) → #123456
-✓ chainId → 688689
-✓ getCode(0x...) → 0x608060...</pre>
+✓ pharos_check_balance(0x...) → 0 PHRS
+✓ pharos_network_status(latest) → #123456
+✓ pharos_network_config → 688689
+✓ pharos_contract_info(0x...) → verified</pre>
         </div>
         <h3>Token Workflow — <code>npm run demo:token</code></h3>
         <p>Full ERC-20 lifecycle: deploy, mint, transfer, read logs.</p>
@@ -238,18 +238,18 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <p>42 subskills across <strong>12 categories</strong>. Each is markdown at <code>skill/subskills/</code> — guides the agent through blockchain dev with Pharos-specific conventions.</p>
         <div class="tool-mini-grid">
-          <div class="tool-mini">Wallet <span class="cat">WALLET</span></div>
-          <div class="tool-mini">Faucet <span class="cat">WALLET</span></div>
-          <div class="tool-mini">Solidity <span class="cat">CONTRACT</span></div>
-          <div class="tool-mini">ERC-20 <span class="cat">CONTRACT</span></div>
-          <div class="tool-mini">ERC-721 <span class="cat">CONTRACT</span></div>
-          <div class="tool-mini">Deploy <span class="cat">LIFECYCLE</span></div>
-          <div class="tool-mini">Verify <span class="cat">LIFECYCLE</span></div>
-          <div class="tool-mini">Debug <span class="cat">DEBUG</span></div>
-          <div class="tool-mini">Gas Opt <span class="cat">PERF</span></div>
-          <div class="tool-mini">Events <span class="cat">INDEX</span></div>
-          <div class="tool-mini">Dapp UI <span class="cat">UI</span></div>
-          <div class="tool-mini">Dapp QA <span class="cat">QA</span></div>
+          <div class="tool-mini">repo-onboarding <span class="cat">SETUP</span></div>
+          <div class="tool-mini">foundry-hardhat-contract-workflow <span class="cat">SETUP</span></div>
+          <div class="tool-mini">solidity-authoring <span class="cat">CONTRACT</span></div>
+          <div class="tool-mini">contract-architecture <span class="cat">CONTRACT</span></div>
+          <div class="tool-mini">contract-review <span class="cat">CONTRACT</span></div>
+          <div class="tool-mini">security-audit <span class="cat">SECURITY</span></div>
+          <div class="tool-mini">test-generation <span class="cat">TEST</span></div>
+          <div class="tool-mini">deployment-and-verification <span class="cat">LIFECYCLE</span></div>
+          <div class="tool-mini">gas-optimization <span class="cat">PERF</span></div>
+          <div class="tool-mini">dapp-ui-workflow <span class="cat">UI</span></div>
+          <div class="tool-mini">frontend-dapp-integration <span class="cat">UI</span></div>
+          <div class="tool-mini">wagmi-viem-dapp-workflow <span class="cat">UI</span></div>
         </div>
         <p><a href="https://github.com/tejas0111/Pharos/tree/main/skill/subskills" target="_blank">Browse on GitHub →</a></p>
       </div>
@@ -262,24 +262,27 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <p>Read (8) · Write (5) · Utility (5). Each wraps a viem RPC call with validation + error handling.</p>
         <div class="tool-mini-grid">
-          <div class="tool-mini">balanceOf <span class="cat">READ</span></div>
-          <div class="tool-mini">readContract <span class="cat">READ</span></div>
-          <div class="tool-mini">getLogs <span class="cat">READ</span></div>
-          <div class="tool-mini">getAccount <span class="cat">PHAROS</span></div>
-          <div class="tool-mini">getBlock <span class="cat">READ</span></div>
-          <div class="tool-mini">getTx <span class="cat">READ</span></div>
-          <div class="tool-mini">getCode <span class="cat">READ</span></div>
-          <div class="tool-mini">getStorage <span class="cat">READ</span></div>
-          <div class="tool-mini">transfer <span class="cat">WRITE</span></div>
-          <div class="tool-mini">writeContract <span class="cat">WRITE</span></div>
-          <div class="tool-mini">deployContract <span class="cat">WRITE</span></div>
-          <div class="tool-mini">sendTx <span class="cat">WRITE</span></div>
-          <div class="tool-mini">verifyContract <span class="cat">WRITE</span></div>
-          <div class="tool-mini">traceTx <span class="cat">DEBUG</span></div>
-          <div class="tool-mini">estimateGas <span class="cat">UTIL</span></div>
-          <div class="tool-mini">getNonce <span class="cat">UTIL</span></div>
-          <div class="tool-mini">chainId <span class="cat">UTIL</span></div>
-          <div class="tool-mini">getFees <span class="cat">UTIL</span></div>
+          <div class="tool-mini">pharos_network_config <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_check_balance <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_read_contract <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_get_logs <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_contract_info <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_fetch_abi <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_network_status <span class="cat">READ</span></div>
+          <div class="tool-mini">pharos_get_account <span class="cat">PHAROS</span></div>
+          <div class="tool-mini">pharos_transfer_token <span class="cat">WRITE</span></div>
+          <div class="tool-mini">pharos_write_contract <span class="cat">WRITE</span></div>
+          <div class="tool-mini">pharos_deploy_contract <span class="cat">WRITE</span></div>
+          <div class="tool-mini">pharos_deploy_erc20 <span class="cat">WRITE</span></div>
+          <div class="tool-mini">pharos_verify_contract <span class="cat">WRITE</span></div>
+          <div class="tool-mini">pharos_trace_transaction <span class="cat">DEBUG</span></div>
+          <div class="tool-mini">pharos_gas_estimate <span class="cat">UTIL</span></div>
+          <div class="tool-mini">pharos_run_security_check <span class="cat">UTIL</span></div>
+          <div class="tool-mini">pharos_generate_tests <span class="cat">UTIL</span></div>
+          <div class="tool-mini">pharos_diagnose <span class="cat">UTIL</span></div>
+          <div class="tool-mini">pharos_frontend_sync <span class="cat">SAFE</span></div>
+          <div class="tool-mini">pharos_create_safe_tx <span class="cat">SAFE</span></div>
+          <div class="tool-mini">pharos_propose_safe_tx <span class="cat">SAFE</span></div>
         </div>
       </div>
     </div>
@@ -328,7 +331,7 @@ td:first-child{color:var(--white);font-weight:600}
         </div>
         <p><strong>Skill Cascade</strong> — 42 subskills in markdown. Each teaches Pharos patterns: pull-over-push, no 2300 gas stipend.</p>
         <p><strong>Tool Cascade</strong> — 21 MCP tools wrapping viem RPC calls with validation, error handling, ABI caching.</p>
-        <p>Stack: Node.js + ESM · viem v2 · MCP SDK 0.6 · Foundry · stdio transport · Blockscout</p>
+        <p>Stack: Node.js + ESM · viem v2 · MCP SDK ^1.29.0 · Foundry · stdio transport · Blockscout</p>
       </div>
     </div>
 
@@ -337,34 +340,38 @@ td:first-child{color:var(--white);font-weight:600}
       <div class="section-label"><span class="num">07</span> / Ref</div>
       <h2>API <span class="light">Reference</span></h2>
       <div>
-        <p><span class="req">*</span> = required.</p>
-        <h3>balanceOf</h3>
+        <p><span class="req">*</span> = required. All tools follow the naming pattern <code>pharos_&lt;tool_name&gt;</code> in the MCP server.</p>
+        <h3>pharos_check_balance</h3>
         <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
         <tbody><tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Address to query</td></tr>
-        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag</td></tr></tbody></table></div>
-        <h3>transfer</h3>
+        <tr><td>network</td><td>string</td><td>atlanticTestnet</td><td>atlanticTestnet or pacificMainnet</td></tr></tbody></table></div>
+        <h3>pharos_transfer_token</h3>
         <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
-        <tbody><tr><td>to <span class="req">*</span></td><td>string</td><td>—</td><td>Recipient</td></tr>
-        <tr><td>amount <span class="req">*</span></td><td>string</td><td>—</td><td>PHRS (ether)</td></tr></tbody></table></div>
-        <h3>readContract</h3>
-        <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
-        <tbody><tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
-        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
-        <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
-        <tr><td>args</td><td>array</td><td>[]</td><td>Arguments</td></tr>
-        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag</td></tr></tbody></table></div>
-        <h3>writeContract</h3>
+        <tbody><tr><td>toAddress <span class="req">*</span></td><td>string</td><td>—</td><td>Recipient address</td></tr>
+        <tr><td>amount <span class="req">*</span></td><td>string</td><td>—</td><td>PHRS amount (ether)</td></tr>
+        <tr><td>network</td><td>string</td><td>atlanticTestnet</td><td>atlanticTestnet or pacificMainnet</td></tr></tbody></table></div>
+        <h3>pharos_read_contract</h3>
         <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
         <tbody><tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
         <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
         <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
         <tr><td>args</td><td>array</td><td>[]</td><td>Arguments</td></tr>
-        <tr><td>value</td><td>string</td><td>0</td><td>PHRS to send</td></tr></tbody></table></div>
-        <h3>deployContract</h3>
+        <tr><td>blockTag</td><td>string</td><td>latest</td><td>Block tag</td></tr>
+        <tr><td>network</td><td>string</td><td>atlanticTestnet</td><td>atlanticTestnet or pacificMainnet</td></tr></tbody></table></div>
+        <h3>pharos_write_contract</h3>
         <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
-        <tbody><tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
-        <tr><td>bytecode <span class="req">*</span></td><td>string</td><td>—</td><td>0x-prefixed bytecode</td></tr>
-        <tr><td>args</td><td>array</td><td>[]</td><td>Constructor args</td></tr></tbody></table></div>
+        <tbody><tr><td>address <span class="req">*</span></td><td>string</td><td>—</td><td>Contract address</td></tr>
+        <tr><td>abi <span class="req">*</span></td><td>json</td><td>—</td><td>Contract ABI</td></tr>
+        <tr><td>functionName <span class="req">*</span></td><td>string</td><td>—</td><td>Function to call</td></tr>
+        <tr><td>args</td><td>array</td><td>[]</td><td>Arguments</td></tr>
+        <tr><td>value</td><td>string</td><td>0</td><td>PHRS to send</td></tr>
+        <tr><td>network</td><td>string</td><td>atlanticTestnet</td><td>atlanticTestnet or pacificMainnet</td></tr></tbody></table></div>
+        <h3>pharos_deploy_contract</h3>
+        <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Desc</th></tr></thead>
+        <tbody><tr><td>script <span class="req">*</span></td><td>string</td><td>script/Deploy.s.sol:DeployCounter</td><td>Forge script path</td></tr>
+        <tr><td>contractName</td><td>string</td><td>Counter</td><td>Contract name for security gate</td></tr>
+        <tr><td>network</td><td>string</td><td>atlanticTestnet</td><td>atlanticTestnet or pacificMainnet</td></tr>
+        <tr><td>simulate</td><td>bool</td><td>true</td><td>Simulation only (no broadcast)</td></tr></tbody></table></div>
         <p>See full source: <a href="https://github.com/tejas0111/Pharos/blob/main/mcp-server/index.js" target="_blank">mcp-server/index.js →</a></p>
       </div>
     </div>
@@ -377,9 +384,9 @@ td:first-child{color:var(--white);font-weight:600}
         <p>Contracts on Pharos Atlantic Testnet, verified on Blockscout.</p>
         <div class="table-wrap"><table><thead><tr><th>Contract</th><th>Address</th><th>Explorer</th></tr></thead>
         <tbody>
-          <tr><td>Counter</td><td><code style="font-size:.6rem">0xE0fF6cFE25C143c010bC6956A8B0059188472d31</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xE0fF6cFE25C143c010bC6956A8B0059188472d31" target="_blank">View →</a></td></tr>
-          <tr><td>TestToken</td><td><code style="font-size:.6rem">0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0x1429bDE4C12a4fCfB7D35E0Cfb2C55a510Ca61eD" target="_blank">View →</a></td></tr>
-          <tr><td>SimpleStorage</td><td><code style="font-size:.6rem">0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0</code></td><td><a href="https://explorer.atlantic.pharos.network/address/0xe08A1D1Df32f4B4F32b2fC5A3B181a3349411D0" target="_blank">View →</a></td></tr>
+          <tr><td>Counter</td><td><code style="font-size:.6rem">0x55ec4b1e32537b6f72aa20153735709837488e4e</code></td><td><a href="https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e" target="_blank">View →</a></td></tr>
+          <tr><td>PharosERC20</td><td><code style="font-size:.6rem">0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD</code></td><td><a href="https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD" target="_blank">View →</a></td></tr>
+          <tr><td>Storage</td><td><code style="font-size:.6rem">0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0</code></td><td><a href="https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0" target="_blank">View →</a></td></tr>
         </tbody></table></div>
       </div>
     </div>
@@ -391,8 +398,8 @@ td:first-child{color:var(--white);font-weight:600}
       <div>
         <div class="table-wrap"><table><thead><tr><th>Network</th><th>Chain ID</th><th>RPC</th><th>Explorer</th></tr></thead>
         <tbody>
-          <tr><td>Pacific Mainnet</td><td><code>1672</code></td><td><code>rpc.pacific...</code></td><td><a href="https://explorer.pacific.pharos.network" target="_blank">explorer →</a></td></tr>
-          <tr><td>Atlantic Testnet</td><td><code>688689</code></td><td><code>rpc.atlantic...</code></td><td><a href="https://explorer.atlantic.pharos.network" target="_blank">explorer →</a></td></tr>
+          <tr><td>Pacific Mainnet</td><td><code>1672</code></td><td><code>rpc.pharos.xyz</code></td><td><a href="https://www.pharosscan.xyz" target="_blank">explorer →</a></td></tr>
+          <tr><td>Atlantic Testnet</td><td><code>688689</code></td><td><code>atlantic.dplabs-internal.com</code></td><td><a href="https://atlantic.pharosscan.xyz" target="_blank">explorer →</a></td></tr>
         </tbody></table></div>
         <div class="mermaid-wrap">
           <div class="mermaid">graph LR
@@ -409,7 +416,7 @@ td:first-child{color:var(--white);font-weight:600}
         <ul>
           <li>No 2300 gas stipend — use pull-over-push</li>
           <li>RPC: ~30 req/s sustained, ~100 req/s burst</li>
-          <li>eth_getLogs: max 100 block range</li>
+          <li>eth_getLogs: paginated automatically (100-block chunks)</li>
           <li>safe/finalized tags available</li>
           <li>eth_getAccount is Pharos-specific</li>
           <li>debug_traceTransaction publicly enabled</li>
@@ -425,8 +432,8 @@ td:first-child{color:var(--white);font-weight:600}
       <h2>Demo <span class="light">Video</span></h2>
       <div>
         <p>See the Pharos Agent Dev Suite in action — dual cascade workflow, 21 MCP tools, real blockchain interactions.</p>
-        <video controls style="width:100%;border:2px solid var(--gray-dark);border-radius:8px;background:#000;display:block" poster="">
-          <source src="demo.mp4" type="video/mp4">
+        <video controls style="width:100%;border:2px solid var(--gray-dark);border-radius:8px;background:#000;display:block">
+          <source src="https://pharos-ads.netlify.app/demo.mp4" type="video/mp4">
         </video>
         <p style="font-size:.55rem;color:var(--gray-dark);margin-top:.5rem;text-align:center;text-transform:uppercase;letter-spacing:.15em">Skill-to-Agent Cascade — 42 subskills + 21 MCP tools → Pharos Blockchain</p>
         <p style="margin-top:.75rem;text-align:center">Watch on <a href="https://pharos-ads.netlify.app" target="_blank" style="color:var(--accent)">pharos-ads.netlify.app →</a></p>

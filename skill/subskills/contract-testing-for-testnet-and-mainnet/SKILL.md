@@ -21,7 +21,6 @@ contract testing, testnet tests, mainnet tests, network-specific testing, enviro
 general unit test generation (use test-generation), or planning deployment (use deployment-for-testnet-and-mainnet)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -145,7 +144,7 @@ After deploying to Pharos testnet or mainnet, verify source code on PharosScan a
 # In CI workflow
 forge verify-contract <address> src/MyContract.sol:MyContract \
   --chain-id <chainId> \
-  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
+  --verifier-url $PHAROSSCAN_TESTNET_API_URL \
   --etherscan-api-key $PHAROSSCAN_API_KEY
 
 # Then fork-test against the verified contract

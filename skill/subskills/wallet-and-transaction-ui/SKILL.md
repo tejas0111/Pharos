@@ -18,10 +18,9 @@ wallet UI, transaction UI, preview, status screen, history, connection flow, wal
 
 ## When NOT to Use
 
-wiring contract reads/writes (use frontend-dapp-integration), or designing general UI patterns (use react-ui-patterns-and-hooks)
+wiring contract reads/writes (use frontend-dapp-integration), or designing general UI patterns (use dapp-ui-workflow)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -69,7 +68,7 @@ Component renders all states (loading, success, error, empty) in browser or stor
 ### Network Details
 - **Pacific Mainnet**: Chain ID 1672, RPC `$PHAROS_MAINNET_RPC_URL`, Explorer https://www.pharosscan.xyz
 - **Atlantic Testnet**: Chain ID 688689, RPC `$PHAROS_TESTNET_RPC_URL`, Explorer https://atlantic.pharosscan.xyz
-- **Native currency**: PHRS (mainnet & testnet, 18 decimals)
+- **Native currency**: PROS (mainnet) / PHRS (testnet), 18 decimals
 
 ### Wallet Connect (wagmi + RainbowKit + viem)
 
@@ -86,8 +85,8 @@ import '@rainbow-me/rainbowkit/styles.css'
 const pharosMainnet = defineChain({
   id: 1672,
   name: 'Pharos Mainnet',
-  nativeCurrency: { name: 'PHRS', symbol: 'PHRS', decimals: 18 },
-  rpcUrls: { default: { http: ['$PHAROS_MAINNET_RPC_URL'] } },
+  nativeCurrency: { name: 'PROS', symbol: 'PROS', decimals: 18 },
+  rpcUrls: { default: { http: [process.env.PHAROS_MAINNET_RPC_URL!] } },
   blockExplorers: { default: { name: 'PharosScan', url: 'https://www.pharosscan.xyz' } },
 })
 
@@ -95,7 +94,7 @@ const config = getDefaultConfig({
   appName: 'Pharos Dapp',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
   chains: [pharosMainnet],
-  transports: { [pharosMainnet.id]: http('$PHAROS_MAINNET_RPC_URL') },
+  transports: { [pharosMainnet.id]: http(process.env.PHAROS_MAINNET_RPC_URL!) },
   ssr: true,
 })
 
@@ -163,7 +162,7 @@ export function TxStatus({ hash }: { hash: `0x${string}` }) {
 ```
 
 ### Transaction Status Link
-Append tx hash to explorer URL: `https://atlantic.pharosscan.xyz/tx/{txHash}` (same URL for both mainnet and testnet).
+Append tx hash to explorer URL: `https://www.pharosscan.xyz/tx/{txHash}` (mainnet) or `https://atlantic.pharosscan.xyz/tx/{txHash}` (testnet).
 
 ### Transaction History Pattern
 Use PharosScan API to fetch transaction history for a wallet:
@@ -186,7 +185,7 @@ Component renders all states (loading, success, error, empty) in browser or stor
 
 ## Related
 
-frontend-dapp-integration (data wiring), react-ui-patterns-and-hooks (component patterns, wagmi config example), wagmi-viem-dapp-workflow (integration helpers)
+frontend-dapp-integration (data wiring), dapp-ui-workflow (component patterns), wagmi-viem-dapp-workflow (integration helpers)
 
 ## Gate
 

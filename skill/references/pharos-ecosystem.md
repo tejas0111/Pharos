@@ -6,9 +6,9 @@ Comprehensive reference for the Pharos blockchain ecosystem: networks, RPC provi
 
 | Network | Chain ID | RPC URL | Explorer | Symbol | Status |
 |---|---|---|---|---|---|---|
-| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PHRS | Live |
+| Pacific Mainnet | 1672 | `https://rpc.pharos.xyz` | https://www.pharosscan.xyz | PROS | Live |
 | Atlantic Testnet | 688689 | `https://atlantic.dplabs-internal.com` | https://atlantic.pharosscan.xyz | PHRS | Active |
-| Atlantic Testnet (deprecated) | 688689 | N/A | N/A | PHRS | Sunset |
+| Atlantic Testnet (deprecated) | 688688 | N/A | N/A | PHRS | Sunset |
 | Devnet | Variable | Ask team | N/A | PHRS | Internal |
 
 ### Chain ID Quick Reference
@@ -20,7 +20,7 @@ cast chain-id --rpc-url $RPC_URL
 # Expected values
 # Mainnet: 1672 (0x688)
 # Atlantic Testnet: 688689 (0xa8230)
-# Old Atlantic (deprecated): 688689 (0xa8231)
+# Old Atlantic (deprecated): 688688 (0xa8230)
 ```
 
 ## RPC Providers

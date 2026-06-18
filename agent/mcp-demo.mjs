@@ -59,7 +59,9 @@ async function main() {
       `Balance: 1.234 PHRS | Nonce: 42 | CodeHash: 0x0f18... | StorageRoot: 0xabcd...`
     );
     if (account) {
-      print("Account", `Balance: ${account.balanceFormatted || account.balance} | Nonce: ${account.nonce} | CodeHash: ${(account.codeHash || "").slice(0, 20)}...`);
+      const balWei = account.balance ? BigInt(account.balance) : 0n;
+      const balFormatted = (Number(balWei) / 1e18).toFixed(4);
+      print("Account", `Balance: ${balFormatted} PHRS | Nonce: ${account.nonce} | CodeHash: ${(account.codeHash || "").slice(0, 20)}...`);
     }
 
     // ── 6. Balance ──

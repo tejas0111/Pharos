@@ -1,6 +1,7 @@
 {
   "name": "@pharos/mcp-server",
   "version": "1.0.0",
+  "private": true,
   "description": "MCP server for Pharos blockchain operations — deploy, verify, check balances, security review, and more",
   "type": "module",
   "main": "index.js",

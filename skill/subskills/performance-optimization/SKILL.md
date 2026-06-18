@@ -105,7 +105,6 @@ performance, optimize, slow, bottleneck, bundle size, latency, gas optimization,
 readability or structural improvements (use refactoring-and-code-health), or bug fixes (use bug-finding-and-debugging)
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.

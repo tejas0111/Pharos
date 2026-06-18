@@ -48,7 +48,7 @@ deploy-mainnet:
 	forge script script/Deploy.s.sol --rpc-url pharos_mainnet --broadcast --verify
 
 verify:
-	forge verify-contract --chain-id $(PHRS) --verifier-url $PHAROSSCAN_MAINNET_API_URL \
+	forge verify-contract --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL \
 		--etherscan-api-key $$PHAROSSCAN_API_KEY $(ADDR) $(CONTRACT)
 
 pub-abis:
@@ -98,7 +98,7 @@ set -euo pipefail
 forge build --sizes
 forge test --fork-url $PHAROS_TESTNET_RPC_URL --gas-report
 forge verify-contract --chain-id 688689 \
-  --verifier-url $PHAROSSCAN_MAINNET_API_URL \
+  --verifier-url $PHAROSSCAN_TESTNET_API_URL \
   --etherscan-api-key "$PHAROSSCAN_API_KEY" \
   "$CONTRACT_ADDRESS" src/"$CONTRACT".sol:"$CONTRACT"
 ```
@@ -122,7 +122,6 @@ Run `make build && make test` across both testnet and mainnet chain configs.
 - **Monorepo structure** — For bootstrapping pnpm workspaces / Turborepo, use `monorepo-workspace-management`.
 
 ## Prerequisites
-- **Gate Fix**: Perform the mandatory "Gate Fix" check before proceeding.
 - **Security**:
     - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
     - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
@@ -154,6 +153,5 @@ Run `make build && make test` across both testnet and mainnet chain configs.
 code-review-templates-and-checklists (process automation), ci-and-build-troubleshooting (CI pipelines), monorepo-workspace-management (workspace bootstrapping), deployment-and-verification (deploy scripts)
 
 ## Gate
-
 
 Low risk. Show the automation plan first; add scripts after the user agrees on surface and scope.

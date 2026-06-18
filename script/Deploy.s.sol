@@ -18,6 +18,17 @@ contract DeployCounter is Script {
         console.log("Deployer:", deployer);
         console.log("Chain ID:", block.chainid);
 
+        uint256 expectedChainId = vm.envOr("EXPECTED_CHAIN_ID", uint256(0));
+        if (expectedChainId != 0 && block.chainid != expectedChainId) {
+            revert(
+                string(
+                    abi.encodePacked(
+                        "Wrong chain ID. Expected ", vm.toString(expectedChainId), ", got ", vm.toString(block.chainid)
+                    )
+                )
+            );
+        }
+
         vm.startBroadcast(deployerPrivateKey);
 
         Counter counter = new Counter();
@@ -26,9 +37,8 @@ contract DeployCounter is Script {
 
         console.log("Counter deployed at:", address(counter));
 
-        string memory explorerUrl = block.chainid == 688689
-            ? "https://atlantic.pharosscan.xyz"
-            : "https://www.pharosscan.xyz";
+        string memory explorerUrl =
+            block.chainid == 688689 ? "https://atlantic.pharosscan.xyz" : "https://www.pharosscan.xyz";
         console.log("Explorer URL:");
         console.log(explorerUrl);
         console.log("Contract address:");
