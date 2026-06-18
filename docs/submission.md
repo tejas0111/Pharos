@@ -128,7 +128,7 @@ skill/
   scripts/*.sh             # Deploy & verify scripts for Foundry
 
 contracts/                 # Example Solidity contracts (3 deployed)
-test/                      # Foundry tests (30 passing)
+test/                      # Foundry tests (34 Solidity + 21 MCP = 55 passing)
 script/                    # Forge deploy scripts
 config/                    # Pharos network configuration
 shared/                     # viem defineChain configs

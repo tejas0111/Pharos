@@ -38,3 +38,21 @@ jobs:
 
       - name: Run MCP tests
         run: node test.js
+
+  solidity-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Run Solidity tests
+        run: forge test -vvv

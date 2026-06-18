@@ -35,7 +35,7 @@ Pure contract development (use solidity-authoring), wallet/tx UI patterns (use w
 |---------|---------------|-----|
 | Wallet provider | Client component at root layout | wagmi creates DOM event listeners, needs `use client` |
 | Chain/network pages | Server components fetching from RSC | Static content (docs, explorer links) benefits from SSR |
-| Tx submission forms | Client components with `useActionState` | Form state, loading, error handling are interactive |
+| Tx submission forms | Client components with `useActionState` (React 19+) or local state with `useReducer` (React 18) | Form state, loading, error handling are interactive |
 | Data-heavy views (leaderboard) | Server components + ISR | Cache on-chain data at build time, revalidate periodically |
 | Route groups | `(dapp)` for dapp routes, `(marketing)` for landing | Clear separation of client vs server rendering boundaries |
 

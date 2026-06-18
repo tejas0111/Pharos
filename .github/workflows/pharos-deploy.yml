@@ -77,11 +77,13 @@ jobs:
             echo "=== SIMULATION ONLY ==="
             forge script script/Deploy.s.sol:DeployCounter \
               --rpc-url pharos_testnet \
+              --chain-id 688689 \
               -vvvv
           else
             echo "=== DEPLOYING TO TESTNET ==="
             forge script script/Deploy.s.sol:DeployCounter \
               --rpc-url pharos_testnet \
+              --chain-id 688689 \
               --broadcast \
               -vvvv
           fi
@@ -120,11 +122,14 @@ jobs:
         env:
           PHAROS_MAINNET_RPC_URL: ${{ secrets.PHAROS_MAINNET_RPC_URL }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PHAROSSCAN_API_KEY: ${{ secrets.PHAROSSCAN_API_KEY }}
           MAINNET_CONFIRM: ${{ secrets.MAINNET_CONFIRM }}
         run: |
           forge script script/Deploy.s.sol:DeployCounter \
             --rpc-url pharos_mainnet \
+            --chain-id 1672 \
             --broadcast \
             --verify \
+            --etherscan-api-key "$PHAROSSCAN_API_KEY" \
             --slow \
             -vvvv

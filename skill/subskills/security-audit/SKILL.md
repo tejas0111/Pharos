@@ -45,7 +45,7 @@ security audit, security review, vulnerability assessment, penetration test, aud
 | Base fee range | 1-10 gwei typical |
 | Flash loan protocols | Pharos native: no protocol-level flash loans (use Uniswap V3-style pair flash loans if deployed) |
 | Oracle feeds | Supra DORA (`0xSupra...`), Chainlink (`0xChainlink...`) — verify current addresses on PharosScan |
-| Bridge contracts | Native Pharos bridge on Ethereum (`0xBdE8...`), Pharos side (`0xBr1dge...`) — verify latest on PharosScan |
+| Bridge contracts | Native Pharos bridge — verify latest address from docs.pharos.xyz or PharosScan |
 | Block explorer | PharosScan — `https://atlantic.pharosscan.xyz` (both mainnet and testnet) |
 | Verifier API | `$PHAROSSCAN_MAINNET_API_URL` — usage: `forge verify-contract <ADDRESS> <CONTRACT> --chain-id 1672 --verifier-url $PHAROSSCAN_MAINNET_API_URL --etherscan-api-key <KEY>` |
 

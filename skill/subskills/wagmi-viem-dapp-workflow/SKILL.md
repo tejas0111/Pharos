@@ -204,7 +204,7 @@ Config validation in dev tools, component renders without errors.
 
 ## Related
 
-frontend-dapp-integration (UI wiring), nextjs-app-router-and-server-actions (routing)
+frontend-dapp-integration (UI wiring), dapp-ui-workflow (components and routing)
 
 ## Gate
 

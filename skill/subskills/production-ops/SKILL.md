@@ -56,8 +56,8 @@ export const provideHandleTransaction = (): HandleTransaction => async (txEvent)
   if (txEvent.to !== CONTRACT_ADDRESS) return findings;
 
   // Monitor PROS transfers over threshold
-  const phrsTransfers = txEvent.filterLog("Transfer(address,address,uint256)");
-  for (const transfer of phrsTransfers) {
+  const transfers = txEvent.filterLog("Transfer(address,address,uint256)");
+  for (const transfer of transfers) {
     if (transfer.args.value.gt(ethers.parseEther("100000"))) {
       findings.push(Finding.fromObject({
         name: "Large PROS Transfer",
@@ -125,7 +125,7 @@ cast send --rpc-url $PHAROS_TESTNET_RPC_URL --chain-id 688689 $CONTRACT "pause()
 Fetch historical events from old contract:
 
 ```bash
-curl -X POST "https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/account_tx" \
+curl -X POST "https://www.pharosscan.xyz/api/v1/explorer/command_api/account_tx" \
   -H "Content-Type: application/json" \
   -d '{"address": "0x1234...abcd", "page": 1, "offset": 50}'
 ```

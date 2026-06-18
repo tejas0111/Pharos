@@ -134,11 +134,14 @@ anvita agent env set PHAROS_TESTNET_RPC_URL https://atlantic.dplabs-internal.com
 
 ### Step 4: Configure x402 Micropayments
 
-x402 enables other agents to pay PHRS/PROS to invoke your tools:
+x402 enables other agents to pay the native token (testnet: PHRS, mainnet: PROS) to invoke your tools:
 
 ```bash
-# Enable x402 for the agent
+# Enable x402 for the agent (testnet — use PHRS)
 anvita agent x402 enable --token PHRS
+
+# For mainnet deployment, use PROS instead:
+# anvita agent x402 enable --token PROS
 
 # Set wallet for receiving payments
 anvita agent x402 set-wallet 0x...
@@ -194,7 +197,7 @@ anvita agent invoke @pharos/suite pharos_check_balance \
 
 1. **Phase 2 Ready**: The MCP server and 21 executable tools are already structured for Anvita Flow deployment. No rewriting needed.
 
-2. **x402 Micropayments**: The pricing model is pre-defined. Other agents can pay PHRS/PROS to invoke your tools, creating a self-sustaining agent economy.
+2. **x402 Micropayments**: The pricing model is pre-defined with network-aware tokens (PHRS for testnet, PROS for mainnet). Other agents can pay to invoke your tools, creating a self-sustaining agent economy.
 
 3. **Dual-Layer**: 42 prompt subskills for human developers + 21 executable MCP tools for autonomous agents = full coverage of the "Skill Creator → Agent Developer → User Invocation" value chain.
 

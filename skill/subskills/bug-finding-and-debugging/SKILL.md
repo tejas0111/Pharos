@@ -56,7 +56,7 @@ cast abi-decode --input "Error(string)" 0x08c379a0...
 ### Event Logs via PharosScan API
 
 ```bash
-curl -X POST "https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/account_tx" \
+curl -X POST "https://www.pharosscan.xyz/api/v1/explorer/command_api/account_tx" \
   -H "Content-Type: application/json" \
   -d '{"address": "0xContractAddress", "page": 1, "offset": 50}'
 ```

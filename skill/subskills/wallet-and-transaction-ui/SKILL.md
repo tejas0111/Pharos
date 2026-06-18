@@ -167,7 +167,7 @@ Append tx hash to explorer URL: `https://www.pharosscan.xyz/tx/{txHash}` (mainne
 ### Transaction History Pattern
 Use PharosScan API to fetch transaction history for a wallet:
 ```typescript
-const TX_HISTORY_API = 'https://api.www.pharosscan.xyz/pharos-mainnet/v1/explorer/command_api/account_tx'
+const TX_HISTORY_API = 'https://www.pharosscan.xyz/api/v1/explorer/command_api/account_tx'
 
 async function fetchTxHistory(address: string, page = 1) {
   const res = await fetch(

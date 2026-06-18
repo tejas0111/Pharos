@@ -61,7 +61,7 @@ cross-chain, bridge, LayerZero, CCTP, SPN Mailbox, message passing, chain abstra
 - **Query:** "Set up CCTP USDC bridging between Pharos testnet and Arbitrum" → **Action:** Map CCTP domain IDs, implement `messageTransmitter` integration, configure attestation endpoint, write test for circle attestation + `receiveTransaction` flow.
 - **Query:** "Design an SPN Mailbox-based cross-chain message flow" → **Action:** Architect Mailbox adapter pattern, define message envelope (source chain, nonce, payload hash), implement replay protection with ordered nonce tracking.
 - **Query:** "Bridge my ERC-721 collection from Pharos to Polygon using ONFT" → **Action:** Extend ERC-721 with ONFT semantics, override `_debit`/`_credit` for NFT locking/burning on source and minting on destination, configure min gas limit for destination execution.
-- **Query:** "Bridge tokens from Ethereum to Pharos mainnet" → **Action:** Use native Pharos bridge (`0xBdE8bD1bD92B8E8D3bD8bD8bD8bD8bD8bD8bD8bD` on Ethereum, `0xBr1dgePhar0sMaiNnEtAddReSs00000000001` on Pharos), construct `BridgeMessage` (sourceChain=1, destinationAddr, token, amount, nonce), estimate fee (`baseFee + gasBuffer * gasPrice`), call `bridgeTokens` on source, verify status on PharosScan (`https://www.pharosscan.xyz/tx/{txHash}`).
+- **Query:** "Bridge tokens from Ethereum to Pharos mainnet" → **Action:** Fetch native Pharos bridge address from docs.pharos.xyz (`https://docs.pharos.xyz/contracts`), construct `BridgeMessage` (sourceChain=1, destinationAddr, token, amount, nonce), estimate fee (`baseFee + gasBuffer * gasPrice`), call `bridgeTokens` on source, verify status on PharosScan (`https://www.pharosscan.xyz/tx/{txHash}`).
 - **Query:** "Test cross-chain bridging on Pharos testnet" → **Action:** Connect to Pharos Atlantic Testnet bridge (`0xBr1dgePhar0sTeStN3tAddReSs00000000002`), use Ethereum Sepolia as source, fund with testnet ETH, approve bridge contract for test token, submit `bridgeTokens(688689, recipient, token, amount, nonce)`, verify delivery on PharosScan testnet explorer.
 
 ## Verification
@@ -74,7 +74,7 @@ The Pharos native bridge supports token transfers between Ethereum mainnet and P
 
 ### Bridge Contract Addresses
 
-- **Ethereum mainnet bridge**: `0xBdE8bD1bD92B8E8D3bD8bD8bD8bD8bD8bD8bD8bD`
+- **Ethereum mainnet bridge**: `TODO: fetch from docs.pharos.xyz`
 - **Pharos mainnet bridge**: `0xBr1dgePhar0sMaiNnEtAddReSs00000000001`
 - **Pharos Atlantic Testnet bridge**: `0xBr1dgePhar0sTeStN3tAddReSs00000000002`
 
