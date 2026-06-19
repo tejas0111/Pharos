@@ -56,8 +56,8 @@ contract RWATokenTest is Test {
 
     function test_Transfer_WorksWhenWhitelisted() public {
         vm.prank(USER);
-        bool success = token.transfer(USER2, 100 ether);
-        assertTrue(success);
+        require(token.transfer(USER2, 100 ether), "transfer failed");
+        // success validated by require above
         assertEq(token.balanceOf(USER), 900 ether);
         assertEq(token.balanceOf(USER2), 600 ether);
     }
@@ -84,7 +84,7 @@ contract RWATokenTest is Test {
 
     function test_Transfer_RespectsCooldown() public {
         vm.prank(USER);
-        token.transfer(USER2, 100 ether);
+        require(token.transfer(USER2, 100 ether), "transfer failed");
 
         // Second transfer within cooldown should revert
         vm.prank(USER);
@@ -94,13 +94,13 @@ contract RWATokenTest is Test {
 
     function test_Transfer_WorksAfterCooldown() public {
         vm.prank(USER);
-        token.transfer(USER2, 100 ether);
+        require(token.transfer(USER2, 100 ether), "transfer failed");
 
         vm.warp(block.timestamp + token.s_transferCooldown() + 1);
 
         vm.prank(USER);
-        bool success = token.transfer(USER2, 50 ether);
-        assertTrue(success);
+        require(token.transfer(USER2, 50 ether), "transfer failed");
+        // success validated by require above
     }
 
     // ── Whitelist Enforcement ──────────────────────
@@ -111,7 +111,7 @@ contract RWATokenTest is Test {
         vm.prank(OWNER);
         token.mint(UNWHITELISTED, 100 ether);
         vm.prank(UNWHITELISTED);
-        token.transfer(USER, 1);
+        require(token.transfer(USER, 1), "transfer failed");
     }
 
     // ── Minting ────────────────────────────────────

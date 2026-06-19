@@ -22,7 +22,7 @@ contract PharosRWATokenTest is Test {
 
         // Transfer some tokens to USER
         vm.prank(OWNER);
-        token.transfer(USER, 10000e18);
+        require(token.transfer(USER, 10000e18), "transfer failed");
     }
 
     function test_Constructor_SetsMetadata() public {
@@ -40,7 +40,7 @@ contract PharosRWATokenTest is Test {
 
     function test_Transfer_WorksWithKYC() public {
         vm.prank(USER);
-        token.transfer(USER2, 1000e18);
+        require(token.transfer(USER2, 1000e18), "transfer failed");
         assertEq(token.balanceOf(USER), 9000e18);
         assertEq(token.balanceOf(USER2), 1000e18);
     }
@@ -104,7 +104,7 @@ contract PharosRWATokenTest is Test {
         token.setKYC(user3, block.timestamp + 100); // Expires in 100 sec
 
         vm.prank(OWNER);
-        token.transfer(user3, 100e18); // Works before expiry
+        require(token.transfer(user3, 100e18), "transfer failed"); // Works before expiry
 
         vm.warp(block.timestamp + 200);
 
