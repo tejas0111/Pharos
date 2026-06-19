@@ -4,7 +4,7 @@
 [![tools](https://img.shields.io/badge/MCP%20tools-21-purple)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 
-MCP server for AI agents to interact with the Pharos blockchain. Exposes **21 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, frontend sync, and multi-sig support.
+MCP server for AI agents to interact with the Pharos blockchain. Exposes **26 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, frontend sync, and multi-sig support.
 
 ## Tools
 

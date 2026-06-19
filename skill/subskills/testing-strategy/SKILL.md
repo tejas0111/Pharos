@@ -129,3 +129,50 @@ High risk — two-phase execution required:
 - Do NOT Generate tests, write test files, or modify test fixtures
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+## Contract-Specific Test Coverage
+
+### PharosLendingPool
+- **Unit:** `test/PharosLendingPool.t.sol` — supply, borrow, liquidate, interest accrual
+- **Fuzz:** Random amounts within [1, 1000] ETH for supply/borrow
+- **Edge:** Zero-amount reverts, max capacity reached, liquidation at boundary
+
+### DEXPool
+- **Unit:** `test/DEXPool.t.sol` — addLiquidity, removeLiquidity, swap
+- **Invariant:** `k = reserveA * reserveB` must never decrease after swap
+- **Edge:** Swap with zero liquidity, excessive slippage
+
+### StakingPool
+- **Unit:** `test/StakingPool.t.sol` — stake, withdraw, claimRewards
+- **Fuzz:** Random stake durations [1 hour, 30 days]
+- **Edge:** Withdraw during lock period, reward calculation after rate change
+
+### PharosERC20
+- **Invariant:** `test/PharosERC20Invariants.t.sol` — total supply never exceeds cap
+- **Handler:** `test/PharosERC20Handler.sol` — fuzzed transfers, approvals, mints
+
+### PharosSPNPaymaster
+- **Unit:** `test/PharosSPNPaymaster.t.sol` — whitelist, budget checks, pause
+- **Edge:** Budget exhaustion, non-whitelisted sender, paused state
+
+### PharosZkLogin
+- **Unit:** `test/PharosZkLogin.t.sol` — identity registration, key lifecycle
+- **Edge:** Duplicate commitment, expired ephemeral key, key revocation
+
+## MCP Tool Testing
+
+Behavioral MCP tests in `mcp-server/test-behavioral.mjs` validate:
+- Tool registration (all 26+ tools present with valid schemas)
+- `network_config` returns chain IDs
+- `check_balance` handles valid and invalid addresses
+- `gas_estimate` returns reasonable estimates
+- Error handling for unknown tools
+
+Run: `node --test mcp-server/test-behavioral.mjs`
+
+## References
+
+- `test/` — All test files
+- `test/PharosERC20Invariants.t.sol` — Invariant testing pattern
+- `test/PharosERC20Handler.sol` — Handler-based fuzzing
+- `mcp-server/test-behavioral.mjs` — MCP behavioral tests
+- Forge docs: `forge test --gas-report`, `forge test --fuzz-seed`

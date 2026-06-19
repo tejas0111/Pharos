@@ -127,7 +127,7 @@ test("SUBLINK map has all 21 tool entries", () => {
 test("withSubskill function wired to all tools", () => {
   const content = readFileSync(INDEX(), "utf8");
   const callCount = (content.match(/withSubskill\(/g) || []).length;
-  assert(callCount >= 21, "Expected 21+ withSubskill calls, found " + callCount);
+  assert(callCount >= 26, "Expected 21+ withSubskill calls, found " + callCount);
 });
 
 // 10. Structured error hints present
@@ -210,7 +210,7 @@ test("All 21 tools have unique names", () => {
   const content = readFileSync(INDEX(), "utf8");
   const names = content.match(/case "pharos_\w+"/g) || [];
   const unique = new Set(names);
-  assert(unique.size === 21, `Expected 21 unique tool case names, got ${unique.size}`);
+  assert(unique.size === 26, `Expected 26 unique tool case names, got ${unique.size}`);
 });
 
 test("RPC retry logic present", () => {

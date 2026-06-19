@@ -131,3 +131,78 @@ High risk — two-phase execution required:
 - Do NOT Patch findings, modify contract code, or implement fixes
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+## Pharos Contract Review Examples
+
+### Example 1: PharosSPNPaymaster Review
+
+```solidity
+// contracts/PharosSPNPaymaster.sol
+// Key things to check:
+// 1. onlyEntryPoint modifier — msg.sender must be canonical EntryPoint
+// 2. validatePaymasterUserOp — check whitelist AND budget
+// 3. postOp — update s_sponsorSpent AND s_globalSpent
+// 4. No reentrancy in postOp (called by EntryPoint, not user)
+
+contract PharosSPNPaymaster {
+    // Check: Immutable addresses prevent proxy misuse ✅
+    address public immutable i_entryPoint;
+    address public immutable i_owner;
+
+    // Check: Budget cap prevents unlimited sponsorship ✅
+    function validatePaymasterUserOp(...) external onlyEntryPoint {
+        if (s_globalSpent + maxCost > s_globalBudget) revert InsufficientBudget();
+    }
+}
+```
+
+### Example 2: DEXPool Slippage Protection
+
+```solidity
+// contracts/DEXPool.sol
+// Check: swap() enforces _minAmountOut for slippage ✅
+function swap(uint256 _amountIn, uint256 _minAmountOut) external {
+    uint256 amountOut = getAmountOut(_amountIn);
+    if (amountOut < _minAmountOut) revert DEXPool__SlippageExceeded();
+}
+```
+
+### Example 3: SimpleLender Liquidation
+
+```solidity
+// contracts/SimpleLender.sol
+// Bug found: s_totalBorrows -= debt caused underflow when interest > principal
+// Fix: s_totalBorrows -= loan.borrowAmount (track principal only)
+```
+
+## Checklist by Contract Type
+
+### Paymaster / Gas Sponsor
+- [ ] `onlyEntryPoint` check enforced
+- [ ] Budgets checked in `validatePaymasterUserOp`, not just `postOp`
+- [ ] Whitelist prevents griefing
+- [ ] Pause mechanism for emergencies
+
+### AMM / DEX
+- [ ] Constant product formula: `x * y = k` invariant
+- [ ] Slippage protection via `_minAmountOut`
+- [ ] Fee accumulator (default 0.3%)
+- [ ] LP token math correct (geometric mean for first deposit)
+
+### Lending Pool
+- [ ] Interest rate model (kinked or linear)
+- [ ] Collateral ratio checks (min 150%)
+- [ ] Liquidation bonus not requiring external tokens
+- [ ] Pull-over-push for withdrawals
+
+### RWA Token
+- [ ] KYC/whitelist enforced on every transfer
+- [ ] Account freeze/unfreeze capability
+- [ ] Supply cap cannot be reduced below current supply
+- [ ] Transfer cooldown for flash loan protection
+
+## References
+
+- `contracts/` — All audit targets with inline NatSpec
+- `contracts/SimpleLender.sol` — Contains the bug that was fixed (liquidation underflow)
+- `contracts/PharosSPNPaymaster.sol` — Budget check pattern
+- `contracts/DEXPool.sol` — Slippage protection pattern

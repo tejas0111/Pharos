@@ -134,3 +134,46 @@ foundry-hardhat-contract-workflow (local alternative), framework-integration (co
 ## Gate
 
 Low risk for testnet prototyping. Do not deploy to mainnet (1672) or paste sensitive RPC URLs into Remix without explicit user approval.
+
+## Remix + Pharos Contracts
+
+### Contracts to Test in Remix
+
+| Contract | File | Why Remix is Useful |
+|----------|------|-------------------|
+| Counter | `contracts/Counter.sol` | Quick deploy to test RPC connectivity |
+| Storage | `contracts/Storage.sol` | Simple read/write to verify PharosScan |
+| PharosERC20 | `contracts/PharosERC20.sol` | Test token transfers, approvals |
+| SimpleLender | `contracts/SimpleLender.sol` | Test liquidation edge cases |
+
+### Remix Deployment Flow
+
+1. Open `https://remix.ethereum.org`
+2. Load contract from GitHub: `github.com/tejas0111/Pharos/contracts/<NAME>.sol`
+3. Compile with Solidity 0.8.26+
+4. Deploy using "Injected Provider - MetaMask"
+5. Network: Pharos Atlantic (chain 688689) or Pacific (1672)
+
+### Network Config for MetaMask
+
+| Network | RPC | Chain ID | Symbol |
+|---------|-----|----------|--------|
+| Atlantic Testnet | `https://atlantic.dplabs-internal.com` | 688689 | PHRS |
+| Pacific Mainnet | `https://rpc.pharos.xyz` | 1672 | PROS |
+
+### Testing Functions in Remix
+
+**Counter.sol**:
+- `increment()` → check `count()`
+- `decrement()` → check underflow protection
+
+**PharosERC20.sol**:
+- `mint(to, amount)` → check `balanceOf(to)`
+- `transfer(to, amount)` → check sender/receiver balances
+- `approve(spender, amount)` → check `allowance(owner, spender)`
+
+## References
+
+- `contracts/` — All contracts deployable via Remix
+- PharosScan: https://atlantic.pharosscan.xyz (testnet) / https://www.pharosscan.xyz (mainnet)
+- Faucet: https://testnet.pharosnetwork.xyz

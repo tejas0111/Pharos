@@ -151,3 +151,83 @@ High risk — two-phase execution required:
 - Do NOT Write contract files to disk, modify existing files, or compile/deploy
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+## Pharos Solidity Patterns (with Real Examples)
+
+### Immutable Chain ID Pattern
+
+Every contract stores the chain ID as an immutable:
+
+```solidity
+// contracts/PharosLendingPool.sol
+uint256 public immutable i_chainId;
+
+constructor(uint256 _chainId) {
+    i_chainId = _chainId;
+}
+```
+
+### Pull-Over-Push Withdrawal
+
+Instead of sending tokens directly, let users pull:
+
+```solidity
+// contracts/StakingPool.sol
+function withdraw(uint256 _amount) external nonReentrant {
+    // ... validate ...
+    s_rewardToken.safeTransfer(msg.sender, rewards);
+    s_stakingToken.safeTransfer(msg.sender, _amount);
+}
+```
+
+### Custom Error Pattern
+
+```solidity
+// All contracts use this pattern
+error DEXPool__NotOwner();
+error DEXPool__InsufficientLiquidity();
+error DEXPool__SlippageExceeded();
+
+if (amountOut < _minAmountOut) revert DEXPool__SlippageExceeded();
+```
+
+### Reentrancy Guard
+
+```solidity
+// contracts/DEXPool.sol
+import {ReentrancyGuard} from "./interfaces/ReentrancyGuard.sol";
+
+contract DEXPool is ReentrancyGuard {
+    function swap(uint256 _amountIn, uint256 _minAmountOut) external nonReentrant {
+        // ... swap logic ...
+    }
+}
+```
+
+### SafeERC20 Pattern
+
+```solidity
+// contracts/SimpleLender.sol
+import {SafeERC20} from "./interfaces/SafeERC20.sol";
+
+using SafeERC20 for IERC20;
+
+i_borrowToken.safeTransferFrom(msg.sender, address(this), _amount);
+```
+
+## Contract Quick Reference
+
+| Pattern | Where Applied |
+|---------|---------------|
+| Immutable owner + chain ID | All contracts |
+| Custom errors | All contracts |
+| ReentrancyGuard | SimpleLender, DEXPool, StakingPool |
+| SafeERC20 | SimpleLender, StakingPool |
+| Pull-over-push | StakingPool, PharosSPNPaymaster |
+| Event emission per state change | All contracts |
+| NatSpec documentation | All contracts |
+
+## References
+
+- `contracts/` — All contract implementations
+- `contracts/interfaces/` — ReentrancyGuard, SafeERC20, IERC20
+- OpenZeppelin patterns adapted for Pharos

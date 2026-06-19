@@ -127,6 +127,22 @@ jobs:
         run: |
           forge script script/Deploy.s.sol:DeployCounter \
             --rpc-url pharos_mainnet \
+
+      - name: Deploy SPN Paymaster
+        if: github.event.inputs.network == 'testnet'
+        run: |
+          forge script script/DeploySPNPaymaster.s.sol \
+            --rpc-url https://atlantic.dplabs-internal.com \
+            --broadcast \
+            --slow -vvvv
+
+      - name: Deploy ZkLogin Verifier
+        if: github.event.inputs.network == 'testnet'
+        run: |
+          forge script script/DeployZkLogin.s.sol \
+            --rpc-url https://atlantic.dplabs-internal.com \
+            --broadcast \
+            --slow -vvvv
             --chain-id 1672 \
             --broadcast \
             --verify \

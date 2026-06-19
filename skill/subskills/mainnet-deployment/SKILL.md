@@ -134,3 +134,52 @@ High risk — two-phase execution required:
 - Do NOT send any onchain transactions or modify critical files until approved.
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+
+## Deployable Contracts on Mainnet
+
+All 13 contracts in `contracts/` are mainnet-ready (167 tests passing):
+
+| Contract | Script | Purpose |
+|----------|--------|--------|
+| PharosSPNPaymaster | `DeploySPNPaymaster.s.sol` | Sponsored transactions via ERC-4337 |
+| PharosZkLogin | `DeployZkLogin.s.sol` | Identity abstraction |
+| PharosLendingPool | `DeployLendingPool.s.sol` | Collateralized lending |
+| DEXPool | `DeployDEXPool.s.sol` | Constant-product AMM |
+| StakingPool | `DeployStakingPool.s.sol` | Time-weighted staking |
+| PharosRWAToken | `DeployRWAToken.s.sol` | Regulated RWA token |
+| CrossChainMessage | `DeployCrossChain.s.sol` | SPN Mailbox |
+| PharosTimelockController | — | Governance timelock |
+
+## Deploy Command Examples
+
+```bash
+# 1. Deploy SPN Paymaster (gas sponsorship for dApp users)
+forge script script/DeploySPNPaymaster.s.sol \
+    --rpc-url https://rpc.pharos.xyz \
+    --broadcast --slow -vvvv
+
+# 2. Whitelist users (post-deploy)
+cast send <PAYMASTER_ADDR> "addSponsor(address)" <USER_ADDR> \
+    --rpc-url https://rpc.pharos.xyz \
+    --private-key $PRIVATE_KEY
+
+# 3. Set budgets
+cast send <PAYMASTER_ADDR> "setGlobalBudget(uint256)" 1000000000000000000000 \
+    --rpc-url https://rpc.pharos.xyz
+```
+
+## Post-Deployment Checklist
+
+- [ ] Verify on PharosScan (auto-verify via script)
+- [ ] Update `DEPLOYMENTS.md` with address
+- [ ] Fund contract with PROS (if paymaster)
+- [ ] Transfer ownership to Safe multi-sig
+- [ ] Set up monitoring (balance alerts, gas tracking)
+- [ ] Update web demo with live contract address
+
+## References
+
+- `DEPLOYMENTS.md` — Record deployments here
+- `script/` — All deploy scripts
+- `config/pharos.json` — Network configuration
+- PharosScan: https://www.pharosscan.xyz

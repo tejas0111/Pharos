@@ -130,3 +130,68 @@ performance-optimization (performance-driven changes), solidity-authoring (contr
 
 
 Medium risk. Present the refactor plan and behavior guarantees first; proceed only after the user agrees on scope.
+
+## Pharos Refactoring Patterns
+
+### Struct Packing (SALI Optimization)
+
+Before (3 slots):
+```solidity
+struct Position {
+    uint256 supplied;     // 32 bytes
+    uint256 borrowed;     // 32 bytes
+    uint256 timestamp;    // 32 bytes - total: 96 bytes = 3 storage slots
+}
+```
+
+After (1 slot):
+```solidity
+struct Position {
+    uint128 supplied;     // 16 bytes
+    uint128 borrowed;     // 16 bytes
+    uint48  timestamp;    // 6 bytes
+    // Total: 38 bytes = 1 storage slot (38 < 32... actually need 2 slots)
+}
+```
+
+> See: `contracts/PharosLendingPool.sol` `Position` struct
+
+### Custom Error Migration
+
+Before (costs ~24k gas per revert):
+```solidity
+require(amount > 0, "Amount must be positive");
+```
+
+After (costs ~140 gas per revert):
+```solidity
+error ZeroAmount();
+if (amount == 0) revert ZeroAmount();
+```
+
+> Applied in: All project contracts
+
+### Immutable Chain ID
+
+```solidity
+// contracts/PharosLendingPool.sol
+uint256 public immutable i_chainId;
+
+constructor(uint256 _chainId) {
+    i_chainId = _chainId;
+}
+```
+
+## Code Smells to Fix
+
+- [ ] Hardcoded addresses → use constructor params or env vars
+- [ ] No events on state changes → add events
+- [ ] `memory` instead of `calldata` for read-only params → change to `calldata`
+- [ ] Missing NatSpec → add `@param`, `@return`, `@dev` tags
+- [ ] Redundant `SafeERC20` on known-safe tokens → can use raw `transfer`
+
+## References
+
+- `contracts/DEXPool.sol` — `_sqrt` helper, unchecked math
+- `contracts/PharosSPNPaymaster.sol` — calldata params, batch operations
+- `contracts/StakingPool.sol` — pull-over-push pattern

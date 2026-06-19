@@ -100,3 +100,51 @@ High risk — two-phase execution required:
 - Do NOT Patch vulnerabilities, modify contract code, or recommend fixes without user approval of the remediation plan
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+## Pharos Contract Audit Checklist
+
+### SPN Paymaster (`contracts/PharosSPNPaymaster.sol`)
+```
+[ ] onlyEntryPoint modifier prevents spoofing
+[ ] Budget checks happen in validatePaymasterUserOp (not just postOp)
+[ ] s_sponsorSpent updated correctly
+[ ] No reentrancy in postOp (called by EntryPoint, not user)
+[ ] Pause stops new validations but doesn't block in-flight ops
+```
+
+### Lending Pool (`contracts/PharosLendingPool.sol`)
+```
+[ ] Interest rate model doesn't overflow (kinked rates use SafeMath in 0.8+)
+[ ] Liquidation bonus doesn't require contract to hold extra tokens
+[ ] Collateral ratio checks prevent under-collateralized borrows
+[ ] Reserve factor correctly routed to protocol treasury
+```
+
+### DEX Pool (`contracts/DEXPool.sol`)
+```
+[ ] Constant product invariant holds (x*y >= k after swap)
+[ ] Slippage protection via _minAmountOut
+[ ] LP token mint/burn math correct (geometric mean)
+[ ] No front-running vulnerability in addLiquidity
+```
+
+### Automated Tools
+- **Slither**: `slither contracts/PharosSPNPaymaster.sol --json -`
+- **Forge inspect**: `forge inspect PharosSPNPaymaster methods`
+- **Gas report**: `forge test --gas-report`
+
+## Vulnerability Classes
+
+| Class | Pharos-Specific Risk | Example Contract |
+|-------|---------------------|-----------------|
+| Reentrancy | No 2300 gas stipend on `.call{value:}` | Any contract using `send`/`transfer` |
+| Cross-chain replay | Chain ID 1672/688689 difference | `CrossChainMessage.sol` |
+| Flash loan composability | SPN paymaster budget drain | `PharosSPNPaymaster.sol` |
+| Oracle manipulation | No native oracle on Pharos | `PharosLendingPool.sol` (if using oracle) |
+| Access control drift | Ownership change via upgrades | `PharosTimelockController.sol` |
+
+## References
+
+- `contracts/PharosSPNPaymaster.sol` — Paymaster security patterns
+- `contracts/DEXPool.sol` — AMM security patterns
+- `contracts/PharosLendingPool.sol` — Lending security patterns
+- Slither docs: https://github.com/crytic/slither

@@ -154,3 +154,59 @@ export const useTxHistory = create<TxHistoryStore>()(
 - `skill/subskills/wallet-and-transaction-ui/SKILL.md` — tx UX patterns
 - `skill/subskills/frontend-dapp-integration/SKILL.md` — full dapp integration
 - `skill/subskills/dapp-ui-workflow/SKILL.md` — component and UI patterns
+
+## Pharos dApp Quality Checklist
+
+### Contract Integration
+- [ ] Wallet connects to Pharos Atlantic (chain 688689) and Pacific (1672)
+- [ ] Network switching handled gracefully (wrong chain popup)
+- [ ] Contract reads use `viem` `readContract` with error handling
+- [ ] Contract writes use pull-over-push pattern (user initiates tx)
+- [ ] Transaction status tracked (pending → confirmed → failed)
+- [ ] Gas estimation with fallback (EIP-1559 on Pharos)
+
+### UI/UX
+- [ ] Loading states for all blockchain interactions
+- [ ] Transaction hash displayed with PharosScan link
+- [ ] Error messages are human-readable (not raw EVM revert reasons)
+- [ ] Responsive design (mobile-first)
+- [ ] Dark mode (matches Pharos branding)
+
+### Real Examples from This Project
+
+**Web Demo** (`web/index.html`):
+- 6 interactive contract cards with working button simulators
+- Real-time log viewers with colored info/ok/warn/err tags
+- Utilization bars and budget tracking visualizations
+- zkLogin session timer showing key expiration
+- Dark theme with animated background orbs
+
+**Run it:**
+```bash
+cd web && bash serve-demo.sh
+# Opens at http://localhost:8092
+```
+
+### Testing dApp Quality
+```bash
+# Validate contract integration
+forge test --match-contract PharosSPNPaymasterTest -vv
+
+# Check frontend builds (if using Next.js)
+npm run build
+
+# Manual QA checklist
+open http://localhost:3000
+# - Connect wallet
+# - Switch networks
+# - Read contract state
+# - Submit transaction
+# - Check error states
+```
+
+## References
+
+- `web/index.html` — Interactive demo
+- `contracts/` — Contract integration targets
+- Viem docs: https://viem.sh
+- Wagmi docs: https://wagmi.sh

@@ -139,3 +139,70 @@ export function PharosStatusBar() {
 - `skill/subskills/wallet-and-transaction-ui/SKILL.md` — tx lifecycle UX patterns
 - `skill/subskills/wagmi-viem-dapp-workflow/SKILL.md` — wagmi/viem provider setup
 - `skill/subskills/frontend-dapp-integration/SKILL.md` — full dapp integration patterns
+
+## Pharos dApp UI Patterns
+
+### Connect Wallet
+
+```typescript
+import { createWalletClient, custom } from 'viem';
+import { pharosAtlantic } from './chains';
+
+const walletClient = createWalletClient({
+  chain: pharosAtlantic,  // Chain ID 688689
+  transport: custom(window.ethereum!)
+});
+
+const [address] = await walletClient.requestAddresses();
+```
+
+### Read Contract State
+
+```typescript
+import { createPublicClient, http } from 'viem';
+
+const client = createPublicClient({
+  chain: pharosAtlantic,
+  transport: http('https://atlantic.dplabs-internal.com')
+});
+
+const balance = await client.readContract({
+  address: '0x...',
+  abi: erc20Abi,
+  functionName: 'balanceOf',
+  args: [userAddress]
+});
+```
+
+### Write Contract (with SPN sponsorship)
+
+```typescript
+// 1. Build UserOperation
+const userOp = await walletClient.prepareUserOperation({
+  calls: [{ to: contractAddress, data: encodedCall }]
+});
+
+// 2. Send via bundler (or directly to EntryPoint)
+const hash = await bundlerClient.sendUserOperation({
+  userOp,
+  entryPoint: '0x0000000071727De22E5E9d8BAf0edAc6f37da032'
+});
+```
+
+## Interactive Demo
+
+The project includes an interactive web demo at `web/index.html` showcasing:
+- 6 contract cards: SPN Paymaster, zkLogin, LendingPool, DEXPool, StakingPool, RWAToken
+- Working button simulators for each contract
+- Real-time log viewers with colored tags
+- Utilization bars and budget tracking
+- Dark theme with animated backgrounds
+
+Run: `cd web && bash serve-demo.sh`
+
+## References
+
+- `web/index.html` — Interactive demo
+- `contracts/PharosSPNPaymaster.sol` — Contract integration examples
+- Viem docs: https://viem.sh
+- Wagmi docs: https://wagmi.sh

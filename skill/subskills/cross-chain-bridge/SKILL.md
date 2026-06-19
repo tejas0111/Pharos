@@ -174,3 +174,116 @@ High risk — two-phase execution required:
 - Do NOT Configure bridge adapters, approve token spend, implement message passing, or deploy bridge contracts
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+## Pharos Cross-Chain Implementation
+
+### Contracts
+
+| Contract | File | Purpose |
+|----------|------|--------|
+| CrossChainMessage | `contracts/CrossChainMessage.sol` | SPN Mailbox for cross-chain messaging |
+| PharosSPNPaymaster | `contracts/PharosSPNPaymaster.sol` | Gas sponsorship for cross-chain ops |
+
+### CrossChainMessage.sol — Mailbox Pattern
+
+```solidity
+// contracts/CrossChainMessage.sol
+
+struct Message {
+    bytes32 id;
+    address sender;
+    address target;
+    bytes payload;
+    uint256 sourceChain;
+    uint256 destChain;
+    uint256 timestamp;
+    bool delivered;
+    bool failed;
+}
+
+struct ChainPeer {
+    uint256 chainId;
+    address peerContract;
+    bool trusted;
+}
+```
+
+### Sending a Cross-Chain Message
+
+```solidity
+function sendMessage(
+    uint256 _destChain,
+    address _target,
+    bytes calldata _payload
+) external returns (bytes32 messageId) {
+    messageId = keccak256(abi.encode(
+        msg.sender, _target, _payload, block.timestamp, s_messages.length
+    ));
+    s_messages.push(Message({
+        id: messageId,
+        sender: msg.sender,
+        target: _target,
+        payload: _payload,
+        sourceChain: i_chainId,
+        destChain: _destChain,
+        timestamp: block.timestamp,
+        delivered: false,
+        failed: false
+    }));
+    emit MessageSent(messageId, msg.sender, _target, _destChain);
+}
+```
+
+### Deploying Cross-Chain Infrastructure
+
+```bash
+# 1. Deploy CrossChainMessage on Chain A
+forge script script/DeployCrossChain.s.sol --rpc-url <RPC_A> --broadcast
+
+# 2. Deploy CrossChainMessage on Chain B
+forge script script/DeployCrossChain.s.sol --rpc-url <RPC_B> --broadcast
+
+# 3. Register peers (bi-directional)
+cast send <ADDR_A> "registerPeer(uint256,address,bool)" <CHAIN_B_ID> <ADDR_B> true
+cast send <ADDR_B> "registerPeer(uint256,address,bool)" <CHAIN_A_ID> <ADDR_A> true
+```
+
+### Message Delivery Flow
+
+```solidity
+// Relayer picks up MessageSent event on Chain A
+// Constructs delivery transaction on Chain B
+
+// On Chain B:
+function deliverMessage(
+    uint256 _sourceChain,
+    bytes32 _messageId,
+    bytes calldata _payload
+) external onlyTrustedPeer {
+    // Decode and forward to target contract
+    (bool success,) = _target.call(_payload);
+    // ... update message state
+}
+```
+
+### Testing
+
+```bash
+forge test --match-contract CrossChainMessage -vv
+```
+
+> Tests in `test/CrossChainMessage.t.sol` cover: message sending, delivery, failure, retry, peer registration/removal, and access control.
+
+### SPN Integration
+
+Cross-chain messages can trigger SPN Paymaster sponsorship:
+1. User on Chain A sends a message to SPN on Chain B requesting a sponsored transaction
+2. SPN Mailbox relays to Chain B
+3. SPN Paymaster on Chain B adds user to whitelist
+4. User submits UserOperations on Chain B with sponsored gas
+
+### References
+
+- `contracts/CrossChainMessage.sol` — Mailbox implementation
+- `contracts/PharosSPNPaymaster.sol` — Gas sponsorship integration
+- `test/CrossChainMessage.t.sol` — Test suite
+- `script/DeployCrossChain.s.sol` — Deployment script

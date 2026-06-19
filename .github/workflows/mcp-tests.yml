@@ -36,8 +36,11 @@ jobs:
       - name: Check syntax
         run: node --check index.js
 
-      - name: Run MCP tests
+      - name: Run structural MCP tests
         run: node test.js
+
+      - name: Run behavioral MCP tests
+        run: node --test test-behavioral.mjs
 
   solidity-tests:
     runs-on: ubuntu-latest

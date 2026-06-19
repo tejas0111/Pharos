@@ -130,3 +130,64 @@ High risk — two-phase execution required:
 - Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
 - Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
 
+
+## Pharos Contracts: Dependency Upgrade Guide
+
+### OpenZeppelin 4.9 → 5.0
+
+The project's `contracts/` use OpenZeppelin-compatible patterns. Key changes:
+
+```diff
+- import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
++ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+- function _transfer(address from, address to, uint256 amount) internal override {
++ function _update(address from, address to, uint256 value) internal override {
+```
+
+Affected contracts:
+- `contracts/PharosERC20.sol` — uses `_mint`/`_burn` (unchanged in 5.x)
+- `contracts/PharosRWAToken.sol` — custom `_update` logic for KYC
+- `contracts/RWAToken.sol` — whitelist enforcement in transfers
+
+### Forge-Std
+
+Update via:
+```bash
+forge update lib/forge-std
+```
+
+Check for breaking changes in `forge-std` changelog (e.g., `vm.assume` deprecation in fuzz tests).
+
+### Solidity Pragma
+
+Project uses `^0.8.26`. To upgrade:
+```bash
+# Update all pragmas from 0.8.26 to 0.8.28
+find contracts -name "*.sol" -exec sed -i 's/pragma solidity ^0.8.26/pragma solidity ^0.8.28/g' {} +
+forge build
+forge test
+```
+
+### Viem (MCP Server)
+
+The MCP server (`mcp-server/index.js`) uses `viem` for blockchain interaction. Major version bumps may change:
+- `createPublicClient` → `createClient` (v2.x)
+- `http()` transport config
+
+## Upgrade Testing
+
+After any dependency upgrade:
+```bash
+forge build                    # Must pass zero errors
+forge test                     # All 167 tests must pass
+node -c mcp-server/index.js    # Syntax check
+node --test mcp-server/test-behavioral.mjs  # MCP behavioral tests
+```
+
+## References
+
+- `contracts/` — All contracts affected by OpenZeppelin upgrades
+- `mcp-server/package.json` — Node.js dependency versions
+- OpenZeppelin 5.0 migration guide
+- Foundry `forge update` docs

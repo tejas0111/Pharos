@@ -7,7 +7,7 @@
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)](https://docs.pharos.xyz)
 
-> **42 instruction subskills × 21 executable MCP tools — the only dual-layer skill for Pharos blockchain development.**
+> **45 instruction subskills × 26 executable MCP tools — the only dual-layer skill for Pharos blockchain development.**
 >
 > Built for the Pharos Skill-to-Agent Hackathon.
 >
@@ -19,12 +19,12 @@
 
 | Criterion | How We Deliver |
 |---|---|
-| **Originality & Creativity** | **Dual-layer design**: 42 instruction subskills + 21 executable MCP tools. No other entry offers both. The subskills teach an AI agent *how* to build on Pharos; the MCP tools let it *execute* on-chain. Two cascades, one flow. |
-| **Technical Quality** | 21 real tools (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither) — not stubs. Private key sanitization in every tool. Error handling with Pharos-specific codes. 55/55 tests passing (34 Solidity + 21 MCP). |
+| **Originality & Creativity** | **Dual-layer design**: 45 instruction subskills + 26 executable MCP tools. No other entry offers both. The subskills teach an AI agent *how* to build on Pharos; the MCP tools let it *execute* on-chain. Two cascades, one flow. |
+| **Technical Quality** | 21 real tools (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither) — not stubs. Private key sanitization in every tool. Error handling with Pharos-specific codes. 167 tests passing (167 total). |
 | **Practical Use Case** | Full dev lifecycle: deploy → verify → transfer → trace → gas estimate → audit → test generation → log fetching. See the [8-tool token workflow](#demo-flow) below. |
 | **Reusability & Composability** | MCP tools chain together via stdio. `agent/token-workflow.mjs` demonstrates an 8-tool composition. Tools can be called from any MCP host (Claude Desktop, custom clients, Anvita Flow). |
 | **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All verified on Blockscout. All addresses and tx hashes documented below. |
-| **Documentation** | 42 subskill guides, 55-test suite, CI/CD pipelines, deployment proofs, architecture diagrams, Anvita Flow integration — everything a judge needs to verify. |
+| **Documentation** | 45 subskill guides, 167-test suite, CI/CD pipelines, deployment proofs, architecture diagrams, Anvita Flow integration — everything a judge needs to verify. |
 | **Pharos Vision Alignment** | Anvita Flow ready (x402 micropayments). Pharos-native RPC methods (`eth_getAccount`, `debug_traceTransaction`, safe/finalized tags). SPN and RWA compliance subskills. |
 
 ---
@@ -37,7 +37,7 @@ Requires **Node.js ≥18** and **Foundry** (`curl -L https://foundry.paradigm.xy
 ```bash
 git clone https://github.com/tejas0111/Pharos
 cd Pharos && cd mcp-server && npm install && cd .. && npm test
-# Expected output: 55 tests pass (34 Solidity + 21 MCP)
+# Expected output: 167 tests pass (167 total)
 ```
 
 ### Demo 1: Quick MCP Check (No Key Needed) — 30 Seconds
@@ -62,7 +62,7 @@ Open in a browser:
 ```bash
 cat CASCADE.md | head -80
 ```
-Shows the mermaid diagrams: 42 subskills → 21 MCP tools → Pharos blockchain.
+Shows the mermaid diagrams: 45 subskills → 26 MCP tools → Pharos blockchain.
 
 ### Total Judge Demo Time: ~3 Minutes
 
@@ -107,7 +107,7 @@ Markdown guides that teach AI agents Pharos-specific patterns:
 - **Pharos-native RPC**: `eth_getAccount`, `debug_traceTransaction`, safe/finalized tags
 - **Risk gates**: Every subskill enforces a two-phase plan → approve → execute workflow
 
-### Layer 2: 21 MCP Tools
+### Layer 2: 26 mcp Tools
 Node.js + viem + MCP SDK. Each tool wraps a real on-chain operation:
 - **Read (8)**: balance, contract state, logs, network status, account state, ABI fetch
 - **Write (5)**: deploy, verify, transfer, write contract, deploy ERC-20
@@ -227,10 +227,10 @@ All subskills at `skill/subskills/*/SKILL.md`.
 | Dimension | This Entry | Typical Entry |
 |---|---|---|
 | Format | **Dual-layer**: subskills + MCP tools | Single format only |
-| On-chain proof | **3 verified contracts** on Atlantic testnet | No deployment or code only |
-| Tool count | **42 subskills + 21 MCP tools** | Under 10 skills |
+| On-chain proof | **contracts verified** on Atlantic testnet | No deployment or code only |
+| Tool count | **45 subskills + 26 MCP tools** | Under 10 skills |
 | Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas | Generic EVM advice |
-| Live demo | 6 tools through real MCP server, 55 passing tests | No demo or single command |
+| Live demo | 6 tools through real MCP server, 167 passing tests | No demo or single command |
 | CI/CD | GitHub Actions: lint + test automated on push; deploy + verify via manual workflow dispatch | No automation |
 | Phase 2 ready | Anvita Flow integration documented | No forward planning |
 
@@ -243,7 +243,7 @@ All subskills at `skill/subskills/*/SKILL.md`.
 git clone https://github.com/tejas0111/Pharos
 cd Pharos && npm install
 
-# Verify everything works (55 tests)
+# Verify everything works (167 tests)
 npm test
 
 # Run the MCP demo (no PRIVATE_KEY needed)
@@ -263,7 +263,7 @@ forge script script/Deploy.s.sol:DeployCounter \
 ## Project Layout
 
 ```
-skill/                    # 42 subskills + references + deploy scripts
+skill/                    # 45 subskills + references + deploy scripts
   SKILL.md                # Master routing & orchestration
   subskills/*/SKILL.md    # 42 focused subskills
   references/*.md         # Network context, deployment patterns, harness
@@ -271,7 +271,7 @@ skill/                    # 42 subskills + references + deploy scripts
 contracts/                # Example Solidity (3 deployed on testnet)
 test/                     # Foundry tests (34) + MCP tests (21) = 55 total
 script/                   # Forge deploy scripts
-mcp-server/               # 21 MCP tools (Node.js + viem)
+mcp-server/               # 26 MCP tools (Node.js + viem)
 agent/                    # Demo scripts (MCP client, token workflow, cascade)
 web/                      # Landing page + docs
 .github/workflows/        # CI/CD: test, lint, deploy, verify

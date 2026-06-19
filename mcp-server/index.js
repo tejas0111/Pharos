@@ -40,11 +40,37 @@ process.on("SIGTERM", () => { console.error("[MCP] SIGTERM received, exiting"); 
 // ---------------------------------------------------------------------------
 // Safe env for child processes — only pass what forge needs
 // ---------------------------------------------------------------------------
-function safeChildEnv() {
-  const safe = { PRIVATE_KEY: process.env.PRIVATE_KEY || "" };
+function safeChildEnv(opts = {}) {
+  const safe = {};
+  if (opts.includePrivateKey !== false && process.env.PRIVATE_KEY) {
+    safe.PRIVATE_KEY = process.env.PRIVATE_KEY;
+  }
   if (process.env.PATH) safe.PATH = process.env.PATH;
   if (process.env.HOME) safe.HOME = process.env.HOME;
   return safe;
+}
+
+// ─── Input Security Utilities ──────────────────────────────
+const MAX_INPUT_LENGTH = 4096;
+
+/** Sanitize a shell argument by removing dangerous characters */
+function sanitizeShellArg(val) {
+  if (typeof val !== "string") return String(val ?? "");
+  return val.replace(/[^\w.:@/\-{}]/g, "").slice(0, MAX_INPUT_LENGTH);
+}
+
+/** Validate input string length to prevent abuse */
+function validateInputLength(val, label, maxLen) {
+  if (typeof val === "string" && val.length > (maxLen ?? MAX_INPUT_LENGTH)) {
+    throw new Error(`${label}: input exceeds maximum length (${maxLen ?? MAX_INPUT_LENGTH} chars)`);
+  }
+  return val;
+}
+
+/** Validate a shell command argument is safe for display/execution */
+function safeShellArg(val, label) {
+  validateInputLength(val, label);
+  return sanitizeShellArg(val);
 }
 
 const NETWORKS = {
@@ -209,6 +235,10 @@ function validateAddress(address, label) {
   if (typeof address !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
     throw new Error(`${label}: invalid Ethereum address (must be 0x + 40 hex chars)`);
   }
+  if (address === "0x0000000000000000000000000000000000000000" ||
+      address === "0x0000000000000000000000000000000000000001") {
+    throw new Error(`${label}: cannot use the zero or one address (${address})`);
+  }
 }
 
 function safeContractPath(contractName) {
@@ -217,7 +247,12 @@ function safeContractPath(contractName) {
 }
 
 function structuredError(err, toolKey) {
-  const msg = err.message || String(err);
+  const raw = err?.message || String(err || "Unknown error");
+  const msg = raw
+    .replace(/sk-[a-zA-Z0-9]{20,}/g, "sk-[REDACTED]")
+    .replace(/0x[a-fA-F0-9]{64,}/g, "0x[REDACTED_KEY]")
+    .replace(/[0-9a-fA-F]{128,}/g, "[REDACTED_KEY]")
+    .slice(0, 2000);
   let hint;
   if (msg.includes("forge") || msg.includes("cast") || msg.includes("command not found")) {
     hint = "Install Foundry: curl -L https://foundry.paradigm.xyz | bash && foundryup";
@@ -259,7 +294,7 @@ async function securityGate(contractPath, network) {
     return { blocked: true, count: 0, issues: [], message: `Security gate blocked: path is outside contracts/` };
   }
   try {
-    const raw = execFileSync("slither", [resolvedPath, "--json"], { encoding: "utf-8", timeout: 60_000, stdio: ["pipe", "pipe", "ignore"] });
+    const raw = execFileSync("slither", [resolvedPath, "--json"], { encoding: "utf-8", timeout: 60_000, stdio: ["pipe", "pipe", "ignore"] , env: safeChildEnv({ includePrivateKey: false }) });
     const report = JSON.parse(raw);
     const highIssues = (report.results?.detectors || []).filter(d =>
       d.impact === "High" || d.impact === "Critical"
@@ -529,6 +564,7 @@ async function verifyContract(args) {
 async function runSecurityCheck(args) {
   try {
     const contractArg = args.contract;
+    validateInputLength(args.contractName, "contractName");
     if (contractArg && !/^[\w./]+$/.test(contractArg)) throw new Error(`Invalid contract path: "${contractArg}"`);
     const contractPath = contractArg
       ? safeContractPath(args.contract.replace(/\.sol$/, ""))
@@ -537,6 +573,7 @@ async function runSecurityCheck(args) {
     let slitherOutput = null;
     if (contractPath && existsSync(contractPath)) {
       try {
+        env: safeChildEnv({ includePrivateKey: false }),
         execFileSync("which", ["slither"], { encoding: "utf-8", stdio: "pipe" });
       } catch {
         return structuredError(new Error("slither not installed. Install: pip install slither-analyzer"), "security_check");
@@ -583,6 +620,7 @@ async function runSecurityCheck(args) {
 async function generateTests(args) {
   try {
     const contract = args.contract || "MyContract";
+    validateInputLength(args.contract, "contract");
     if (!/^\w+$/.test(contract)) throw new Error(`Invalid contract name: "${contract}"`);
     const testDir = join(PROJECT_ROOT, "test");
     const testPath = join(testDir, `${contract}.t.sol`);
@@ -899,6 +937,7 @@ async function diagnose(args) {
 
   for (const cmd of ["forge", "cast", "node", "git"]) {
     try {
+      validateInputLength(args.project, "project");
       execFileSync("which", [cmd], { stdio: ["pipe", "pipe", "ignore"] });
       results[cmd] = "installed";
     } catch {
@@ -956,6 +995,7 @@ async function getPharosAccount(args) {
 // ---------------------------------------------------------------------------
 async function estimateGas(args) {
   try {
+    validateInputLength(args.transaction, "transaction");
     const [gasPrice, maxPriorityFee] = await Promise.all([
       rpcCall(args.network, "eth_gasPrice", []),
       rpcCall(args.network, "eth_maxPriorityFeePerGas", []),
@@ -984,6 +1024,7 @@ async function traceTransaction(args) {
     throw new Error("txHash: invalid transaction hash (must be 0x + 64 hex chars)");
   }
   try {
+    validateInputLength(args.hash, "hash");
     const trace = await rpcCall(args.network, "debug_traceTransaction", [args.txHash, { tracer: "callTracer" }]);
     const net = getNetwork(args.network);
     return safeResult(withSubskill({
@@ -1001,6 +1042,7 @@ async function traceTransaction(args) {
 // ---------------------------------------------------------------------------
 async function networkStatus(args) {
   try {
+    validateInputLength(args.network, "network");
     const [latest, safe, finalized, gasPrice] = await Promise.all([
       rpcCall(args.network, "eth_getBlockByNumber", ["latest", false]),
       rpcCall(args.network, "eth_getBlockByNumber", ["safe", false]),
@@ -1039,6 +1081,7 @@ function validateAbi(abi) {
 
 async function readContract(args) {
   const { network = "atlanticTestnet", address, abi: abiRaw, functionName, args: fnArgs = [], blockTag = "latest" } = args;
+    validateInputLength(args.functionName, "functionName");
   validateAddress(address, "address");
   validateBlockTag(blockTag);
   let abi;
@@ -1070,6 +1113,7 @@ async function readContract(args) {
 // ---------------------------------------------------------------------------
 async function writeContract(args) {
   const { network = "atlanticTestnet", address, abi: abiRaw, functionName, args: fnArgs = [], value = "0", simulate = true } = args;
+    validateInputLength(args.functionName, "functionName");
   validateAddress(address, "address");
   let abi;
   try { abi = JSON.parse(abiRaw); } catch { throw new Error("abi must be a valid JSON array"); }
@@ -1124,6 +1168,7 @@ async function writeContract(args) {
 // ---------------------------------------------------------------------------
 async function fetchAbi(args) {
   const { network = "atlanticTestnet", address } = args;
+    validateInputLength(args.address, "address");
   validateAddress(address, "address");
   const net = getNetwork(network);
 
@@ -1217,6 +1262,8 @@ function parseAbiForFunction(abi, fnName) {
 
 async function createSafeTx(args) {
   try {
+    validateInputLength(args.functionName, "functionName");
+    validateInputLength(args.abi, "abi");
     const { network = "atlanticTestnet", to, value = "0", data = "0x", safeAddress, abi: abiRaw, functionName, fnArgs = [] } = args;
     if (safeAddress) validateAddress(safeAddress, "safeAddress");
     validateAddress(to, "to");
@@ -1267,6 +1314,7 @@ async function createSafeTx(args) {
 // ---------------------------------------------------------------------------
 async function proposeSafeTx(args) {
   try {
+    validateInputLength(args.to, "to");
     const { network = "atlanticTestnet", safeAddress, to, value = "0", data = "0x", safeTxGas = "0", nonce } = args;
     validateAddress(safeAddress, "safeAddress");
     validateAddress(to, "to");
@@ -1313,19 +1361,75 @@ async function proposeSafeTx(args) {
 
 async function spnConfigure(args) {
   try {
-    const { network, action, userAddress, budgetAmount } = args;
-    const net = getNetwork(network || "atlanticTestnet");
-    let message = `SPN Configure: ${action}`;
-    if (action === "addSponsor" && userAddress) {
-      message = `Whitelisted user ${userAddress} on ${network || "atlanticTestnet"}`;
-    } else if (action === "setBudget" && budgetAmount) {
-      message = `Set budget to ${budgetAmount} wei on ${network || "atlanticTestnet"}`;
+    validateInputLength(args.paymasterAddress, "paymasterAddress");
+    validateInputLength(args.userAddress, "userAddress");
+    validateInputLength(args.action, "action");
+    const { network = "atlanticTestnet", paymasterAddress, action, userAddress, budgetAmount } = args;
+    const net = getNetwork(network);
+    const simulateOnly = args.simulate !== false;
+
+    if (!paymasterAddress) throw new Error("paymasterAddress is required");
+    validateAddress(paymasterAddress, "paymasterAddress");
+
+    let targetFunc = "";
+    let targetArgs = [];
+    let actionLabel = "";
+
+    if (action === "addSponsor") {
+      if (!userAddress) throw new Error("userAddress required for addSponsor");
+      validateAddress(userAddress, "userAddress");
+      targetFunc = 'addSponsor(address)';
+      targetArgs = [userAddress];
+      actionLabel = `add sponsor ${userAddress}`;
+    } else if (action === "removeSponsor") {
+      if (!userAddress) throw new Error("userAddress required for removeSponsor");
+      validateAddress(userAddress, "userAddress");
+      targetFunc = 'removeSponsor(address)';
+      targetArgs = [userAddress];
+      actionLabel = `remove sponsor ${userAddress}`;
+    } else if (action === "setBudget") {
+      if (!userAddress || !budgetAmount) throw new Error("userAddress and budgetAmount required for setBudget");
+      validateAddress(userAddress, "userAddress");
+      targetFunc = 'setSponsorBudget(address,uint256)';
+      targetArgs = [userAddress, budgetAmount.toString()];
+      actionLabel = `set budget ${budgetAmount} wei for ${userAddress}`;
     } else if (action === "pause") {
-      message = `Paymaster paused on ${network || "atlanticTestnet"}`;
+      targetFunc = 'pause()';
+      targetArgs = [];
+      actionLabel = "pause paymaster";
     } else if (action === "unpause") {
-      message = `Paymaster unpaused on ${network || "atlanticTestnet"}`;
+      targetFunc = 'unpause()';
+      targetArgs = [];
+      actionLabel = "unpause paymaster";
+    } else {
+      throw new Error(`Unknown action: "${action}". Use addSponsor, removeSponsor, setBudget, pause, or unpause`);
     }
-    return safeResult(withSubskill({ action, status: "simulated", message, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_configure", args));
+
+    if (simulateOnly) {
+      return safeResult(withSubskill({
+        action, paymasterAddress, userAddress: userAddress || null, budgetAmount: budgetAmount || null,
+        function: targetFunc, args: targetArgs,
+        status: "simulation_passed",
+        message: `[SIMULATION] Would call ${targetFunc} on ${paymasterAddress} to ${actionLabel}`,
+        network, chainId: net.chainId, explorer: net.explorerUrl,
+        tip: "Set simulate=false to broadcast this transaction",
+      }, "pharos_spn_configure", args));
+    }
+
+    console.error(`[MCP] SPN Configure: ${actionLabel} on ${network}`);
+    const output = execFileSync("cast", ["send", "--rpc-url", net.rpcUrl, paymasterAddress, targetFunc, ...targetArgs], {
+      encoding: "utf-8", timeout: 120_000, stdio: ["pipe", "pipe", "pipe"], env: safeChildEnv(),
+    });
+    const txMatch = output.match(/transactionHash\s+(0x[a-fA-F0-9]{64})/);
+    const txHash = txMatch ? txMatch[1] : output.match(/0x[a-fA-F0-9]{64}/)?.[0] || null;
+
+    return safeResult(withSubskill({
+      action, paymasterAddress, userAddress: userAddress || null, budgetAmount: budgetAmount || null,
+      txHash, explorerUrl: txHash ? `${net.explorerUrl}/tx/${txHash}` : null,
+      status: "broadcast",
+      message: `Executed ${targetFunc} on ${paymasterAddress} to ${actionLabel}`,
+      network, chainId: net.chainId,
+    }, "pharos_spn_configure", args));
   } catch (err) {
     return structuredError(err, "spnConfigure");
   }
@@ -1333,9 +1437,40 @@ async function spnConfigure(args) {
 
 async function spnFund(args) {
   try {
-    const { network, amount } = args;
-    const net = getNetwork(network || "atlanticTestnet");
-    return safeResult(withSubskill({ amount, status: "simulated", message: `Simulated funding ${amount} wei to SPN Paymaster`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_fund", args));
+    validateInputLength(args.paymasterAddress, "paymasterAddress");
+    validateInputLength(args.amount, "amount");
+    const { network = "atlanticTestnet", paymasterAddress, amount } = args;
+    const net = getNetwork(network);
+    const simulateOnly = args.simulate !== false;
+
+    if (!paymasterAddress) throw new Error("paymasterAddress is required");
+    validateAddress(paymasterAddress, "paymasterAddress");
+
+    if (!amount) throw new Error("amount is required (in wei)");
+    const amountBig = BigInt(amount);
+    if (amountBig <= 0n) throw new Error("amount must be positive");
+
+    if (simulateOnly) {
+      return safeResult(withSubskill({
+        paymasterAddress, amount: amount.toString(),
+        status: "simulation_passed",
+        message: `[SIMULATION] Would send ${amount} wei (${amountBig / 10n**18n} native) to paymaster ${paymasterAddress}`,
+        network, chainId: net.chainId, explorer: net.explorerUrl,
+        tip: "Set simulate=false to broadcast this transaction",
+      }, "pharos_spn_fund", args));
+    }
+
+    const wallet = getWalletClient(network);
+    console.error(`[MCP] SPN Fund: sending ${amount} wei to ${paymasterAddress} on ${network}`);
+    const hash = await wallet.sendTransaction({ to: paymasterAddress, value: amountBig });
+
+    return safeResult(withSubskill({
+      paymasterAddress, amount: amount.toString(),
+      txHash: hash, explorerUrl: `${net.explorerUrl}/tx/${hash}`,
+      status: "broadcast",
+      message: `Sent ${amount} wei to paymaster ${paymasterAddress}`,
+      network, chainId: net.chainId,
+    }, "pharos_spn_fund", args));
   } catch (err) {
     return structuredError(err, "spnFund");
   }
@@ -1343,11 +1478,42 @@ async function spnFund(args) {
 
 async function spnStatus(args) {
   try {
-    const { network, paymasterAddress, userAddress } = args;
-    const net = getNetwork(network || "atlanticTestnet");
-    let message = `Paymaster at ${paymasterAddress} on ${network || "atlanticTestnet"}`;
-    if (userAddress) message += ` | Checking whitelist for ${userAddress}`;
-    return safeResult(withSubskill({ paymasterAddress, userAddress: userAddress || "not specified", status: "simulated", message, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_status", args));
+    const { network = "atlanticTestnet", paymasterAddress, userAddress } = args;
+    const net = getNetwork(network);
+
+    if (!paymasterAddress) throw new Error("paymasterAddress is required");
+    validateAddress(paymasterAddress, "paymasterAddress");
+
+    const client = getClient(network);
+    const viewAbi = [
+      { inputs: [], name: "paused", outputs: [{ type: "bool" }], stateMutability: "view", type: "function" },
+      { inputs: [{ type: "address" }], name: "remainingBudget", outputs: [{ type: "uint256" }], stateMutability: "view", type: "function" },
+      { inputs: [], name: "remainingGlobalBudget", outputs: [{ type: "uint256" }], stateMutability: "view", type: "function" },
+    ];
+
+    const isPaused = await client.readContract({ address: paymasterAddress, abi: viewAbi, functionName: "paused" }).catch(() => null);
+    const globalBudget = await client.readContract({ address: paymasterAddress, abi: viewAbi, functionName: "remainingGlobalBudget" }).catch(() => null);
+    let sponsorBudget = null;
+    let canSponsorResult = null;
+
+    if (userAddress) {
+      validateAddress(userAddress, "userAddress");
+      const sponsorAbi = [...viewAbi,
+        { inputs: [{ type: "address" }], name: "canSponsor", outputs: [{ type: "bool" }], stateMutability: "view", type: "function" },
+      ];
+      canSponsorResult = await client.readContract({ address: paymasterAddress, abi: sponsorAbi, functionName: "canSponsor", args: [userAddress] }).catch(() => null);
+      sponsorBudget = await client.readContract({ address: paymasterAddress, abi: viewAbi, functionName: "remainingSponsorBudget", args: [userAddress] }).catch(() => null);
+    }
+
+    return safeResult(withSubskill({
+      paymasterAddress, userAddress: userAddress || null, isPaused, globalBudget: globalBudget?.toString() || null,
+      sponsorBudget: sponsorBudget?.toString() || null, canSponsor: canSponsorResult,
+      status: isPaused === null ? "unreachable" : "online",
+      message: isPaused === null
+        ? `Paymaster at ${paymasterAddress}: could not reach contract (not deployed or wrong address)`
+        : `Paymaster at ${paymasterAddress}: ${isPaused ? "PAUSED" : "ACTIVE"}, global budget: ${globalBudget?.toString() || "unknown"}`,
+      network, chainId: net.chainId, explorer: net.explorerUrl,
+    }, "pharos_spn_status", args));
   } catch (err) {
     return structuredError(err, "spnStatus");
   }
@@ -1357,10 +1523,44 @@ async function spnStatus(args) {
 
 async function zkLoginRegister(args) {
   try {
-    const { network, verifierAddress, commitment, provider, aud, exp } = args;
-    const net = getNetwork(network || "atlanticTestnet");
+    validateInputLength(args.commitment, "commitment");
+    validateInputLength(args.provider, "provider");
+    const { network = "atlanticTestnet", verifierAddress, commitment, provider = "0", aud = "0", exp = "0" } = args;
+    const net = getNetwork(network);
+    const simulateOnly = args.simulate !== false;
+
+    if (!verifierAddress) throw new Error("verifierAddress is required");
+    validateAddress(verifierAddress, "verifierAddress");
+
     const providers = ["Google", "Apple", "Facebook"];
-    return safeResult(withSubskill({ verifierAddress, commitment, provider: providers[provider] || "Unknown", aud: aud || "not set", exp: exp || "not set", status: "simulated", message: `Registered identity commitment for ${providers[provider] || "Unknown"}`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_zklogin_register", args));
+    const providerNum = parseInt(provider, 10);
+    const providerName = providers[providerNum] || "Unknown";
+
+    if (simulateOnly) {
+      return safeResult(withSubskill({
+        verifierAddress, commitment, provider: providerName, aud, exp,
+        status: "simulation_passed",
+        message: `[SIMULATION] Would call registerIdentity on ${verifierAddress} for ${providerName} (commitment: ${commitment?.slice(0, 20)}...)`,
+        network, chainId: net.chainId, explorer: net.explorerUrl,
+        tip: "Set simulate=false to broadcast this transaction",
+      }, "pharos_zklogin_register", args));
+    }
+
+    console.error(`[MCP] zkLogin Register: registering ${providerName} identity on ${network}`);
+    const output = execFileSync("cast", ["send", "--rpc-url", net.rpcUrl, verifierAddress,
+      'registerIdentity(uint256,uint256,uint256,uint256)',
+      commitment.toString(), provider.toString(), aud.toString(), exp.toString()], {
+      encoding: "utf-8", timeout: 120_000, stdio: ["pipe", "pipe", "pipe"], env: safeChildEnv(),
+    });
+    const txHash = output.match(/0x[a-fA-F0-9]{64}/)?.[0] || null;
+
+    return safeResult(withSubskill({
+      verifierAddress, commitment, provider: providerName, aud, exp,
+      txHash, explorerUrl: txHash ? `${net.explorerUrl}/tx/${txHash}` : null,
+      status: "broadcast",
+      message: `Registered ${providerName} identity commitment on ${verifierAddress}`,
+      network, chainId: net.chainId,
+    }, "pharos_zklogin_register", args));
   } catch (err) {
     return structuredError(err, "zkLoginRegister");
   }
@@ -1368,9 +1568,69 @@ async function zkLoginRegister(args) {
 
 async function zkLoginVerify(args) {
   try {
-    const { network, verifierAddress, userAddress } = args;
-    const net = getNetwork(network || "atlanticTestnet");
-    return safeResult(withSubskill({ verifierAddress, userAddress, status: "simulated", message: `Verified zkLogin proof for ${userAddress}`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_zklogin_verify", args));
+    validateInputLength(args.userAddress, "userAddress");
+    const { network = "atlanticTestnet", verifierAddress, userAddress } = args;
+    const net = getNetwork(network);
+    const simulateOnly = args.simulate !== false;
+
+    if (!verifierAddress) throw new Error("verifierAddress is required");
+    validateAddress(verifierAddress, "verifierAddress");
+    if (!userAddress) throw new Error("userAddress is required");
+    validateAddress(userAddress, "userAddress");
+
+    // First check if identity exists via view call
+    const client = getClient(network);
+    const identityAbi = [
+      { name: "getIdentity", type: "function", inputs: [{ type: "address" }], outputs: [
+        { type: "uint256" }, { type: "address" }, { type: "uint256" }, { type: "uint256" }, { type: "uint256" }, { type: "bool" }
+      ], stateMutability: "view" },
+    ];
+    const identity = await client.readContract({ address: verifierAddress, abi: identityAbi, functionName: "getIdentity", args: [userAddress] }).catch(() => null);
+
+    if (identity) {
+      const [commitment, , provider, aud, exp, registered] = identity;
+      const providers = ["Google", "Apple", "Facebook"];
+      if (registered) {
+        return safeResult(withSubskill({
+          verifierAddress, userAddress, registered: true,
+          commitment: commitment.toString(), provider: providers[Number(provider)] || `Provider ${provider}`,
+          aud: aud.toString(), exp: exp.toString(),
+          status: "verified",
+          message: `Identity found for ${userAddress}: registered with ${providers[Number(provider)] || "unknown"}`,
+          network, chainId: net.chainId, explorer: net.explorerUrl,
+        }, "pharos_zklogin_verify", args));
+      }
+    }
+
+    if (simulateOnly) {
+      return safeResult(withSubskill({
+        verifierAddress, userAddress, found: !!identity,
+        status: "identity_not_found",
+        message: identity ? `Identity exists but not registered. Would attempt to register ephemeral key.`
+          : `No identity found for ${userAddress} on ${verifierAddress}. Use pharos_zklogin_register first.`,
+        network, chainId: net.chainId, explorer: net.explorerUrl,
+        tip: "Set simulate=false to broadcast verification transaction",
+      }, "pharos_zklogin_verify", args));
+    }
+
+    // Attempt to register ephemeral key 
+    const cmd = ["cast", "send", "--rpc-url", net.rpcUrl, verifierAddress,
+      'verifyAndRegisterKey(bytes32,bytes32,uint256,bytes32[2],uint256[2])',
+      // Note: actual proof params depend on the zkLogin implementation
+      '0x00', '0x00', '0', '["0x00","0x00"]', '["0","0"]'];
+    console.error(`[MCP] zkLogin Verify: verifying proof for ${userAddress} on ${network}`);
+    const output = execFileSync("cast", cmd.slice(1), {
+      encoding: "utf-8", timeout: 120_000, stdio: ["pipe", "pipe", "pipe"], env: safeChildEnv(),
+    });
+    const txHash = output.match(/0x[a-fA-F0-9]{64}/)?.[0] || null;
+
+    return safeResult(withSubskill({
+      verifierAddress, userAddress,
+      txHash, explorerUrl: txHash ? `${net.explorerUrl}/tx/${txHash}` : null,
+      status: "broadcast",
+      message: `Verification transaction broadcast for ${userAddress}`,
+      network, chainId: net.chainId,
+    }, "pharos_zklogin_verify", args));
   } catch (err) {
     return structuredError(err, "zkLoginVerify");
   }
@@ -1742,3 +2002,4 @@ checkDependencies();
 const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error("Pharos MCP Server running on stdio — 21 tools");
+

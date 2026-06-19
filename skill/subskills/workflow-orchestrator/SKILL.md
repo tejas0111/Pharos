@@ -138,3 +138,56 @@ All subskills in the suite — this is the meta-coordinator for multi-step workf
 
 ## Gate
 Low risk. Present the workflow sequence and dependency map before starting implementation. Proceed only after the user confirms the stage order.
+
+## Pharos Workflow Orchestration
+
+### Cascade Architecture Flow
+
+```
+Agent Intent → Subskill Load (SKILL.md) → MCP Tool Execution
+```
+
+### Phase 1: Deploy Contract
+```bash
+forge script script/DeploySPNPaymaster.s.sol --rpc-url <RPC> --broadcast
+```
+
+### Phase 2: Configure
+```bash
+# Add whitelisted users
+cast send <ADDR> "addSponsors(address[])" ["0x...","0x..."]
+
+# Set budgets
+cast send <ADDR> "setGlobalBudget(uint256)" 1000000000000000000000
+```
+
+### Phase 3: Verify & Sync
+```bash
+forge verify-contract <ADDR> <CONTRACT> --chain <CHAIN_ID>
+```
+
+## Contract Lifecycle Example: SPN Paymaster
+
+| Step | Action | MCP Tool |
+|------|--------|----------|
+| 1 | Deploy Paymaster | `pharos_deploy_contract` |
+| 2 | Whitelist users | `pharos_spn_configure` |
+| 3 | Fund with PROS | `pharos_spn_fund` |
+| 4 | Check status | `pharos_spn_status` |
+| 5 | Verify on PharaohScan | `pharos_verify_contract` |
+
+## Multi-Contract Deployment Flow
+
+```
+1. Deploy PharosERC20 (base token)
+2. Deploy DEXPool (with ERC20 address)
+3. Deploy StakingPool (with ERC20 as reward token)
+4. Deploy PharosLendingPool (with ERC20 as collateral/borrow)
+5. Transfer ownership of all to PharosTimelockController
+```
+
+## References
+
+- All deploy scripts in `script/`
+- MCP tools: `pharos_deploy_contract`, `pharos_spn_*`, `pharos_zklogin_*`
+- `AGENTS.md` — Orchestration instructions for Codex/freebuff agents
