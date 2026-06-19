@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
+import "forge-std/console.sol";
 import "../contracts/Counter.sol";
 
 /// @title DeployCounter

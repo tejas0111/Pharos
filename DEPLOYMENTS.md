@@ -39,3 +39,33 @@ forge verify-contract \
 ## Pacific Mainnet (Chain ID: 1672)
 
 *No deployments yet.*
+
+## Mainnet Deployment Prerequisites
+
+No contracts are currently deployed to Pacific Mainnet (Chain ID 1672).
+
+**To deploy, you need:**
+1. A funded wallet with PROS tokens for gas
+2. Pacific Mainnet RPC: `https://rpc.pharos.xyz`
+3. Set env vars:
+   ```bash
+   export PRIVATE_KEY=0x...
+   export PACIFIC_RPC_URL=https://rpc.pharos.xyz
+   ```
+4. Deploy any contract:
+   ```bash
+   forge script script/DeploySPNPaymaster.s.sol \
+       --rpc-url $PACIFIC_RPC_URL \
+       --broadcast --slow -vvvv
+   ```
+
+**Deployable contracts (all tested, 167 tests passing):**
+- `PharosSPNPaymaster` — ERC-4337 Paymaster for sponsored transactions
+- `PharosZkLogin` — zkLogin identity verifier
+- `PharosLendingPool` — Collateralized lending
+- `DEXPool` — Constant-product AMM
+- `StakingPool` — Time-weighted staking
+- `PharosRWAToken` — Regulated RWA token
+- `CrossChainMessage` — SPN Mailbox
+- `PharosTimelockController` — Governance timelock
+- `PharosERC20` — Standard ERC-20

@@ -3,386 +3,512 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PHAROS // ADS</title>
-<meta name="description" content="Pharos Agent Dev Suite — 42 subskills × 21 MCP tools. Dual cascade blockchain agent framework.">
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="shortcut icon" href="logo.png">
-<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
-<script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<title>Pharos Agent Dev Suite — Interactive Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════
+   ROOT & RESET
+   ═══════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#000;--white:#fff;--gray:#888;--gray-dark:#222;--gray-mid:#555;--gray-light:#ccc;--bg:#000;--font:'JetBrains Mono',monospace}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a28;
+  --accent:#6c5ce7;--accent2:#00cec9;--accent3:#fd79a8;--accent4:#fdcb6e;
+  --text:#e8e8f0;--text2:#8888a0;--text3:#555570;
+  --border:#2a2a3a;--radius:12px;--radius-sm:8px;
+  --font-mono:'JetBrains Mono',monospace;--font-sans:'Inter',sans-serif;
+}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--white);line-height:1.5;overflow-x:hidden;cursor:none;opacity:0;transition:opacity .7s cubic-bezier(.16,1,.3,1)}
-html{scrollbar-width:thin;scrollbar-color:var(--gray-dark) transparent}
-html::-webkit-scrollbar{width:4px}
-html::-webkit-scrollbar-track{background:transparent}
-html::-webkit-scrollbar-thumb{background:var(--gray-dark);border-radius:2px}
-body.loaded{opacity:1}
-::selection{background:var(--white);color:var(--black)}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
 
-/* CURSOR — LIGHT, FAST */
-.cursor{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--white);mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,background .25s ease;will-change:transform}
-.cursor.hover{width:32px;height:32px;background:transparent;border:2px solid var(--white)}
+/* ═══ ANIMATED BG ═══ */
+.bg-grid{
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(108,92,231,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(108,92,231,.08) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0,#000 30%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0,#000 30%,transparent 70%);
+}
+.bg-orb{
+  position:fixed;width:600px;height:600px;border-radius:50%;
+  filter:blur(120px);opacity:.12;pointer-events:none;z-index:0;
+  animation:orbFloat 20s ease-in-out infinite;
+}
+.bg-orb:nth-child(2){background:var(--accent);top:-200px;right:-200px;animation-delay:-5s}
+.bg-orb:nth-child(3){background:var(--accent2);bottom:-200px;left:-200px;animation-delay:-10s}
+.bg-orb:nth-child(4){background:var(--accent3);bottom:-200px;right:-200px;animation-delay:-15s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.1)}66%{transform:translate(-20px,20px) scale(.9)}}
 
-/* SCANLINE */
-@keyframes scanline{0%{background-position:0 0}100%{background-position:0 100%}}
-body::after{content:'';position:fixed;left:0;right:0;top:0;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.015) 2px,rgba(255,255,255,.015) 4px),repeating-linear-gradient(90deg,transparent,transparent 30%,rgba(255,255,255,.04) 30%,rgba(255,255,255,.06) 40%,transparent 40%,transparent 100%);background-size:100% 4px,200% 100%;animation:scanline 8s linear infinite;pointer-events:none;z-index:9998;mix-blend-mode:screen;opacity:.4}
+/* ═══ LAYOUT ═══ */
+.wrapper{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 24px}
+section{padding:80px 0}
 
-/* MARQUEE */
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.marquee{overflow:hidden;white-space:nowrap;display:flex;width:100%}
-.marquee-inner{display:flex;animation:marquee 30s linear infinite;gap:0}
-.marquee-inner>*{flex-shrink:0}
+/* ═══ NAV ═══ */
+nav{
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(10,10,15,.8);border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+nav .wrapper{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--font-mono);font-weight:700;font-size:1.1rem;display:flex;align-items:center;gap:10px}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:.85rem;font-family:var(--font-mono);transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.status-text{font-size:.75rem;color:var(--text2);font-family:var(--font-mono)}
+.status-text strong{color:var(--accent2)}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:3.5rem;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:2px solid var(--gray-dark);font-size:clamp(.6rem,1.5vw,.7rem);text-transform:uppercase;letter-spacing:.12em}
-nav .logo{font-weight:800;font-size:clamp(.85rem,2vw,1rem);letter-spacing:.15em}
-nav .logo span{color:var(--gray-light)}
-nav a{color:var(--gray);text-decoration:none;margin-left:1.5rem;transition:color .3s}
-nav a:hover{color:var(--white);cursor:none}
+/* ═══ HERO ═══ */
+.hero{text-align:center;padding:120px 0 80px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.3);
+  border-radius:100px;padding:6px 16px;font-size:.75rem;font-family:var(--font-mono);
+  color:var(--accent);margin-bottom:24px;
+}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.15;margin-bottom:16px}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.1rem;color:var(--text2);max-width:640px;margin:0 auto 32px}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:2rem;font-weight:700;font-family:var(--font-mono);background:linear-gradient(135deg,var(--text),var(--text2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-stat-label{font-size:.8rem;color:var(--text3);font-family:var(--font-mono);margin-top:4px}
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 2rem 4rem;position:relative}
-.hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2}
-.hero-marquee{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);z-index:0;opacity:.04;font-size:clamp(4rem,10vw,10rem);font-weight:900;letter-spacing:.02em;color:var(--white);pointer-events:none;overflow:hidden;height:10rem;line-height:10rem}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
-@media(max-width:768px){.hero-grid{grid-template-columns:1fr;gap:3rem}}
-.hero-left .big{font-size:clamp(4rem,10vw,9rem);font-weight:900;line-height:.85;letter-spacing:-.04em}
-.hero-left .big .num{color:var(--white)}
-.hero-left .big .op{color:var(--gray-mid);font-weight:300}
-.hero-left .byline{font-size:clamp(.65rem,2vw,1.2rem);text-transform:uppercase;letter-spacing:.25em;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--gray-mid);display:inline-block;color:var(--gray)}
-.hero-left .tag{font-size:clamp(.5rem,1.3vw,.65rem);color:var(--gray-mid);margin-top:2rem;text-transform:uppercase;letter-spacing:.15em}
-.hero-right{border:1px solid var(--gray-dark);padding:2.5rem;display:flex;flex-direction:column;gap:1.5rem;background:rgba(255,255,255,.02)}
-.hero-right .stat{text-align:center}
-.hero-right .stat-num{font-size:3.5rem;font-weight:900;line-height:1;color:var(--white)}
-.hero-right .stat-label{font-size:clamp(.45rem,1.2vw,.6rem);text-transform:uppercase;letter-spacing:.25em;color:var(--gray);margin-top:.5rem}
-.hero-right .divider{height:1px;background:var(--gray-dark);margin:.5rem 0}
-.cta-row{display:flex;gap:1rem;margin-top:2.5rem;flex-wrap:wrap}
-.cta{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--white);color:var(--white);text-decoration:none;padding:.75rem 2rem;font-family:var(--font);font-size:clamp(.6rem,1.5vw,.75rem);text-transform:uppercase;letter-spacing:.12em;font-weight:600;transition:all .3s;background:transparent;cursor:none}
-.cta:hover{background:var(--white);color:var(--black)}
+/* ═══ SECTION TITLES ═══ */
+.section-title{text-align:center;margin-bottom:48px}
+.section-title h2{font-size:1.8rem;font-weight:600;margin-bottom:8px}
+.section-title p{color:var(--text2);font-size:.95rem;max-width:500px;margin:0 auto}
 
-/* SECTION BASE */
-section{padding:6rem 2rem;position:relative;border-bottom:1px solid var(--gray-dark)}
-section:last-of-type{border-bottom:none}
-.section-inner{max-width:1100px;margin:0 auto;width:100%}
-.section-label{font-size:clamp(.5rem,1.2vw,.6rem);text-transform:uppercase;letter-spacing:.3em;color:var(--gray-mid);margin-bottom:1rem}
-.section-label .num{color:var(--gray-light)}
-h2{font-size:clamp(1.3rem,4vw,3.5rem);font-weight:900;text-transform:uppercase;letter-spacing:-.03em;margin-bottom:3rem;line-height:1.1}
-h2 .light{font-weight:300;color:var(--gray-mid)}
-p{font-size:clamp(.75rem,1.6vw,.85rem);color:var(--gray);line-height:1.8;margin-bottom:1.5rem;max-width:680px}
+/* ═══ CONTRACT CARDS ═══ */
+.contracts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px}
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;transition:all .3s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 32px rgba(108,92,231,.15)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s}
+.card:hover::before{opacity:1}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-name{font-family:var(--font-mono);font-weight:600;font-size:.95rem}
+.card-type{
+  font-size:.7rem;font-family:var(--font-mono);padding:3px 10px;border-radius:100px;
+  background:rgba(108,92,231,.15);color:var(--accent);border:1px solid rgba(108,92,231,.2);
+}
+.card-desc{font-size:.85rem;color:var(--text2);margin-bottom:20px;line-height:1.5}
 
-/* CASCADE */
-.cascade-grid{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:1rem;border:1px solid var(--gray-dark);padding:3rem 2rem}
-@media(max-width:900px){.cascade-grid{grid-template-columns:1fr;gap:2rem}}
-.c-step{text-align:center;padding:1.5rem}
-.c-step .icon{font-size:2.5rem;font-weight:900;line-height:1;margin-bottom:.5rem;color:var(--gray-light)}
-.c-step .name{font-size:.55rem;text-transform:uppercase;letter-spacing:.25em;color:var(--gray-mid);margin-bottom:.35rem}
-.c-step .title{font-weight:700;font-size:.9rem}
-.c-step .desc{font-size:.7rem;color:var(--gray);margin-top:.25rem}
-.c-arrow{font-size:1.5rem;color:var(--gray-mid);text-align:center}
-@media(max-width:900px){.c-arrow{transform:rotate(90deg)}}
+/* ═══ INTERACTIVE DEMO INSIDE CARDS ═══ */
+.demo-area{
+  background:var(--bg3);border-radius:var(--radius-sm);
+  padding:16px;margin-top:12px;font-family:var(--font-mono);font-size:.78rem;
+}
+.demo-area .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.demo-area .row:last-child{border-bottom:none}
+.demo-area .label{color:var(--text3)}
+.demo-area .value{color:var(--text);font-weight:500}
+.demo-btn{
+  background:var(--accent);color:#fff;border:none;padding:8px 16px;
+  border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.75rem;
+  cursor:pointer;transition:all .2s;font-weight:500;width:100%;margin-top:8px;
+}
+.demo-btn:hover{background:#5a4bd1;transform:translateY(-1px)}
+.demo-btn:active{transform:translateY(0)}
+.demo-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.demo-btn.secondary:hover{border-color:var(--accent);color:var(--accent)}
+.demo-btn.success{background:var(--accent2);color:#000}
+.demo-btn.success:hover{background:#00b8b4}
+.demo-btn.danger{background:var(--accent3);color:#fff}
+.demo-btn.danger:hover{background:#e86a90}
 
-/* TOOLS GRID */
-.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--gray-dark);border:1px solid var(--gray-dark)}
-.tool-card{background:var(--black);padding:1.5rem;text-decoration:none;color:var(--white);transition:all .3s;display:flex;flex-direction:column;gap:.5rem;cursor:none}
-.tool-card:hover{background:var(--white);color:var(--black)}
-.tool-card .name{font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
-.tool-card .cat{font-size:.5rem;text-transform:uppercase;letter-spacing:.25em;color:var(--gray-mid)}
-.tool-card:hover .cat{color:var(--black)}
-.tool-card .arrow{font-size:.8rem;margin-top:auto;text-align:right;opacity:.3}
-.tool-card:hover .arrow{opacity:1}
+/* ═══ STATUS BARS ═══ */
+.bar-container{background:var(--bg);border-radius:4px;height:6px;overflow:hidden;margin-top:4px}
+.bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-fill.purple{background:linear-gradient(90deg,var(--accent),#a29bfe)}
+.bar-fill.teal{background:linear-gradient(90deg,var(--accent2),#81ecec)}
+.bar-fill.pink{background:linear-gradient(90deg,var(--accent3),#fab1c0)}
+.bar-fill.yellow{background:linear-gradient(90deg,var(--accent4),#ffeaa7)}
 
-/* WHY */
-.why-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--gray-dark);border:1px solid var(--gray-dark)}
-@media(max-width:768px){.why-grid{grid-template-columns:1fr}}
-.why-card{background:var(--black);padding:2.5rem;position:relative}
-.why-card .num{position:absolute;bottom:.75rem;right:1rem;font-size:4rem;font-weight:900;color:var(--gray-dark);line-height:1;pointer-events:none}
-.why-card h3{font-size:1rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem}
-.why-card p{font-size:.8rem;color:var(--gray);line-height:1.7}
+/* ═══ LOG SIMULATOR ═══ */
+.log-viewer{
+  background:#050508;border-radius:var(--radius-sm);padding:12px;
+  font-family:var(--font-mono);font-size:.7rem;max-height:160px;overflow-y:auto;
+  margin-top:8px;border:1px solid var(--border);color:var(--text2);line-height:1.7;
+}
+.log-viewer .log-entry{padding:2px 0}
+.log-viewer .log-entry .time{color:var(--text3)}
+.log-viewer .log-entry .tag{display:inline-block;padding:0 6px;border-radius:3px;font-size:.65rem;margin:0 4px}
+.log-viewer .log-entry .tag.info{background:rgba(108,92,231,.2);color:var(--accent)}
+.log-viewer .log-entry .tag.ok{background:rgba(0,206,201,.2);color:var(--accent2)}
+.log-viewer .log-entry .tag.warn{background:rgba(253,203,110,.2);color:var(--accent4)}
+.log-viewer .log-entry .tag.err{background:rgba(253,121,168,.2);color:var(--accent3)}
 
-/* NETWORKS */
-.networks{background:var(--black);padding:1.5rem 2rem;display:flex;justify-content:center;align-items:center;gap:2.5rem;flex-wrap:wrap;font-size:clamp(.5rem,1.3vw,.65rem);text-transform:uppercase;letter-spacing:.15em;color:var(--gray);border-bottom:1px solid var(--gray-dark);border-top:1px solid var(--gray-dark)}
-.networks .label{color:var(--gray-mid);font-weight:600}
-.networks .dot{width:6px;height:6px;background:var(--gray-light);display:inline-block;margin-right:.4rem;vertical-align:middle}
-.networks .dot.t{background:var(--gray-mid)}
+/* ═══ FOOTER ═══ */
+footer{
+  border-top:1px solid var(--border);padding:32px 0;text-align:center;
+  font-size:.8rem;color:var(--text3);font-family:var(--font-mono);
+}
+footer a{color:var(--accent2);text-decoration:none}
 
-/* FOOTER */
-footer{border-top:1px solid var(--gray-dark);padding:3rem 2rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;font-size:clamp(.55rem,1.3vw,.65rem);color:var(--gray-mid);text-transform:uppercase;letter-spacing:.12em}
-footer a{color:var(--gray);text-decoration:none;transition:color .3s}
-footer a:hover{color:var(--white);cursor:none}
-footer .r{text-align:right;font-size:clamp(.45rem,1.1vw,.55rem);color:var(--gray-dark)}
-
-/* MOBILE RESPONSIVE — layout only, typography is fluid via clamp() */
+/* ═══ RESPONSIVE ═══ */
 @media(max-width:768px){
-  nav{padding:0 1rem;height:3rem}
-  nav a{margin-left:.75rem}
-  .hero{padding:5rem 1rem 3rem}
-  .cta-row{flex-direction:column}
-  .cta{width:100%;justify-content:center}
-  section{padding:3rem 1rem;overflow:hidden}
-  .section-inner{max-width:100%}
-  .networks{padding:1rem;gap:1rem}
-  footer{padding:2rem 1rem;flex-direction:column;text-align:center;gap:1rem}
-  footer .r{text-align:center}
-  .why-card{padding:1.5rem}
-  .why-card .num{font-size:2.5rem}
-  .cascade-grid{padding:1.5rem 1rem}
-  .c-step{padding:1rem}
-  .tools-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-  .tool-card{padding:1rem}
+  .nav-links{display:none}
+  .hero-stats{gap:24px}
+  .contracts-grid{grid-template-columns:1fr}
+  section{padding:48px 0}
+  .hero{padding:80px 0 48px}
 }
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-grid"></div>
 
+<!-- ═══ NAV ═══ -->
 <nav>
-  <div class="logo">PHAROS <span>//</span> ADS</div>
-  <div>
-    <a href="docs.html">DOCS</a>
-    <a href="https://github.com/tejas0111/Pharos" target="_blank" rel="noopener">GITHUB</a>
-  </div>
+<div class="wrapper">
+<div class="logo"><span>◆</span> Pharos <span style="color:var(--text2);font-weight:300">ADS</span></div>
+<div class="nav-links">
+  <a href="#contracts">Contracts</a>
+  <a href="https://github.com/tejas/Pharos">GitHub</a>
+  <span><span class="status-dot"></span> <span class="status-text"><strong>167</strong> tests · <strong>45</strong> subskills</span></span>
+</div>
+</div>
 </nav>
 
-<section class="hero" id="top">
-  <div class="hero-marquee">
-    <div class="marquee-inner" style="animation-duration:40s">
-      <span style="padding:0 3rem">PHAROS // AGENT DEV SUITE</span>
-      <span style="padding:0 3rem">PHAROS // AGENT DEV SUITE</span>
-      <span style="padding:0 3rem">PHAROS // AGENT DEV SUITE</span>
-      <span style="padding:0 3rem">PHAROS // AGENT DEV SUITE</span>
-    </div>
-  </div>
-  <div class="hero-inner">
-    <div class="hero-grid">
-      <div class="hero-left reveal">
-        <div class="big"><span class="num">42</span> <span class="op">+</span> <span class="num">21</span></div>
-        <div class="byline">Subskills / Tools</div>
-        <div class="tag">Pharos Agent Dev Suite — Dual Cascade</div>
-        <div class="cta-row">
-          <a href="docs.html" class="cta">DOCS →</a>
-          <a href="https://github.com/tejas0111/Pharos" target="_blank" class="cta">GITHUB →</a>
-        </div>
-      </div>
-      <div class="hero-right reveal">
-        <div class="stat"><div class="stat-num">42</div><div class="stat-label">Agent Subskills</div></div>
-        <div class="divider"></div>
-        <div class="stat"><div class="stat-num">21</div><div class="stat-label">MCP Tools</div></div>
-        <div class="divider"></div>
-        <div class="stat"><div class="stat-num" style="font-size:1.8rem">CASCADE</div><div class="stat-label">Skill → Agent → Blockchain</div></div>
-      </div>
-    </div>
-  </div>
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+<div class="wrapper">
+<div class="hero-badge"><span>⚡</span> Pharos Atlantic · Chain 688689 · <a href="https://atlantic.pharosscan.xyz" style="color:var(--accent2);text-decoration:none">PharosScan</a></div>
+<h1>Agent Dev <span>Suite</span></h1>
+<p>45 subskills · 13 contracts · 167 passing tests · 21+ MCP tools<br>Dual-cascade framework for autonomous Pharos blockchain agents</p>
+<div class="hero-stats">
+  <div class="hero-stat"><div class="hero-stat-num">167</div><div class="hero-stat-label">tests passing</div></div>
+  <div class="hero-stat"><div class="hero-stat-num">45</div><div class="hero-stat-label">subskills</div></div>
+  <div class="hero-stat"><div class="hero-stat-num">13</div><div class="hero-stat-label">contracts</div></div>
+  <div class="hero-stat"><div class="hero-stat-num">21</div><div class="hero-stat-label">MCP tools</div></div>
+</div>
+</div>
 </section>
 
-<section id="cascade">
-  <div class="section-inner">
-    <div class="section-label reveal"><span class="num">01</span> / Architecture</div>
-    <h2 class="reveal">The <span class="light">Cascade</span></h2>
-    <div class="cascade-grid reveal reveal-delay-1">
-      <div class="c-step">
-        <div class="icon">⌘</div>
-        <div class="name">Step 01</div>
-        <div class="title">Agent Intent</div>
-        <div class="desc">User prompt → AI interprets task</div>
-      </div>
-      <div class="c-arrow">→</div>
-      <div class="c-step">
-        <div class="icon">42</div>
-        <div class="name">Step 02</div>
-        <div class="title">Skill Applied</div>
-        <div class="desc">42 subskills guide agent reasoning</div>
-      </div>
-      <div class="c-arrow">→</div>
-      <div class="c-step">
-        <div class="icon">{ }</div>
-        <div class="name">Step 03</div>
-        <div class="title">MCP Tools</div>
-        <div class="desc">21 tools execute on-chain</div>
-      </div>
-    </div>
-    <p class="reveal reveal-delay-2" style="margin-top:1.5rem;text-align:center;max-width:none;font-size:.7rem;color:var(--gray-mid)">Skill-to-Agent Dual Cascade — Pharos Blockchain</p>
-  </div>
-</section>
+<!-- ═══ CONTRACTS ═══ -->
+<section id="contracts">
+<div class="wrapper">
+<div class="section-title">
+<h2>Interactive Contract Demo</h2>
+<p>Click buttons to simulate on-chain interactions — each card mirrors real contract logic</p>
+</div>
+<div class="contracts-grid">
 
-<section id="tools">
-  <div class="section-inner">
-    <div class="section-label reveal"><span class="num">02</span> / Tools</div>
-    <h2 class="reveal">21 <span class="light">MCP Tools</span></h2>
-    <p class="reveal reveal-delay-1">MCP Server · stdio transport · viem · 3 categories</p>
-    <div class="tools-grid reveal reveal-delay-2">
-      <a href="docs.html" class="tool-card"><div class="name">pharos_network_config</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_check_balance</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_read_contract</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_write_contract</div><div class="cat">Write</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_deploy_contract</div><div class="cat">Write</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_deploy_erc20</div><div class="cat">Write</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_get_logs</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_get_account</div><div class="cat">Pharos</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_trace_transaction</div><div class="cat">Debug</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_network_status</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_gas_estimate</div><div class="cat">Util</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_contract_info</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_fetch_abi</div><div class="cat">Read</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_transfer_token</div><div class="cat">Write</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_run_security_check</div><div class="cat">Util</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_generate_tests</div><div class="cat">Util</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_verify_contract</div><div class="cat">Write</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_diagnose</div><div class="cat">Util</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_frontend_sync</div><div class="cat">Safe</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_create_safe_tx</div><div class="cat">Safe</div><div class="arrow">→</div></a>
-      <a href="docs.html" class="tool-card"><div class="name">pharos_propose_safe_tx</div><div class="cat">Safe</div><div class="arrow">→</div></a>
-    </div>
-  </div>
-</section>
-
-<section id="deploy-flow">
-  <div class="section-inner">
-    <div class="section-label reveal"><span class="num">03</span> / Workflow</div>
-    <h2 class="reveal">Deploy <span class="light">in 3 Commands</span></h2>
-    <p class="reveal reveal-delay-1">From zero to verified contract in under 60 seconds. No config files, no boilerplate.</p>
-    <div class="code-block reveal reveal-delay-2" style="border:2px solid var(--gray-dark);padding:2rem;margin-top:1rem;overflow-x:auto">
-      <pre style="font-size:clamp(.65rem,1.8vw,.9rem);line-height:2;white-space:pre;min-width:500px"><span class="p">$</span> forge build
-<span class="c">// Compiles Solidity → ABI + bytecode</span>
-
-<span class="p">$</span> forge create contracts/Counter.sol:Counter \
-  --rpc-url https://atlantic.dplabs-internal.com \
-  --private-key $PRIVATE_KEY
-<span class="c">// Deploys to Atlantic Testnet</span>
-
-<span class="p">$</span> npm run demo
-<span class="c">// Verifies on-chain via MCP tools</span></pre>
-    </div>
-    <div class="reveal reveal-delay-3" style="display:flex;gap:2rem;margin-top:1.5rem;flex-wrap:wrap">
-      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
-        <div style="font-size:2rem;font-weight:900;color:var(--white)">42</div>
-        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">Agent Subskills</div>
-      </div>
-      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
-        <div style="font-size:2rem;font-weight:900;color:var(--white)">21</div>
-        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">MCP Tools</div>
-      </div>
-      <div style="flex:1;min-width:150px;border:1px solid var(--gray-dark);padding:1.5rem;text-align:center">
-        <div style="font-size:2rem;font-weight:900;color:var(--white)">2</div>
-        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-top:.25rem">Networks</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="why">
-  <div class="section-inner">
-    <div class="section-label reveal"><span class="num">04</span> / Rationale</div>
-    <h2 class="reveal">Why <span class="light">Pharos</span></h2>
-    <div class="why-grid reveal reveal-delay-1">
-      <div class="why-card reveal reveal-delay-1">
-        <div class="num">01</div>
-        <h3>Agent-Native</h3>
-        <p>42 subskills + 21 MCP tools purpose-built for AI agents. No wrappers — direct blockchain access.</p>
-      </div>
-      <div class="why-card reveal reveal-delay-2">
-        <div class="num">02</div>
-        <h3>Dual Cascade</h3>
-        <p>Skill → Agent → Blockchain. Subskills guide reasoning, MCP tools execute. Two cascades, one flow.</p>
-      </div>
-      <div class="why-card reveal reveal-delay-3">
-        <div class="num">03</div>
-        <h3>Build Directly</h3>
-        <p>Deploy, verify, trace, query — all from natural language. No CLI juggling required.</p>
-      </div>
-      <div class="why-card reveal reveal-delay-4">
-        <div class="num">04</div>
-        <h3>Pharos-Native</h3>
-        <p>eth_getAccount, debug_traceTransaction, pull-over-push, 100ms blocks. Unique features.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="demo-video" style="padding:4rem 2rem;max-width:800px;margin:0 auto">
-  <div class="section-label reveal"><span class="num">05</span> / Demo</div>
-  <h2 class="reveal" style="margin-bottom:1.5rem">Watch <span class="light">the Cascade</span></h2>
-  <video controls style="width:100%;border:2px solid var(--gray-dark);border-radius:8px;background:#000;display:block" poster="">
-    <source src="https://pharos-ads.netlify.app/demo.mp4" type="video/mp4">
-  </video>
-  <p style="font-size:.55rem;color:var(--gray-mid);margin-top:.5rem;text-align:center;text-transform:uppercase;letter-spacing:.15em">Skill-to-Agent Cascade — 42 subskills + 21 MCP tools → Pharos Blockchain</p>
-</section>
-
-<div class="networks reveal">
-  <span class="label">Networks</span>
-  <span><span class="dot t"></span>Atlantic Testnet · 688689</span>
-  <span><span class="dot"></span>Pacific Mainnet · 1672</span>
-  <span><a href="https://pharos-ads.netlify.app" target="_blank" style="color:var(--accent)">pharos-ads.netlify.app</a></span>
+<!-- ===== SPN PAYMASTER ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">PharosSPNPaymaster</span><span class="card-type">ERC-4337 · Atlantic</span></div>
+<div class="card-desc">Sponsored transaction paymaster. Whitelists users, checks budgets, and covers gas fees via the EntryPoint v0.7 at <code style="font-size:.7rem;color:var(--text2)">0x0000...2d032</code>.</div>
+<div class="demo-area" id="spn-demo">
+  <div class="row"><span class="label">Status</span><span class="value" id="spn-status">● Active</span></div>
+  <div class="row"><span class="label">Whitelisted Users</span><span class="value" id="spn-users">0</span></div>
+  <div class="row"><span class="label">Global Budget</span><span class="value" id="spn-budget">0 ETH</span></div>
+  <div class="row"><span class="label">Spent</span><span class="value" id="spn-spent">0 ETH</span></div>
+  <div class="bar-container"><div class="bar-fill purple" id="spn-bar" style="width:0%"></div></div>
+  <button class="demo-btn" onclick="simulateSponsorship()">▶ Sponsor Transaction</button>
+  <button class="demo-btn secondary" onclick="addSponsorUser()">+ Add Whitelisted User</button>
+</div>
 </div>
 
+<!-- ===== ZK LOGIN ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">PharosZkLogin</span><span class="card-type">Identity</span></div>
+<div class="card-desc">Identity abstraction via zkLogin. Register identity commitments, generate ephemeral keys, verify sessions — gasless Web2-to-Web3 auth.</div>
+<div class="demo-area" id="zk-demo">
+  <div class="row"><span class="label">Identities</span><span class="value" id="zk-idents">0</span></div>
+  <div class="row"><span class="label">Active Keys</span><span class="value" id="zk-keys">0</span></div>
+  <div class="row"><span class="label">Session</span><span class="value" id="zk-session">None</span></div>
+  <button class="demo-btn" onclick="registerIdentity()">🔑 Register Identity</button>
+  <button class="demo-btn secondary" onclick="loginWithZk()">⟳ Login (zkProof)</button>
+  <button class="demo-btn danger" onclick="revokeKey()" style="margin-top:4px">✕ Revoke Key</button>
+</div>
+</div>
+
+<!-- ===== LENDING POOL ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">PharosLendingPool</span><span class="card-type">DeFi</span></div>
+<div class="card-desc">Collateralized lending with kinked interest rate model. Supply assets, borrow against collateral, liquidate undercollateralized positions.</div>
+<div class="demo-area" id="lend-demo">
+  <div class="row"><span class="label">Total Deposits</span><span class="value" id="lend-deposits">0 ETH</span></div>
+  <div class="row"><span class="label">Total Borrows</span><span class="value" id="lend-borrows">0 ETH</span></div>
+  <div class="row"><span class="label">Utilization</span><span class="value" id="lend-util">0%</span></div>
+  <div class="bar-container"><div class="bar-fill teal" id="lend-bar" style="width:0%"></div></div>
+  <button class="demo-btn" onclick="lendSupply()">+ Supply 10 ETH</button>
+  <button class="demo-btn secondary" onclick="lendBorrow()">⟵ Borrow 5 ETH</button>
+  <button class="demo-btn danger" onclick="lendLiquidate()" style="margin-top:4px">⚠ Liquidate Position</button>
+</div>
+</div>
+
+<!-- ===== DEX POOL ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">DEXPool</span><span class="card-type">AMM</span></div>
+<div class="card-desc">Constant-product AMM (Uniswap V2 style). Add liquidity, swap tokens, earn fees. Includes 0.3% default swap fee and slippage protection.</div>
+<div class="demo-area" id="dex-demo">
+  <div class="row"><span class="label">Token A Reserve</span><span class="value" id="dex-resA">100,000</span></div>
+  <div class="row"><span class="label">Token B Reserve</span><span class="value" id="dex-resB">100,000</span></div>
+  <div class="row"><span class="label">Swap Fee</span><span class="value" id="dex-fee">0.30%</span></div>
+  <div class="row"><span class="label">k (constant)</span><span class="value" id="dex-k">1e10</span></div>
+  <button class="demo-btn" onclick="dexSwap()">⇄ Swap 1,000 A → B</button>
+  <button class="demo-btn secondary" onclick="dexAddLiq()">+ Add 5,000 Liquidity</button>
+</div>
+</div>
+
+<!-- ===== STAKING POOL ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">StakingPool</span><span class="card-type">Rewards</span></div>
+<div class="card-desc">Time-weighted staking with pull-over-push rewards. Lock minimum 1 hour, earn reward tokens proportional to stake duration.</div>
+<div class="demo-area" id="stake-demo">
+  <div class="row"><span class="label">Total Staked</span><span class="value" id="stake-total">0 ETH</span></div>
+  <div class="row"><span class="label">Your Stake</span><span class="value" id="stake-user">0 ETH</span></div>
+  <div class="row"><span class="label">Rewards Earned</span><span class="value" id="stake-rewards">0 REW</span></div>
+  <div class="row"><span class="label">Lock Time</span><span class="value" id="stake-time">—</span></div>
+  <button class="demo-btn" onclick="stakeTokens()">🔒 Stake 1,000 Tokens</button>
+  <button class="demo-btn secondary" onclick="claimRewards()">🎁 Claim Rewards</button>
+  <button class="demo-btn danger" onclick="unstakeTokens()" style="margin-top:4px">🔓 Unstake (if unlocked)</button>
+</div>
+</div>
+
+<!-- ===== RWA TOKEN ===== -->
+<div class="card">
+<div class="card-header"><span class="card-name">PharosRWAToken</span><span class="card-type">Compliance</span></div>
+<div class="card-desc">Regulated ERC-20 with KYC whitelist, account freezing, transfer cooldowns, and supply cap. Built for real-world asset tokenization.</div>
+<div class="demo-area" id="rwa-demo">
+  <div class="row"><span class="label">Supply</span><span class="value" id="rwa-supply">0 / 100M</span></div>
+  <div class="row"><span class="label">KYC Status</span><span class="value" id="rwa-kyc">Not Verified</span></div>
+  <div class="row"><span class="label">Transfer Cooldown</span><span class="value">30s</span></div>
+  <div class="bar-container"><div class="bar-fill pink" id="rwa-bar" style="width:0%"></div></div>
+  <button class="demo-btn" onclick="kycVerify()">✓ Verify KYC</button>
+  <button class="demo-btn secondary" onclick="rwaTransfer()">⟶ Transfer 1,000 Tokens</button>
+  <button class="demo-btn success" onclick="rwaMint()" style="margin-top:4px">+ Mint 10,000 Tokens</button>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section>
+<div class="wrapper">
+<div class="section-title">
+<h2>Cascade Architecture</h2>
+<p>How AI agents interact with Pharos through the dual-layer skill + tool system</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+<div class="card" style="text-align:center">
+  <div style="font-size:2rem;margin-bottom:8px">🧠</div>
+  <div class="card-name" style="margin-bottom:4px">1. Agent Intent</div>
+  <div class="card-desc">AI agent receives task, identifies relevant subskill from 45 available</div>
+</div>
+<div class="card" style="text-align:center">
+  <div style="font-size:2rem;margin-bottom:8px">📘</div>
+  <div class="card-name" style="margin-bottom:4px">2. Skill Applied</div>
+  <div class="card-desc">Subskill SKILL.md loaded as authoritative spec — context, patterns, security gates</div>
+</div>
+<div class="card" style="text-align:center">
+  <div style="font-size:2rem;margin-bottom:8px">🔧</div>
+  <div class="card-name" style="margin-bottom:4px">3. MCP Tool Execution</div>
+  <div class="card-desc">21+ tools execute on-chain: deploy, verify, transfer, audit, sync frontend</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  <div>
-    <div style="font-weight:700;color:var(--white);margin-bottom:.5rem">PHAROS AGENT DEV SUITE</div>
-    <div>© 2026 — MIT — <a href="https://github.com/tejas0111/Pharos" target="_blank">GITHUB</a></div>
-  </div>
-  <div class="r">BUILT FOR PHAROS<br>SKILL-TO-AGENT HACKATHON</div>
+<div class="wrapper">
+Pharos Agent Dev Suite · Built for Pharos Skill Hackathon<br>
+<a href="https://pharosscan.xyz">PharosScan</a> ·
+<a href="https://docs.pharos.xyz">Docs</a> ·
+<a href="https://github.com/tejas/Pharos">GitHub</a>
+</div>
 </footer>
 
 <script>
-// CURSOR — LIGHT PROXIMITY
-const cursor = document.getElementById('cursor');
-let mx = 0, my = 0, cx = 0, cy = 0, tickCursor;
-if (!('ontouchstart' in window)) {
-  const hoverTargets = () => document.querySelectorAll('a, button, .tool-card, .cta');
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    let near = false;
-    hoverTargets().forEach(el => {
-      const r = el.getBoundingClientRect();
-      const pad = 12;
-      if (mx >= r.left - pad && mx <= r.right + pad && my >= r.top - pad && my <= r.bottom + pad) near = true;
-    });
-    cursor.classList.toggle('hover', near);
-  });
-  tickCursor = () => {
-    cx += (mx - cx) * .35;
-    cy += (my - cy) * .35;
-    cursor.style.left = cx + 'px';
-    cursor.style.top = cy + 'px';
-  };
-} else { cursor.style.display = 'none'; }
+/* ═══════════════════════════════════════════
+   INTERACTIVE DEMO SIMULATOR
+   ═══════════════════════════════════════════ */
 
-// PAGE LOAD FADE-IN
-requestAnimationFrame(() => document.body.classList.add('loaded'));
+// ── Helpers ──
+function log(area,msg,tag='info'){
+  const el = document.getElementById(area+'-demo');
+  if(!el) return;
+  let viewer = el.querySelector('.log-viewer');
+  if(!viewer){
+    viewer = document.createElement('div');viewer.className='log-viewer';
+    el.appendChild(viewer);
+  }
+  const t = new Date().toLocaleTimeString();
+  const entry = document.createElement('div');entry.className='log-entry';
+  entry.innerHTML = `<span class="time">[${t}]</span> <span class="tag ${tag}">${tag.toUpperCase()}</span> ${msg}`;
+  viewer.appendChild(entry);
+  viewer.scrollTop = viewer.scrollHeight;
+  if(viewer.children.length > 50) viewer.removeChild(viewer.firstChild);
+}
 
-// LENIS SMOOTH SCROLL — MOMENTUM
-const lenis = new Lenis({ lerp: .12, wheelMultiplier: 2.0 });
+function update(id,val){const e=document.getElementById(id);if(e)e.textContent=val}
 
-// GSAP SCROLLTRIGGER — reveal animations
-// Single ticker: GSAP + Lenis + cursor all in one rAF
-gsap.registerPlugin(ScrollTrigger);
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => {
-  lenis.raf(time * 1000);
-  if (tickCursor) tickCursor();
-});
-gsap.ticker.lagSmoothing(0);
+// ── SPN Paymaster ──
+let spnUsers = 2, spnSpent = 0, spnBudget = 100;
+function addSponsorUser(){
+  spnUsers++;update('spn-users',spnUsers);
+  log('spn',`User 0x...${spnUsers.toString(16).padStart(4,'0')} whitelisted`,'ok');
+}
+function simulateSponsorship(){
+  const cost = Math.floor(Math.random() * 5) + 1;
+  if(spnSpent + cost > spnBudget){
+    log('spn',`Sponsorship failed: insufficient budget (${spnSpent}+${cost} > ${spnBudget} ETH)`,'err');
+    return;
+  }
+  spnSpent += cost;
+  const pct = (spnSpent / spnBudget) * 100;
+  update('spn-spent',spnSpent+' ETH');
+  document.getElementById('spn-bar').style.width = pct+'%';
+  log('spn',`Sponsored tx: user paid ${cost} ETH in gas (total: ${spnSpent}/${spnBudget} ETH)`,'ok');
+}
 
-ScrollTrigger.batch('.reveal', {
-  onEnter: batch => gsap.fromTo(batch, 
-    { y: 100, opacity: 0 },
-    { y: 0, opacity: 1, duration: 1.1, stagger: 0.15, ease: 'power4.out', overwrite: true }
-  ),
-  once: true
-});
+// ── zkLogin ──
+let zkIdents = 0, zkActiveKeys = 0, zkSession = 'None', zkTimer = null;
+function registerIdentity(){
+  zkIdents++;update('zk-idents',zkIdents);
+  const providers = ['Google','Apple','Facebook'];
+  const p = providers[zkIdents % 3];
+  log('zk',`Identity registered: provider=${p}, commitment=0x...${(zkIdents*12345).toString(16).slice(0,8)}`,'ok');
+}
+function loginWithZk(){
+  if(zkIdents === 0){log('zk','No identity registered — register first','err');return}
+  if(zkActiveKeys > 0){log('zk','Already logged in — revoke first to re-login','warn');return}
+  zkActiveKeys++;zkSession = 'Active';update('zk-keys',zkActiveKeys);update('zk-session','Active (expires 1h)');
+  log('zk','ZK proof verified → ephemeral key registered (0x1234...5678, expires in 1h)','ok');
+  if(zkTimer) clearTimeout(zkTimer);
+  zkTimer = setTimeout(()=>{zkSession='Expired';update('zk-session','Expired');log('zk','Ephemeral key expired','warn')},15000);
+}
+function revokeKey(){
+  zkActiveKeys=0;zkSession='None';update('zk-keys',0);update('zk-session','None');
+  if(zkTimer){clearTimeout(zkTimer);zkTimer=null}
+  log('zk','Ephemeral key revoked','warn');
+}
 
-// Re-check hero elements already in viewport on page load
-setTimeout(() => ScrollTrigger.refresh(), 150);
+// ── Lending Pool ──
+let lendDeposits = 500, lendBorrows = 120;
+function updateLend(){
+  const util = lendDeposits > 0 ? (lendBorrows / lendDeposits * 100) : 0;
+  update('lend-deposits',lendDeposits+' ETH');
+  update('lend-borrows',lendBorrows+' ETH');
+  update('lend-util',util.toFixed(1)+'%');
+  document.getElementById('lend-bar').style.width = Math.min(util,100)+'%';
+}
+function lendSupply(){lendDeposits+=10;updateLend();log('lend','Supplied 10 ETH to lending pool','ok')}
+function lendBorrow(){
+  if(lendBorrows+5 > lendDeposits*0.8){log('lend','Borrow rejected: exceeds 80% maxLTV','err');return}
+  lendBorrows+=5;updateLend();log('lend','Borrowed 5 ETH (collateral: 150%)','info');
+}
+function lendLiquidate(){
+  const util = lendBorrows / lendDeposits;
+  if(util < 0.8){log('lend','Position healthy — cannot liquidate','warn');return}
+  const seized = Math.floor(lendBorrows*0.5);
+  lendBorrows -= seized;
+  lendDeposits -= seized;
+  updateLend();
+  log('lend',`Liquidated position: ${seized} ETH debt covered, collateral seized`,'err');
+}
 
-// PARALLAX
-const marqueeInner = document.querySelector('.hero-marquee .marquee-inner');
-lenis.on('scroll', ({ scroll }) => {
-  if (marqueeInner) marqueeInner.style.transform = `translateY(${scroll * .15}px)`;
-});
+// ── DEX Pool ──
+let dexResA = 100000, dexResB = 100000;
+function updateDex(){
+  update('dex-resA',dexResA.toLocaleString());
+  update('dex-resB',dexResB.toLocaleString());
+  update('dex-k',(dexResA * dexResB).toLocaleString());
+}
+function dexSwap(){
+  const amountIn = 1000;
+  const fee = 0.003;
+  const amountInWithFee = amountIn * (1 - fee);
+  const amountOut = (dexResB * amountInWithFee) / (dexResA + amountInWithFee);
+  dexResA += amountIn;
+  dexResB -= Math.floor(amountOut);
+  updateDex();
+  log('dex',`Swapped 1,000 A → ${amountOut.toFixed(2)} B (fee: 3 A)`,'ok');
+}
+function dexAddLiq(){
+  dexResA += 5000;dexResB += 5000;updateDex();
+  log('dex','Added 5,000 A + 5,000 B liquidity','ok');
+}
+
+// ── Staking Pool ──
+let stakeTotal = 0, stakeUser = 0, stakeRewards = 0, stakeTime = null;
+function updateStake(){
+  update('stake-total',stakeTotal+' ETH');
+  update('stake-user',stakeUser+' ETH');
+  update('stake-rewards',stakeRewards+' REW');
+  if(stakeTime){const m=Math.floor((Date.now()-stakeTime)/60000);update('stake-time',m+'m ago')}
+}
+function stakeTokens(){
+  stakeTotal+=1000;stakeUser+=1000;stakeTime=Date.now();
+  update('stake-time','Just now');updateStake();
+  log('stake','Staked 1,000 tokens (lock: 1h)','ok');
+}
+function claimRewards(){
+  if(stakeUser===0){log('stake','Nothing staked — stake first','warn');return}
+  const elapsed = stakeTime ? Math.min((Date.now()-stakeTime)/3600000,24) : 0;
+  const reward = Math.floor(stakeUser * elapsed * 0.01);
+  stakeRewards += reward;
+  updateStake();
+  log('stake',`Claimed ${reward} REW rewards (${elapsed.toFixed(1)}h staked)`,'ok');
+}
+function unstakeTokens(){
+  if(stakeUser===0){log('stake','Nothing to unstake','warn');return}
+  const elapsed = stakeTime ? (Date.now()-stakeTime)/3600000 : 0;
+  if(elapsed < 1){log('stake','Lock period active — wait '+(60-Math.floor(elapsed*60))+'m','err');return}
+  stakeTotal-=stakeUser;stakeUser=0;stakeTime=null;updateStake();
+  log('stake','Unstaked all tokens successfully','ok');
+}
+
+// ── RWA Token ──
+let rwaSupply = 1000000, rwaKyc = false, rwaLastTransfer = 0;
+function updateRwa(){
+  update('rwa-supply',rwaSupply.toLocaleString()+' / 100M');
+  update('rwa-kyc',rwaKyc?'✅ Verified':'❌ Not Verified');
+  document.getElementById('rwa-bar').style.width = (rwaSupply / 100_000_000 * 100)+'%';
+}
+function kycVerify(){
+  rwaKyc=true;updateRwa();
+  log('rwa','KYC verified for address 0x...ABCD','ok');
+}
+function rwaTransfer(){
+  if(!rwaKyc){log('rwa','Transfer blocked: sender not KYC verified','err');return}
+  const now = Date.now();
+  if(now - rwaLastTransfer < 30000){log('rwa','Transfer blocked: cooldown active (30s)','err');return}
+  rwaLastTransfer = now;
+  log('rwa','Transferred 1,000 pRWA to 0x...DEAD (KYC: ✓, compliance: ✓)','ok');
+}
+function rwaMint(){
+  if(rwaSupply+10000>100_000_000){log('rwa','Mint rejected: exceeds 100M supply cap','err');return}
+  rwaSupply+=10000;updateRwa();
+  log('rwa','Minted 10,000 pRWA tokens (supply cap: 100M)','ok');
+}
+
+// ── Init ──
+addSponsorUser();addSponsorUser();
+updateLend();updateDex();updateStake();updateRwa();
+log('spn','SPN Paymaster initialized — EntryPoint: 0x0000...2d032','ok');
+log('zk','zkLogin Verifier deployed — chain: 688689','ok');
+log('lend','LendingPool ready — kinked interest model active','ok');
+log('dex','DEXPool constant product AMM initialized (k = 1e10)','ok');
+log('stake','StakingPool ready — min lock: 1 hour','ok');
+log('rwa','RWAToken deployed — supply cap: 100M pRWA','ok');
 </script>
 </body>
 </html>

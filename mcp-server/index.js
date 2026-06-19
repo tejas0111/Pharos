@@ -1309,6 +1309,74 @@ async function proposeSafeTx(args) {
   }
 }
 
+// ── SPN Paymaster Handlers ──────────────────────────
+
+async function spnConfigure(args) {
+  try {
+    const { network, action, userAddress, budgetAmount } = args;
+    const net = getNetwork(network || "atlanticTestnet");
+    let message = `SPN Configure: ${action}`;
+    if (action === "addSponsor" && userAddress) {
+      message = `Whitelisted user ${userAddress} on ${network || "atlanticTestnet"}`;
+    } else if (action === "setBudget" && budgetAmount) {
+      message = `Set budget to ${budgetAmount} wei on ${network || "atlanticTestnet"}`;
+    } else if (action === "pause") {
+      message = `Paymaster paused on ${network || "atlanticTestnet"}`;
+    } else if (action === "unpause") {
+      message = `Paymaster unpaused on ${network || "atlanticTestnet"}`;
+    }
+    return safeResult(withSubskill({ action, status: "simulated", message, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_configure", args));
+  } catch (err) {
+    return structuredError(err, "spnConfigure");
+  }
+}
+
+async function spnFund(args) {
+  try {
+    const { network, amount } = args;
+    const net = getNetwork(network || "atlanticTestnet");
+    return safeResult(withSubskill({ amount, status: "simulated", message: `Simulated funding ${amount} wei to SPN Paymaster`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_fund", args));
+  } catch (err) {
+    return structuredError(err, "spnFund");
+  }
+}
+
+async function spnStatus(args) {
+  try {
+    const { network, paymasterAddress, userAddress } = args;
+    const net = getNetwork(network || "atlanticTestnet");
+    let message = `Paymaster at ${paymasterAddress} on ${network || "atlanticTestnet"}`;
+    if (userAddress) message += ` | Checking whitelist for ${userAddress}`;
+    return safeResult(withSubskill({ paymasterAddress, userAddress: userAddress || "not specified", status: "simulated", message, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_spn_status", args));
+  } catch (err) {
+    return structuredError(err, "spnStatus");
+  }
+}
+
+// ── zkLogin Handlers ────────────────────────────────
+
+async function zkLoginRegister(args) {
+  try {
+    const { network, verifierAddress, commitment, provider, aud, exp } = args;
+    const net = getNetwork(network || "atlanticTestnet");
+    const providers = ["Google", "Apple", "Facebook"];
+    return safeResult(withSubskill({ verifierAddress, commitment, provider: providers[provider] || "Unknown", aud: aud || "not set", exp: exp || "not set", status: "simulated", message: `Registered identity commitment for ${providers[provider] || "Unknown"}`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_zklogin_register", args));
+  } catch (err) {
+    return structuredError(err, "zkLoginRegister");
+  }
+}
+
+async function zkLoginVerify(args) {
+  try {
+    const { network, verifierAddress, userAddress } = args;
+    const net = getNetwork(network || "atlanticTestnet");
+    return safeResult(withSubskill({ verifierAddress, userAddress, status: "simulated", message: `Verified zkLogin proof for ${userAddress}`, network: network || "atlanticTestnet", chainId: net.chainId, explorer: net.explorerUrl, }, "pharos_zklogin_verify", args));
+  } catch (err) {
+    return structuredError(err, "zkLoginVerify");
+  }
+}
+
+
 // ---------------------------------------------------------------------------
 // Subskill lookup for tools/list descriptions
 // ---------------------------------------------------------------------------
@@ -1334,6 +1402,11 @@ const TOOL_META = {
   pharos_frontend_sync: { description: "Sync deployed contract address and ABI to a frontend project (.env.local + abis/)", subskill: "frontend-dapp-integration" },
   pharos_create_safe_tx: { description: "Build a Safe transaction payload for multi-sig execution (Gnosis Safe)", subskill: "wallet-and-transaction-ui" },
   pharos_propose_safe_tx: { description: "Prepare a Safe multi-sig transaction for proposal via Safe Transaction Service", subskill: "wallet-and-transaction-ui" },
+  pharos_spn_configure: { description: "Configure SPN Paymaster: whitelist users, set budgets, pause/unpause", subskill: "sponsored-transactions" },
+  pharos_spn_fund: { description: "Fund the SPN Paymaster with native tokens for gas sponsorship", subskill: "sponsored-transactions" },
+  pharos_spn_status: { description: "Check SPN Paymaster status: whitelist, budget remaining, pause state", subskill: "sponsored-transactions" },
+  pharos_zklogin_register: { description: "Register a zkLogin identity commitment on-chain", subskill: "zero-knowledge-login" },
+  pharos_zklogin_verify: { description: "Verify a zkLogin proof and register an ephemeral key", subskill: "zero-knowledge-login" },
 };
 
 // ---------------------------------------------------------------------------
@@ -1539,6 +1612,55 @@ const TOOL_SCHEMAS = {
       safeTxGas: { type: "string", description: "Gas limit for safe tx", default: "0" },
       nonce: { type: "number", description: "Safe transaction nonce" },
     },
+  pharos_spn_configure: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], description: "Target network" },
+      action: { type: "string", enum: ["addSponsor", "removeSponsor", "setBudget", "pause", "unpause"], description: "Action to perform" },
+      userAddress: { type: "string", description: "User address (for add/remove sponsor)", optional: true },
+      budgetAmount: { type: "string", description: "Budget in wei (for setBudget)", optional: true },
+    },
+    required: ["network", "action"],
+  },
+  pharos_spn_fund: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], description: "Target network" },
+      amount: { type: "string", description: "Amount to fund (in wei)" },
+    },
+    required: ["network", "amount"],
+  },
+  pharos_spn_status: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], description: "Target network" },
+      paymasterAddress: { type: "string", description: "Paymaster contract address" },
+      userAddress: { type: "string", description: "User address to check (optional)", optional: true },
+    },
+    required: ["network", "paymasterAddress"],
+  },
+  pharos_zklogin_register: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], description: "Target network" },
+      verifierAddress: { type: "string", description: "PharosZkLogin contract address" },
+      commitment: { type: "string", description: "Pedersen commitment to identity" },
+      provider: { type: "number", enum: [0, 1, 2], description: "Identity provider (0=Google, 1=Apple, 2=Facebook)" },
+      aud: { type: "number", description: "Client application ID" },
+      exp: { type: "number", description: "Max epoch expiration" },
+    },
+    required: ["network", "verifierAddress", "commitment", "provider"],
+  },
+  pharos_zklogin_verify: {
+    type: "object",
+    properties: {
+      network: { type: "string", enum: ["atlanticTestnet", "pacificMainnet"], description: "Target network" },
+      verifierAddress: { type: "string", description: "PharosZkLogin contract address" },
+      userAddress: { type: "string", description: "User address" },
+    },
+    required: ["network", "verifierAddress", "userAddress"],
+  },
+
     required: ["safeAddress", "to", "data"],
   },
 };
@@ -1577,7 +1699,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "pharos_frontend_sync": return await frontendSync(args);
       case "pharos_create_safe_tx": return await createSafeTx(args);
       case "pharos_propose_safe_tx": return await proposeSafeTx(args);
-      default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
+          case "pharos_spn_configure":
+      result = await spnConfigure(args);
+      break;
+    case "pharos_spn_fund":
+      result = await spnFund(args);
+      break;
+    case "pharos_spn_status":
+      result = await spnStatus(args);
+      break;
+    case "pharos_zklogin_register":
+      result = await zkLoginRegister(args);
+      break;
+    case "pharos_zklogin_verify":
+      result = await zkLoginVerify(args);
+      break;
+default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }
   } catch (err) {
     return { isError: true, content: [{ type: "text", text: `Tool ${name} error: ${err.message}` }] };

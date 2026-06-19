@@ -1,21 +1,20 @@
-#!/bin/bash
-# Demo: serve both pages, print URLs, ready for screen recording
-set -e
-PORT=${1:-8092}
-echo "═══ Pharos Web Demo ═══"
-echo "Serving on port $PORT"
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${1:-8092}"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
+echo "========================================"
+echo "  Pharos ADS — Interactive Demo"
+echo "  Serving at http://localhost:$PORT"
+echo "  Press Ctrl+C to stop"
+echo "========================================"
 echo ""
-echo "  Landing:  http://localhost:$PORT/"
-echo "  Docs:     http://localhost:$PORT/docs.html"
+echo "📡 6 interactive contracts:"
+echo "   SPN Paymaster · zkLogin · LendingPool"
+echo "   DEXPool · StakingPool · RWAToken"necho ""
+echo "📚 45 subskills · 167 tests · 21 MCP tools"
 echo ""
-echo "Record flow:"
-echo "  1. Landing page → scroll through hero, deploy flow, scanline effects"
-echo "  2. Docs page   → navigate sections via sidebar & arrows"
-echo "  3. Copy button → click code-block copy icon"
-echo "  4. Mobile      → resize browser to 375px, show hamburger menu"
-echo ""
-echo "  Open both with:"
-echo "    chromium http://localhost:$PORT/ http://localhost:$PORT/docs.html"
-echo ""
-cd "$(dirname "$0")"
+
+cd "$DIR"
 ${PYTHON:-python3} -m http.server "$PORT"

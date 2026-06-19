@@ -1,97 +1,83 @@
----
-name: pharos-code-review-templates-and-checklists
-description: "Create review templates, PR checklists, and evaluation rubrics for better code review hygiene in Pharos projects. Use when building code review templates, PR checklists, review rubrics, review guidelines, or PR templates for Pharos Solidity or TypeScript repos. Keywords: code review template, PR checklist, review rubric, review notes, PR template, review guidelines, Pharos, Solidity, TypeScript, GitHub, monorepo."
-metadata:
-  audience: developer
-  version: 1.2.0
-  category: workflow
-slash: true
----
+# Code Review Templates & Checklists
 
-# Code Review Templates and Checklists
+## Overview
 
-Create review templates, PR checklists, and evaluation rubrics for Pharos Solidity contracts, deploy scripts, and dApp frontends.
+Standardized code review checklists for Pharos smart contracts. Every review must cover: security, gas optimization, Pharos-specific features, testing coverage, and documentation.
 
-## Pharos PR Template (GitHub)
+## Universal Review Checklist
 
-```markdown
-## Description
-_What does this PR change for the Pharos dApp/contract?_
+### Security
+- [ ] Custom errors used (not `require` strings) — see `contracts/DEXPool.sol` for pattern
+- [ ] ReentrancyGuard inherited on all external-facing functions — see `contracts/StakingPool.sol`
+- [ ] SafeERC20 used for all token transfers — see `contracts/SimpleLender.sol`
+- [ ] Pull-over-push pattern enforced — see `contracts/StakingPool.sol` repay pattern
+- [ ] No unprotected `selfdestruct` or `delegatecall`
+- [ ] Integer overflow/underflow checked (Solidity 0.8+ safe, but unchecked blocks audited)
+- [ ] Access control: `onlyOwner` or role-based, not `tx.origin`
 
-## Networks
-- [ ] Atlantic Testnet (688689) — forge test passed
-- [ ] Mainnet (1672) — forge build --sizes
+### Gas Optimization
+- [ ] Structs packed to fit in minimum slots — see `contracts/PharosLendingPool.sol Position`
+- [ ] `calldata` used instead of `memory` for read-only params — see `contracts/PharosSPNPaymaster.sol`
+- [ ] Unchecked arithmetic where safe — see `contracts/DEXPool.sol` `_sqrt` function
+- [ ] Events emitted for all state changes
+- [ ] No redundant storage reads within loops
 
-## Checklist
+### Pharos-Specific
+- [ ] Chain ID stored as immutable — see all contracts (`i_chainId`)
+- [ ] SPN Paymaster compatible (if sponsoring gas) — see `contracts/PharosSPNPaymaster.sol`
+- [ ] EntryPoint checks for account abstraction — `msg.sender == i_entryPoint`
+- [ ] Atlantic testnet (688689) vs Pacific mainnet (1672) handled — see deploy scripts
+- [ ] zkLogin identity commitment pattern (if using identity abstraction)
 
-### Solidity
-- [ ] No `transfer` / `send` (PHRS has no 2300 gas stipend)
-- [ ] Chain ID validated in deploy script (`block.chainid == 1672`)
-- [ ] Storage gap (`__gap`) present for upgradeable contracts
-- [ ] NatSpec on all public/external functions
-- [ ] forge build --sizes (bytecode under limit)
-- [ ] forge test --fork-url pharos_testnet (all green)
-
-### TypeScript / Frontend
-- [ ] Chain config uses correct chain ID (1672 / 688689)
-- [ ] RPC URLs point to canonical endpoints (rpc.pharos.xyz / atlantic.dplabs-internal.com)
-- [ ] TX lifecycle states handled (pending → success → reverted)
-- [ ] PharosScan explorer links use correct network
+### Testing
+- [ ] Unit tests for all public functions
+- [ ] Fuzz tests for critical math — see `test/Counter.t.sol` for pattern
+- [ ] Invariant tests for supply caps — see `test/PharosERC20Invariants.t.sol`
+- [ ] Edge cases: zero amounts, max uint256, reentrancy
 
 ### Deployment
-- [ ] foundry.toml has [rpc_endpoints] for both networks
-- [ ] forge verify-contract command includes --verifier-url $PHAROSSCAN_MAINNET_API_URL
-- [ ] Safe multisig owner set correctly for proxy admin
-- [ ] Deploy script validates chain ID before broadcast
+- [ ] Constructor args validated against zero-address — see all constructors
+- [ ] Explorable via PharosScan
+- [ ] Broadcast simulation before real deploy — `forge script ... --slow`
 
-## Verification Steps
-```bash
-forge test --fork-url pharos_testnet --match-path test/PharosStaking.t.sol
-pnpm --filter frontend build
+## Pharos Contract Review Templates
+
+### ERC-20 Token Review
+```
+1.  Total supply cap enforced? → PharosRWAToken.sol
+2.  KYC/whitelist enforced? → RWAToken.sol
+3.  Pausable for emergencies? → PharosRWAToken.sol
+4.  Freeze individual accounts? → PharosRWAToken.sol
+5.  EIP-2612 permits for gasless approvals?
 ```
 
-## Related Issues
-_Closes #..._
+### DeFi Protocol Review
+```
+1.  Interest rate model? (linear/kinked) → PharosLendingPool.sol
+2.  Liquidation penalty configurable? → SimpleLender.sol
+3.  Oracle dependency? (Pharos doesn't have native oracle)
+4.  minLTV / maxLTV enforced? → PharosLendingPool.sol
 ```
 
-## Review Rubric (Solidity)
+### AMM/DEX Review
+```
+1.  Constant product formula (x*y=k)? → DEXPool.sol
+2.  Slippage protection (`minAmountOut`)? → DEXPool.sol swap()
+3.  Fee accumulators? → DEXPool.sol (0.3% default)
+4.  LP token mint/burn ratio? → DEXPool.sol addLiquidity()/removeLiquidity()
+```
 
-| Category | 1 (Needs Work) | 3 (Acceptable) | 5 (Exemplary) |
-|----------|----------------|----------------|----------------|
-| **PHRS Safety** | Uses `transfer()` / `send()` | Uses pull pattern with gas cap | + checks reentrancy |
-| **Chain ID** | Hardcoded constant | Modifier checks `block.chainid` | + deploy script also validates |
-| **Upgradeability** | No storage gap | `__gap` present | + ERC-7201 namespaced storage |
-| **Tests** | Happy path only | Fork tests + edge cases | + Fuzz + invariant |
-| **Deploy** | Manual broadcast | forge script with --verify | + CI matrix for testnet+mainnet |
+## CI/CD Checklist
 
-## Prerequisites
-- **Security**:
-    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
-    - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
-    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
+- [ ] GitHub Actions passing — check `.github/workflows/`
+- [ ] `forge build` no errors
+- [ ] `forge test` — all tests pass
+- [ ] Slither analysis clean (if available)
+- [ ] Gas report reviewed — `forge test --gas-report`
+- [ ] Deployment broadcast simulated — `forge script --slow`
 
-- **Project context**: You need the contract names, network targets (1672 mainnet / 688689 testnet), and version numbers relevant to the documentation.
-- **Previous artifacts**: If documenting deployed contracts, you need deployment addresses, ABI files, or changelog history.
-- **Target audience**: Clarify whether this is for developers, end users, or both.
-## Workflow
-- **Strict .env Check**: Confirm `.env` exists with `test -f .env` and check variables via `grep -q` (without printing values). NEVER print `.env` contents. Do NOT proceed if missing or if the user suggests `export`.
+## References
 
-1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
-2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
-3. Understand the review process and team conventions.
-4. Check prerequisites: verify required tools are installed, env vars are set, and any required context is available. Ask the user for any missing values before proceeding.
-5. Design the template or checklist.
-6. Show the plan and ask for approval before finalizing.
-7. Review and verify the template.
-## Examples
-
-- "Create a PR checklist template for Pharos Solidity contracts (PHRS safety, chain ID validation, storage gap)"
-- "Design a review rubric for Pharos deployment PRs covering testnet 688689 and mainnet 1672"
-- "Write a PR template for Pharos dApp frontend changes with PharosScan links and testnet validation steps"
-
-## Verification
-
-Visual review of the template against actual Pharos PR conventions.
-## Gate
-
-Low risk. Show the template outline first; commit to `.github/` or `docs/` after user confirms structure and length.
+- All contracts in `contracts/` follow these patterns
+- `test/PharosERC20Invariants.t.sol` — invariant testing pattern
+- `test/Counter.t.sol` — fuzz testing pattern

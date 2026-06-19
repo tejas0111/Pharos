@@ -90,8 +90,8 @@ contract PharosERC20 {
         return true;
     }
 
-    function allowance(address owner, address spender) external view returns (uint256) {
-        return s_allowances[owner][spender];
+    function allowance(address _owner, address spender) external view returns (uint256) {
+        return s_allowances[_owner][spender];
     }
 
     function approve(address spender, uint256 value) external returns (bool) {
@@ -138,32 +138,32 @@ contract PharosERC20 {
     }
 
     // --- EIP-2612 Permit ---
-    function nonces(address owner) external view returns (uint256) {
-        return s_nonces[owner];
+    function nonces(address owner_) external view returns (uint256) {
+        return s_nonces[owner_];
     }
 
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return i_domainSeparator;
     }
 
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+    function permit(address owner_, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
         external
     {
         if (deadline < block.timestamp) revert PharosERC20__PermitExpired();
         bytes32 structHash = keccak256(
             abi.encode(
                 keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
-                owner,
+                owner_,
                 spender,
                 value,
-                s_nonces[owner]++,
+                s_nonces[owner_]++,
                 deadline
             )
         );
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", i_domainSeparator, structHash));
         address recovered = ecrecover(digest, v, r, s);
-        if (recovered == address(0) || recovered != owner) revert PharosERC20__InvalidSignature();
-        s_allowances[owner][spender] = value;
-        emit Approval(owner, spender, value);
+        if (recovered == address(0) || recovered != owner_) revert PharosERC20__InvalidSignature();
+        s_allowances[owner_][spender] = value;
+        emit Approval(owner_, spender, value);
     }
 }

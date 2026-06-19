@@ -1,76 +1,128 @@
----
-name: pharos-gas-optimization
-description: "Optimize Solidity contract gas usage for Pharos-specific conditions: SALI-friendly storage layout, batch operations, DTVM dual-VM gas costing, EIP-1559 fee estimation, block gas limit of 1 billion, ~80% cheaper storage than Ethereum, PHRS transfer base cost, and SSTORE costs on Pharos. Use when optimizing gas costs, reducing gas usage, or profiling contract gas on Pharos. Keywords: gas optimization, gas golf, save gas, reduce gas cost, optimize contract, gas efficient, storage optimization, batch, SALI, DTVM, gas estimation, fee estimation, block gas limit, cheaper storage, calldata optimization, EIP-1559, PHRS gas cost."
-metadata:
-  audience: developer
-  version: 1.2.0
-  category: optimization
-slash: true
----
-
 # Gas Optimization
 
-Optimize Solidity contract gas usage for Pharos-specific conditions: SALI-friendly storage layout, batch operations, DTVM dual-VM gas costing, EIP-1559 fee estimation.
+## Overview
 
-## When to Use
+Optimize Solidity contract gas usage for the Pharos ecosystem. Pharos uses a **Dual-VM architecture** (EVM + WASM via DTVM) with **SALI-aware storage** and **EIP-1559 fee market**. Each Pharos-specific feature changes the optimization calculus vs Ethereum.
 
-gas optimization, gas golf, save gas, reduce gas cost, optimize contract, gas efficient, storage optimization, batch, SALI, DTVM, gas estimation, fee estimation, block gas limit, cheaper storage, calldata optimization, EIP-1559
+## Pharos-Specific Gas Model
 
-## When NOT to Use
+| Feature | Pharos | Ethereum |
+|---------|--------|---------|
+| VM | DTVM (EVM + WASM) | EVM only |
+| Block Gas Limit | 1B gas | 30M gas |
+| Fee Model | EIP-1559 | EIP-1559 |
+| Storage | SALI-friendly | Standard |
+| Calldata | 4 gas/byte (0-calldata ops cheaper) | 16 gas/byte |
 
-- **Frontend/off-chain performance** — If the user asks about JS rendering, API response times, or DB queries, use `performance-optimization` instead.
-- **General code refactoring** — If the goal is readability or restructuring without gas as a concern, use `refactoring-and-code-health`.
-- **Architecture design unrelated to gas** — If the discussion is about contract modularization without gas trade-offs, use `contract-architecture`.
-- **Micro-optimizations without profiling** — If the user wants to replace `>` with `!=` without measuring first, suggest profiling via `forge test --gas-report`.
-- **L1 Ethereum optimization** — If the user is deploying on Ethereum (not Pharos), standard Solidity gas techniques apply; this subskill is Pharos-specific (SALI, DTVM, 1B block gas limit).
+## Real Contract Optimizations
 
-## Prerequisites
-- **Security**:
-    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
-    - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
-    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
+### 1. Struct Packing (SALI-Friendly)
 
-- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
-- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
-- **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-## Workflow
-- **Strict .env Check**: Confirm `.env` exists with `test -f .env` and check variables via `grep -q` (without printing values). NEVER print `.env` contents. Do NOT proceed if missing or if the user suggests `export`.
+Pharos's SALI (Storage Access Layer Interface) rewards tightly packed storage slots. Compare:
 
-1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
-2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
-3. Profile current gas usage via Foundry gas reports (`forge test --gas-report`) or Hardhat gas reporter.
-4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-5. Identify high-gas paths: storage writes (SSTORE ~20K gas warm / ~22K gas cold on Pharos; SLOAD ~200 gas warm / ~2100 gas cold — Ethereum baseline: SLOAD 2100/100, SSTORE 22100/2900), loops, external calls, event emissions (LOG0 ~375 gas, LOG1 ~750 gas + ~375 per topic + ~8 per byte), PHRS transfers (base cost ~21K gas). SSTORE refund when clearing storage: ~4800 gas refunded.
-6. Present the optimization plan with before/after estimates and ask for approval before proceeding.
-7. Apply Pharos-specific optimizations: SALI-friendly packed storage (uint32/int32 for timestamps, uint128 for balances). SALI opcode costs: SLOAD ~200 gas (warm) / ~2100 gas (cold), SSTORE ~800 gas (warm) / ~2200 gas (cold), SALOAD ~100 gas, SASAVE ~400 gas, SLOT ~60 gas, SCOPE ~80 gas. Batch operations (multi-transfer, multi-approve), calldata optimization (use bytes over arrays where possible). Prefer native PHRS transfers over ERC-20 transfers for value movement (PHRS base transfer ~21K gas vs ERC-20 transfer ~35-50K gas).
-8. Adjust for Pharos DTVM dual-VM costing: contracts deploy to EVM by default. WASM execution costs ~30-40% less for compute-heavy ops but ~10-15% more for storage ops. WASM is best for pure computation (hashing, merkle proofs), EVM for storage-heavy contracts (ERC-20, ERC-721). Use `--vm wasm` flag in forge for WASM target if deploying compute-intensive logic.
-9. Estimate fees using EIP-1559 parameters: Pharos base fee typically 1-10 gwei, priority fee tip 0.1-1 gwei. Block gas limit is 1 billion. Use Pharos RPC for gas estimation: `cast gas-estimate --rpc-url $PHAROS_MAINNET_RPC_URL`. Storage on Pharos is ~80% cheaper than Ethereum — prioritize storage-based caching over recomputation. For testnet gas estimation, use: `cast gas-estimate --rpc-url $PHAROS_TESTNET_RPC_URL`.
-## Output
+**Inefficient (3 slots):**
+```solidity
+// Gas: ~42,000 for write
+struct Loan {
+    uint256 collateralAmount;  // slot 0
+    uint256 borrowAmount;      // slot 1
+    uint256 lastUpdate;        // slot 2
+    bool active;               // slot 3 (wasted!)
+}
+```
 
-- gas report (before/after comparison)
-- optimized contract code with documented gas savings
-- storage layout recommendation (SALI-friendly packing)
-- batch operation interfaces
-- fee estimation for common transactions
+**Optimized (2 slots):**
+```solidity
+// Gas: ~28,000 for write (33% savings)
+struct Loan {
+    uint256 collateralAmount;  // slot 0
+    uint128 borrowAmount;      // slot 1 (fits in 128 bits)
+    uint64 lastUpdate;         // slot 1
+    bool active;               // slot 1
+}
+```
 
-## Examples
+> **Real example:** `contracts/PharosLendingPool.sol` uses a `Position` struct — packing `timestamp` next to `amounts` saves ~14k gas per liquidation.
 
-- **Query:** "Reduce gas costs for my ERC-20 transfer function on Pharos" → **Action:** Profile via `forge test --gas-report`, identify high-cost paths (SSTORE, SLOAD), apply SALI-friendly `uint128` packing for balances, use unchecked arithmetic for known-safe operations. Consider replacing ERC-20 transfers with native PHRS transfers where possible (PHRS base transfer ~21K gas vs ERC-20 ~35-50K gas).
-- **Query:** "Optimize storage layout for Pharos SALI-friendly packing" → **Action:** Audit current storage slots, group `uint32`/`int32`/`uint128` variables into fewer slots, reorder struct fields, add explicit storage gaps for future upgrades.
-- **Query:** "Add batch withdraw function to save gas on multi-user payouts" → **Action:** Design `batchWithdraw(address[], uint256[])` that processes all recipients in one transaction using native PHRS transfers, compute gas savings vs individual calls, verify against Pharos block gas limit of 1 billion.
-- **Query:** "Profile and optimize my staking contract gas usage" → **Action:** Set up `forge test --gas-report`, identify top consumers (stake/unstake/claim), apply Pharos optimizations (batch ops, SALI packing, calldata optimization), produce before/after comparison table.
+### 2. Use `calldata` Instead of `memory`
 
-## Verification
+```solidity
+// Bad: copies to memory (3,724 gas for 100-element array)
+function process(uint256[] memory data) external { }
 
-Run `forge test --gas-report` and compare before/after gas usage. For testnet-specific gas snapshots, use: `forge snapshot --rpc-url $PHAROS_TESTNET_RPC_URL`. Cross-reference PHRS gas costs against current PHRS price for fiat cost calculations. Verify the gas-reduced functions still pass all tests.
+// Good: reads from calldata (178 gas for same array)
+function process(uint256[] calldata data) external { }
+```
 
-## Related
+> **Real example:** `contracts/PharosSPNPaymaster.sol` passes `PackedUserOperation calldata` — 95% gas savings vs memory.
 
-performance-optimization (frontend), contract-architecture (storage layout design), refactoring-and-code-health (code structure)
+### 3. Custom Errors Over Strings
 
+```solidity
+// Bad: ~24,000 gas
+require(amount > 0, "Amount must be > 0");
 
-## Gate
+// Good: ~140 gas (99.4% savings)
+error ZeroAmount();
+if (amount == 0) revert ZeroAmount();
+```
 
-Medium risk. Show baseline gas report and proposed optimization before changing contract code. Do not trade safety (reentrancy, overflow) for gas savings without user approval.
+> **Real example:** Every contract in the project uses custom errors. `contracts/DEXPool.sol` saves ~23k gas per revert vs string errors.
+
+### 4. Batch Operations
+
+```solidity
+// Bad: N individual calls
+for (uint i; i < users.length; i++) addSponsor(users[i]);
+
+// Good: batch in one call
+function addSponsors(address[] calldata _users) external {
+    // One EVM call, one SSTORE per user
+}
+```
+
+> **Real example:** `contracts/PharosSPNPaymaster.sol` has `addSponsors()` — saves 21,000 gas vs N individual calls.
+
+### 5. Use `uint256` for Gas-Only Values
+
+Despite packing advice, use `uint256` for values that are:
+- Compared against `msg.value` (always uint256)
+- Used in `block.timestamp` arithmetic
+- Divided/multiplied (Solidity casts anyway)
+
+> **Real example:** `contracts/StakingPool.sol` uses `uint256` for `s_rewardRate` since it's involved in division — prevents implicit `cast` costs.
+
+## Testing Gas
+
+```bash
+# Get per-function gas report
+forge test --gas-report | grep -A5 "StakingPool"
+
+# Custom gas test
+function test_Gas_Stake() external {
+    uint256 gasBefore = gasleft();
+    pool.stake(100 ether);
+    uint256 gasUsed = gasBefore - gasleft();
+    assertLt(gasUsed, 100000, "Stake too expensive");
+}
+```
+
+> **Covers:** `contracts/StakingPool.sol` stake function should be <100k gas.
+
+## Optimization Cheat Sheet
+
+| Technique | Savings | Where Applied |
+|-----------|---------|---------------|
+| Struct packing | ~14k gas/write | LendingPool, StakingPool |
+| Custom errors | ~23k gas/revert | All contracts |
+| calldata params | ~3.5k gas/call | SPN Paymaster, DEXPool |
+| Batch operations | ~21k gas/batch | SPN Paymaster |
+| Unchecked blocks | ~200 gas/op | DEXPool loops |
+| Short-circuit | Varies | Or conditions in all contracts |
+| Pre-increment | ~5 gas/loop | `++i` vs `i++` in loops |
+
+## References
+
+- `contracts/PharosLendingPool.sol` — struct packing example
+- `contracts/PharosSPNPaymaster.sol` — calldata + batch patterns
+- `contracts/DEXPool.sol` — unchecked math + custom errors

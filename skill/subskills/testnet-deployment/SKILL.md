@@ -1,132 +1,129 @@
-name: pharos-testnet-deployment
-description: "Prepare, simulate, broadcast, and verify Pharos contract deployments on Atlantic Testnet (chain ID: 688689). Use when deploying to testnet, running testnet rehearsal, verifying contracts on testnet explorer, or configuring PHAROS_TESTNET_RPC_URL for Pharos testnet releases. Keywords: deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release, Atlantic testnet, 688689, Pharos, Foundry, Hardhat, forge script, broadcast, simulation, dry-run."
-metadata:
-  audience: developer
-  version: 1.2.0
-  category: deployment
-slash: true
----
-
 # Testnet Deployment
 
-Prepare, simulate, broadcast, and verify Pharos contract deployments on testnet.
+## Overview
 
-## When to Use
+Deploy and verify contracts on Pharos Atlantic Testnet (chain ID 688689). Every deployment must follow the security gate → simulate → broadcast → verify workflow.
 
-deploy to testnet, testnet rehearsal, verify on testnet, PHAROS_TESTNET_RPC_URL, testnet deploy, testnet release
+## Network Details
 
-## When NOT to Use
+| Parameter | Value |
+|-----------|-------|
+| Network | Pharos Atlantic Testnet |
+| Chain ID | 688689 |
+| Currency | PHRS |
+| RPC | `https://atlantic.dplabs-internal.com` |
+| Explorer | https://atlantic.pharosscan.xyz |
+| Faucet | https://testnet.pharosnetwork.xyz |
+| EntryPoint (v0.7) | `0x0000000071727De22E5E9d8BAf0edAc6f37da032` |
 
-mainnet deployment (use mainnet-deployment), contract coding (use pharos-agent-dev-suite), or deployment prep (use deployment-and-verification in dev suite)
+## Deploy Scripts
 
-## Workflow
+All deploy scripts are in `script/` and follow the Foundry `Script` pattern:
 
-1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
-2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
-3. Confirm the contract artifact, testnet RPC, signer, and verification target.
-4. Run pre-flight checks: RPC reachable, balance sufficient, env vars set, simulation passes. (See root `SKILL.md` → Deploy Protocol for full checklist.)
-5. Start from scripts/deploy-testnet.sh for Foundry or scripts/deploy-testnet-hardhat.sh for Hardhat, or use the repo's existing deploy flow.
-Forge deployment command:
+```solidity
+// script/DeployPharosLendingPool.s.sol
+contract DeployPharosLendingPool is Script {
+    function run() external {
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(deployerPrivateKey);
+        PharosLendingPool pool = new PharosLendingPool(
+            1_000_000e18,  // maxCapacity
+            1000,           // reserveFactor
+            15000,          // collateralRatio
+            7500,           // maxLTV
+            1000            // liquidationBonus
+        );
+        vm.stopBroadcast();
+        console.log("LendingPool deployed at:", address(pool));
+    }
+}
 ```
-forge script script/Deploy.s.sol --rpc-url $PHAROS_TESTNET_RPC_URL --chain-id 688689 --broadcast --verify --verifier-url $PHAROSSCAN_TESTNET_API_URL
+
+### Deployable Contracts
+
+| Contract | Script | Atlantic Address |
+|----------|--------|-----------------|
+| Counter | `Deploy.s.sol` | `0x55ec...8e4e` |
+| Storage | `DeployStorage.s.sol` | `0x2527...34f0` |
+| PharosERC20 | `DeployERC20.s.sol` | `0x3636...4CD` |
+| PharosLendingPool | `DeployLendingPool.s.sol` | — |
+| DEXPool | `DeployDEXPool.s.sol` | — |
+| StakingPool | `DeployStakingPool.s.sol` | — |
+| PharosRWAToken | `DeployRWAToken.s.sol` | — |
+| CrossChainMessage | `DeployCrossChain.s.sol` | — |
+| PharosSPNPaymaster | `DeploySPNPaymaster.s.sol` | — |
+| PharosZkLogin | `DeployZkLogin.s.sol` | — |
+
+> **To deploy:** `forge script script/<SCRIPT> --rpc-url https://atlantic.dplabs-internal.com --broadcast -vvvv`
+
+## Deployment Workflow
+
+### 1. Pre-flight
+```bash
+export PRIVATE_KEY=0x...
+# Verify env is set (never print it!)
+test -n "$PRIVATE_KEY" || { echo "PRIVATE_KEY not set"; exit 1; }
+
+# Check balance
+cast balance --rpc-url https://atlantic.dplabs-internal.com $(cast wallet address --private-key $PRIVATE_KEY)
 ```
-Hardhat deployment command:
+
+### 2. Simulate
+```bash
+forge script script/DeployLendingPool.s.sol \
+    --rpc-url https://atlantic.dplabs-internal.com \
+    -vvvv
 ```
-npx hardhat run scripts/deploy.ts --network pharosTestnet
+
+### 3. Broadcast
+```bash
+forge script script/DeployLendingPool.s.sol \
+    --rpc-url https://atlantic.dplabs-internal.com \
+    --broadcast \
+    --slow \
+    -vvvv
 ```
-6. Pre-deploy checklist:
-- **Strict .env Check**: Confirm `.env` exists with `test -f .env` and check variables via `grep -q` (without printing values). NEVER print `.env` contents. Do NOT proceed if missing or if the user suggests `export`.
-- Funded wallet with testnet PHRS
-- Chain ID confirmed as 688689 (Atlantic Testnet)
-- Gas price checked and within budget
-- **Private Key**: Ensure `${PRIVATE_KEY}` is loaded from a `.env` file; never hardcode or expose.
-- Previous deployment artifacts backed up (`deployments/testnet/` directory)
-- Simulation passes with `SIMULATE_ONLY=1`
-7. Present the plan and ask for explicit approval before broadcast.
-8. Simulate first (`SIMULATE_ONLY=1`), then broadcast on approval.
-9. Capture the address, tx hash, and run post-deploy verification.
-10. Post-deploy: verify contract on testnet PharosScan at `https://atlantic.pharosscan.xyz/address/<DEPLOYED_ADDRESS>` and update `config/pharos.json` with the new contract address.
-## Output
 
-- testnet deployment plan (including pre-flight check results — see root `SKILL.md` → Deploy Protocol)
-- deploy command
-- verification command
-- explorer link
-- deployment record (address, tx hash)
+### 4. Verify
+```bash
+forge verify-contract <CONTRACT_ADDRESS> \
+    contracts/PharosLendingPool.sol:PharosLendingPool \
+    --chain 688689 \
+    --verifier-url https://atlantic.pharosscan.xyz/api/ \
+    --verifier blockscout
+```
 
-## Examples
+## Security Gates
 
-- "Deploy this contract to Pharos testnet"
-- "Verify this deployment on testnet"
-- "Simulate the testnet deployment before broadcasting"
-- "Run pre-flight checks before testnet deploy (see root `SKILL.md` → Deploy Protocol)"
+1. **Slither check** (optional): `pip install slither-analyzer` then `slither contracts/PharosLendingPool.sol --json -`
+2. **Gas spike check**: Monitor network gas >200 Gwei, avoid broadcasting during spikes
+3. **.env security**: Never commit `.env`, never print `$PRIVATE_KEY`
+4. **Simulation first**: Always simulate before broadcast
 
-## Verification
-
-Post-deploy: query getCode on the address, check explorer for verification, confirm state matches constructor args.
-
-## Related
-
-mainnet-deployment (production counterpart), pharos-agent-dev-suite/deployment-and-verification (prep work)
-
-## Pharos-Specific
-
-### Network Configuration
-
-Atlantic Testnet runs on chain ID `688689` with fast ~2s block times. Unlike Ethereum, PHRS transfers do **not** provide a 2300 gas stipend — your contracts must never use `.transfer()` or `.send()`.
+## Post-Deployment
 
 ```bash
-# RPC (rate-limited: ~30 req/s sustained, ~100 req/s burst)
-PHAROS_TESTNET_RPC_URL=https://atlantic.dplabs-internal.com
+# Verify on PharosScan
+open https://atlantic.pharosscan.xyz/address/<CONTRACT_ADDRESS>
 
-# Forge deployment (use --delay 1000 between broadcast batches)
-forge script script/Deploy.s.sol \
-  --rpc-url $PHAROS_TESTNET_RPC_URL \
-  --chain-id 688689 \
-  --broadcast \
-  --delay 1000
+# Fund contract (if needed)
+cast send --private-key $PRIVATE_KEY <CONTRACT_ADDRESS> --value 1ether
+
+# Register in DEPLOYMENTS.md
+echo "| ContractName | $(date +%Y-%m-%d) | <ADDRESS> | Atlantic |" >> DEPLOYMENTS.md
 ```
 
-### Verification
+## MCP Tools
 
-PharosScan uses Blockscout under the hood. No API key needed for testnet:
+- `pharos_deploy_contract` — Deploy via MCP
+- `pharos_verify_contract` — Auto-verify
+- `pharos_check_balance` — Check deployer balance
+- `pharos_contract_info` — Get contract details
+- `pharos_run_security_check` — Run Slither gate
 
-```bash
-forge verify-contract <ADDRESS> <CONTRACT> \
-  --chain 688689 \
-  --verifier blockscout \
-  --verifier-url https://atlantic.pharosscan.xyz/api
-```
+## References
 
-### Rate Limits & Block Range
-
-- `eth_getLogs` limited to **100 block range** per request
-- Use `safe` and `finalized` block tags for production reads (Pharos-specific RPC tags)
-- `eth_getAccount` is a Pharos-native RPC that returns balance, nonce, codeHash, and storageRoot in one call
-
-### Example: Deploy + Verify in One Command
-
-```bash
-forge script script/Deploy.s.sol \
-  --rpc-url https://atlantic.dplabs-internal.com \
-  --chain-id 688689 \
-  --broadcast \
-  --verify \
-  --verifier blockscout \
-  --verifier-url https://atlantic.pharosscan.xyz/api
-```
-
-## Gate
-
-High risk — two-phase execution required:
-
-**Phase 1 — Plan (present freely):**
-- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
-- Do NOT wait for approval to draft — show everything in your response before asking for confirmation
-- Wait for explicit 'Approve' or 'Proceed' from the user.
-
-**Phase 2 — Execute (wait for approval):**
-- Execute the approved plan from `PLAN.md`.
-- Do NOT send any onchain transactions or modify critical files until approved.
-- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
+- `script/` — All deploy scripts
+- `DEPLOYMENTS.md` — Deployment records
+- `contracts/` — All deployable contracts
+- MCP tool: `pharos_deploy_contract`
