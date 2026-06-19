@@ -66,7 +66,7 @@ contract PharosRWATokenTest is Test {
         token.approve(USER2, 5000e18);
 
         vm.prank(USER2);
-        token.transferFrom(USER, USER2, 3000e18);
+        require(token.transferFrom(USER, USER2, 3000e18), "transferFrom failed");
 
         assertEq(token.balanceOf(USER), 7000e18);
         assertEq(token.balanceOf(USER2), 3000e18);

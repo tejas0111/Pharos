@@ -28,7 +28,7 @@ contract PharosERC20Handler is Test {
         if (from == to || to == address(0) || bal == 0) return;
         uint256 amount = rawAmount % bal;
         vm.prank(from);
-        token.transfer(to, amount == 0 ? 1 : amount);
+        require(token.transfer(to, amount == 0 ? 1 : amount), "transfer failed");
     }
 
     function approve(uint256 actorIndex, uint256 spenderIndex, uint256 amount) public {
@@ -48,7 +48,7 @@ contract PharosERC20Handler is Test {
         if (allowance == 0) return;
         uint256 amount = rawAmount % allowance;
         vm.prank(caller);
-        token.transferFrom(from, to, amount == 0 ? 1 : amount);
+        require(token.transferFrom(from, to, amount == 0 ? 1 : amount), "transferFrom failed");
     }
 
     function mint(uint256 rawAmount) public {
