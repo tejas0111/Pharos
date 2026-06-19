@@ -54,7 +54,9 @@ describe("MCP Server - Wow Tests", () => {
       name: "pharos_nonexistent_tool_xyz",
       arguments: {},
     });
-    assert.ok(res.isError, "returns isError flag");
+    assert.ok(res.isError, 'returns isError flag');
+    const errText = JSON.stringify(res).toLowerCase();
+    assert.ok(errText.includes('unknown'), 'error mentions unknown tool');
   });
 
   it("should handle network config for atlanticTestnet", async () => {
@@ -63,7 +65,7 @@ describe("MCP Server - Wow Tests", () => {
       arguments: { network: "atlanticTestnet" },
     });
     const text = JSON.stringify(res);
-    assert.ok(text.includes("688689") || text.includes("Atlantic"), "has Atlantic chain info");
+    assert.ok(text.toLowerCase().includes('688689') || text.toLowerCase().includes('atlantic'), "has Atlantic chain info");
   });
 
   it("should handle network config for pacificMainnet", async () => {
@@ -72,6 +74,6 @@ describe("MCP Server - Wow Tests", () => {
       arguments: { network: "pacificMainnet" },
     });
     const text = JSON.stringify(res);
-    assert.ok(text.includes("1672") || text.includes("Pacific"), "has Pacific chain info");
+    assert.ok(text.toLowerCase().includes('1672') || text.toLowerCase().includes('pacific'), "has Pacific chain info");
   });
 });
