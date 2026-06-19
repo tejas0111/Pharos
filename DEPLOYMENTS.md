@@ -1,71 +1,31 @@
-# Pharos Deployments
+# Deployments — Pharos Agent Dev Suite
 
 ## Atlantic Testnet (Chain ID: 688689)
 
-| Contract | Address | Tx Hash | Explorer |
-|----------|---------|---------|----------|
-| **Counter** | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | `0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411` | <a href="https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e" target="_blank" rel="noopener noreferrer">View</a> |
-| **Storage** | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | `0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001` | <a href="https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0" target="_blank" rel="noopener noreferrer">View</a> |
-| **PharosERC20** | `0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD` | `0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec` | <a href="https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD" target="_blank" rel="noopener noreferrer">View</a> |
+### Deployed Contracts
 
-### Deployer
+| Contract | Address | Explorer |
+|----------|---------|----------|
+| Counter | `0x55ec4b1e32537b6f72aa20153735709837488e4e` | [View](https://testnet.pharosscan.com/address/0x55ec4b1e32537b6f72aa20153735709837488e4e) |
+| Storage | `0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0` | [View](https://testnet.pharosscan.com/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0) |
+| PharosERC20 | `0x20c27Cc36eD5a610dFe10AAcA0000C86d7A1DDd4` | [View](https://testnet.pharosscan.com/address/0x20c27Cc36eD5a610dFe10AAcA0000C86d7A1DDd4) |
+| PharosSPNPaymaster | `0x21bf4bc635b277e630cb40db95b88a28a27d7ff9` | [View](https://testnet.pharosscan.com/address/0x21bf4bc635b277e630cb40db95b88a28a27d7ff9) |
+| PharosZkLogin | `0x004dc049a2457a07bc8f325e1379aef6e0282b16` | [View](https://testnet.pharosscan.com/address/0x004dc049a2457a07bc8f325e1379aef6e0282b16) |
+| PharosLendingPool | `0xb3a85264cff0e1f7346fda8b73d924af4dd5b912` | [View](https://testnet.pharosscan.com/address/0xb3a85264cff0e1f7346fda8b73d924af4dd5b912) |
 
-`0x735367687d6a701466840321eD8e34E4DafE84aC`
+### Ready to Deploy (need env vars)
 
-### Verification
-
-Contracts verified via **Blockscout** against **Hemera SocialScan** (PharosScan's verification backend). Verification is viewable on the official <a href="https://atlantic.pharosscan.xyz" target="_blank" rel="noopener noreferrer">PharosScan explorer</a> because PharosScan uses SocialScan as its backend.
-
-```bash
-forge verify-contract \
-  --chain-id 688689 \
-  --verifier blockscout \
-  --verifier-url https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract \
-  0x55ec4b1e32537b6f72aa20153735709837488e4e \
-  contracts/Counter.sol:Counter
-```
-
-### Explorer Links
-
-- **Counter**: https://atlantic.pharosscan.xyz/address/0x55ec4b1e32537b6f72aa20153735709837488e4e
-  - Tx: https://atlantic.pharosscan.xyz/tx/0x0f1891dee4bd6fa7901ef287e0bef044f10bff1d445a5645ea15da723085e411
-- **Storage**: https://atlantic.pharosscan.xyz/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0
-  - Tx: https://atlantic.pharosscan.xyz/tx/0xed4bd34a99282782e9e6b9670ac8703148560c34fc695896aeb6b36458b94001
-- **PharosERC20**: https://atlantic.pharosscan.xyz/address/0x3636F1BBcc56D1b5a22F8B778494D1553d95B4CD
-  - Tx: https://atlantic.pharosscan.xyz/tx/0xcdf144d1f2ca398ece1a8b718c690347d673e5121479318fcc0d23d3523844ec
-
----
+| Contract | Required Env Vars | Deploy Script |
+|----------|------------------|---------------|
+| DEXPool | `TOKEN_A`, `TOKEN_B` | `DeployDEXPool.s.sol` |
+| StakingPool | `STAKING_TOKEN`, `REWARD_TOKEN` | `DeployStakingPool.s.sol` |
+| CrossChainMessage | `TRUSTED_PEER` | `DeployCrossChain.s.sol` |
+| RWAToken | — | `DeployRWAToken.s.sol` |
 
 ## Pacific Mainnet (Chain ID: 1672)
 
-*No deployments yet.*
+No deployments yet. All contracts are tested on Atlantic Testnet and ready for mainnet deployment with the deploy scripts in `script/`.
 
-## Mainnet Deployment Prerequisites
+## Deployer Address
 
-No contracts are currently deployed to Pacific Mainnet (Chain ID 1672).
-
-**To deploy, you need:**
-1. A funded wallet with PROS tokens for gas
-2. Pacific Mainnet RPC: `https://rpc.pharos.xyz`
-3. Set env vars:
-   ```bash
-   export PRIVATE_KEY=0x...
-   export PACIFIC_RPC_URL=https://rpc.pharos.xyz
-   ```
-4. Deploy any contract:
-   ```bash
-   forge script script/DeploySPNPaymaster.s.sol \
-       --rpc-url $PACIFIC_RPC_URL \
-       --broadcast --slow -vvvv
-   ```
-
-**Deployable contracts (all tested, 167 tests passing):**
-- `PharosSPNPaymaster` — ERC-4337 Paymaster for sponsored transactions
-- `PharosZkLogin` — zkLogin identity verifier
-- `PharosLendingPool` — Collateralized lending
-- `DEXPool` — Constant-product AMM
-- `StakingPool` — Time-weighted staking
-- `PharosRWAToken` — Regulated RWA token
-- `CrossChainMessage` — SPN Mailbox
-- `PharosTimelockController` — Governance timelock
-- `PharosERC20` — Standard ERC-20
+All contracts deployed by: `0x735367687d6a701466840321eD8e34E4DafE84aC`
