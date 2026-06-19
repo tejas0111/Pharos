@@ -1,178 +1,234 @@
----
-name: pharos-testing-strategy
-description: "Design Pharos-specific test pyramid (Foundry unit, testnet fork integration, mainnet fork e2e) with coverage targets per SolAid/PharosScan, edge cases for Pharos chain reorg depth, PHRS gas price volatility, and cross-chain bridge tests. Use when planning test strategy, coverage goals, edge cases, or test plans for Pharos Solidity dapps and frontend integrations. Keywords: test strategy, coverage, fixtures, edge cases, test plan, test approach, Pharos, Solidity, Foundry, Hardhat, wagmi, viem, contract testing, dapp testing, integration testing, reorg, bridge, PHRS, gas price."
-metadata:
-  audience: developer
-  version: 1.2.0
-  category: testing
-  slash: true
----
+# Test Strategy for Pharos Contracts
 
-# Testing Strategy
+## Overview
 
-Choose the right test mix, fixtures, and coverage focus before writing tests.
+Define and execute a Pharos-specific test pyramid covering unit tests, integration tests (testnet fork), and end-to-end flows. Target 90%+ branch coverage for core contracts and 100% call coverage for all public/external functions.
 
-## When to Use
+## Test Pyramid
 
-test strategy, coverage, fixtures, edge cases, test plan, what should I test, test approach, test coverage plan
+```
+        /\
+       /  \      E2E (Mainnet fork)
+      /    \     1-2 critical user flows
+     /------\
+    /        \   Integration (Testnet fork)
+   /          \  Multi-contract, PHRS transfers
+  /------------\
+ /              \  Unit (Foundry)
+/                \ Individual functions, edge cases, revert paths
+```
 
-## When NOT to Use
+## 1. Unit Tests with Foundry
 
-writing concrete tests (use test-generation), or running tests (that's a CI task, not a subskill)
+```solidity
+// test/PharosERC20.t.sol — Unit test example
+import {Test} from "forge-std/Test.sol";
+import {PharosERC20} from "../contracts/PharosERC20.sol";
 
-## Prerequisites
-- **Security**:
-    - **.env Usage**: Environment variables MUST be stored in a `.env` file in the project root. NEVER use `export VAR=...` for sensitive data.
-    - **Mandatory Check**: The Agent MUST verify `.env` exists and variables are set using `grep -q` (NEVER `cat`, `head`, `tail` — those expose secrets) before any deployment or on-chain action.
-    - **Git**: Ensure `.env` is listed in `.gitignore` to prevent accidental commits.
+contract PharosERC20Test is Test {
+    PharosERC20 public token;
+    address public alice = address(0x1);
+    address public bob = address(0x2);
 
-- **Foundry**: `forge build` must succeed. Run `forge --version` to verify installation.
-- **RPC endpoint**: Set `PHAROS_TESTNET_RPC=$PHAROS_TESTNET_RPC_URL` or `PHAROS_MAINNET_RPC=$PHAROS_MAINNET_RPC_URL` in your environment or `.env`.
-- **PharosScan API key**: Set `PHAROSSCAN_API_KEY` for contract verification (https://www.pharosscan.xyz).
-- **Network reachability**: Run `cast chain-id --rpc-url $RPC_URL` to confirm the target network is reachable.
-- **Foundry config**: `foundry.toml` should have `[rpc_endpoints]` section with `pharos_testnet` and `pharos_mainnet` entries.
-## Pharos-Specific Test Pyramid
+    function setUp() public {
+        token = new PharosERC20("Test", "TST", 18, 1_000_000e18);
+        token.transfer(alice, 1000e18);
+    }
 
-1. **Unit (Foundry)** – Test individual contract functions with `forge test`. Use Pharos fixtures (PHRS token addresses, test accounts). Assert chain ID (1672 / 688689), block time ~2s.
-2. **Integration (testnet fork)** – Fork Pharos testnet with `vm.createSelectFork("pharos_testnet")`. Test multi-contract interactions, cross-contract calls, PHRS transfers.
-3. **E2E (mainnet fork)** – Fork Pharos mainnet with `vm.createSelectFork("pharos_mainnet", blockNumber)`. Simulate real user flows, bridge transactions, oracle price feeds.
+    function test_MintCap() public {
+        // NOTE: Verify actual revert string from PharosERC20.sol
+        // If using custom errors, use: vm.expectRevert(PharosERC20.CapExceeded.selector);
+        vm.expectRevert("ERC20: cap exceeded");
+        token.mint(address(this), 2_000_000e18);  // Exceeds 1M cap
+    }
 
-## Foundry Config for Testing
+    function test_BurnReducesTotalSupply() public {
+        uint256 before = token.totalSupply();
+        token.burn(100e18);
+        assertEq(token.totalSupply(), before - 100e18);
+    }
+
+    function test_TransferRevertsWhenExceedsBalance() public {
+        vm.prank(alice);
+        vm.expectRevert("ERC20: transfer amount exceeds balance");
+        token.transfer(bob, 2000e18);  // Alice only has 1000
+    }
+}
+```
+
+## 2. Fuzz Tests
+
+```solidity
+// Fuzz a transfer with random amounts
+function testFuzz_TransferPreservesTotalSupply(uint256 amount) public {
+    amount = bound(amount, 1, token.balanceOf(alice));
+    uint256 supplyBefore = token.totalSupply();
+    
+    vm.prank(alice);
+    token.transfer(bob, amount);
+    
+    assertEq(token.totalSupply(), supplyBefore);
+    assertEq(token.balanceOf(bob), amount);
+}
+
+// Fuzz with handler-based invariant
+function testFuzz_ApproveThenTransferFrom(
+    uint256 amount,
+    uint256 transferAmount
+) public {
+    amount = bound(amount, 1e18, 1000e18);
+    transferAmount = bound(transferAmount, 1, amount);
+    
+    vm.prank(alice);
+    token.approve(bob, amount);
+    
+    vm.prank(bob);
+    token.transferFrom(alice, bob, transferAmount);
+    
+    assertEq(token.allowance(alice, bob), amount - transferAmount);
+    assertEq(token.balanceOf(bob), transferAmount);
+}
+```
+
+## 3. Invariant Tests (Critical for DeFi)
+
+```solidity
+// test/invariants/PharosERC20Invariants.t.sol
+import {StdInvariant} from "forge-std/StdInvariant.sol";
+
+contract PharosERC20Invariants is StdInvariant {
+    PharosERC20 public token;
+    ERC20Handler public handler;
+
+    function setUp() public {
+        token = new PharosERC20("Test", "TST", 18, 1_000_000e18);
+        handler = new ERC20Handler(token);
+        targetContract(address(handler));
+        // Run 1000 fuzz calls
+        bytes4[] memory selectors = new bytes4[](4);
+        selectors[0] = handler.transfer.selector;
+        selectors[1] = handler.approve.selector;
+        selectors[2] = handler.mint.selector;
+        selectors[3] = handler.burn.selector;
+        FuzzSelector memory selector = FuzzSelector({
+            address: address(handler),
+            selectors: selectors
+        });
+        targetSelector(selector);
+    }
+
+    // Core invariant: total supply never exceeds cap
+    function invariant_TotalSupplyNeverExceedsCap() public {
+        assertLe(token.totalSupply(), token.cap());
+    }
+
+    // Core invariant: sum of balances equals total supply
+    function invariant_SumOfBalancesEqualsTotalSupply() public {
+        // Implement by tracking all holders in handler
+        assertEq(token.totalSupply(), handler.totalBalance());
+    }
+}
+```
+
+### Foundry Config for Invariant Tests
 
 ```toml
 # foundry.toml
-[fuzz]
-runs = 1000
-max_test_rejects = 10000
-
 [invariant]
-runs = 256
-depth = 16
-
-[rpc_endpoints]
-pharos_mainnet = "$PHAROS_MAINNET_RPC_URL"
-pharos_testnet = "$PHAROS_TESTNET_RPC_URL"
+runs = 256          # Number of invariant test sequences
+depth = 100         # Number of fuzz calls per sequence
+fail_on_revert = false  # Allow reverts during sequence
 ```
 
-```bash
-# Coverage
-forge coverage --fork-url $PHAROS_TESTNET_RPC_URL --report lcov
-# Gas report
-forge test --gas-report --fork-url $PHAROS_TESTNET_RPC_URL
+## 4. Fork Tests (Integration)
+
+```solidity
+// Fork Atlantic testnet to test against deployed contracts
+function testFork_LendingPoolDeposit() public {
+    string memory RPC = "https://atlantic.dplabs-internal.com";
+    vm.createSelectFork(RPC, 4_500_000);  // Block number for consistency
+    
+    // Interact with already-deployed contracts
+    // Replace with actual deployed addresses from DEPLOYMENTS.md
+    IPharosLendingPool pool = IPharosLendingPool(LENDING_POOL_ADDRESS);
+    IPharosERC20 token = IPharosERC20(TOKEN_A_ADDRESS);
+    
+    // Fund test account via impersonation
+    vm.prank(WHALE_ADDRESS);
+    token.transfer(address(this), 10_000e18);
+    
+    token.approve(address(pool), 10_000e18);
+    pool.deposit(address(token), 10_000e18);
+    
+    (uint256 shares, uint256 assets) = pool.getPosition(address(this), address(token));
+    assertGt(shares, 0);
+    assertEq(assets, 10_000e18);
+}
 ```
 
-## Pharos Coverage Targets
+## 5. Gas Tests
 
-- SolAid integration: 90%+ branch coverage for core logic
-- PharosScan verification: verify contract source after deploy as part of CI
-- All public/external functions: 100% called in at least one test
-- Revert paths: test all require/assert failures
+```solidity
+// Track gas costs for critical operations
+function testGas_Transfer() public {
+    uint256 gasBefore = gasleft();
+    
+    vm.prank(alice);
+    token.transfer(bob, 100e18);
+    
+    uint256 gasUsed = gasBefore - gasleft();
+    emit log_named_uint("Transfer gas cost", gasUsed);
+    assertLt(gasUsed, 100_000, "Transfer too expensive");
+}
+```
 
-## Pharos-Specific Edge Cases
+## 6. MCP Tool Behavioral Tests
 
-### Chain Reorg Depth
-Pharos finality may differ from Ethereum. Test that contract state is resilient to reorg depths of 1-2 blocks. Use `vm.roll()` to simulate reorg scenarios.
+```javascript
+// test/mcp/behavioral.mjs — Test actual MCP tool behavior
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
-### PHRS Gas Price Volatility
-PHRS gas prices can spike. Test that `tx.gasprice` assumptions hold within a realistic range (e.g., 1-100 gwei). Use `vm.txGasPrice()` to set gas price in tests.
+// NOTE: callTool() helper is defined in mcp-server/test-helpers.mjs
+// It spawns the MCP server, sends a JSON-RPC request, and returns the response.
 
-### Cross-Chain Bridge Tests
-If your dapp bridges assets, test:
-- Deposit on source chain (fork test)
-- Claim on Pharos (fork test)
-- Relayer failure / timeout recovery
-- Event emission format matches bridge expectations
+// Each MCP tool should have at least one test validating:
+// - It returns the expected JSON-RPC response format
+// - It handles missing parameters with proper error
+// - Its output matches expected schema (address format, hex strings, etc.)
 
-## Workflow
-- **Strict .env Check**: Confirm `.env` exists with `test -f .env` and check variables via `grep -q` (without printing values). NEVER print `.env` contents. Do NOT proceed if missing or if the user suggests `export`.
+describe("pharos_deploy_contract", () => {
+    it("should error on missing contract name", async () => {
+        const response = await callTool("pharos_deploy_contract", {});
+        assert.ok(response.isError);
+        assert.ok(response.content[0].text.includes("required"));
+    });
+});
+```
 
-1. **Requirement Gathering**: Analyze the user's request to identify the specific task, target environment (Atlantic 688689 or Pacific 1672), and any missing context. Zero-assumption delivery.
-2. **Mandatory Plan (`PLAN.md`)**: Create or update `PLAN.md` in the project root with the proposed strategy. **Wait for explicit 'Approve' or 'Proceed' from the user before taking any action.**
-3. Identify the contract, UI, or integration risks that matter most.
-4. Check prerequisites: verify Foundry is installed, RPC endpoints are reachable, and required env vars are set. Ask the user for any missing values before proceeding.
-5. Choose unit, integration, and regression coverage appropriately.
-6. Map Pharos-specific risks (reorg, gas price, bridge) to test layers.
-7. Present the testing plan with explicit assumptions.
-8. Wait for confirmation before generating tests or fixtures.
-## Output
+## Coverage Targets
 
-- test matrix
-- fixture plan
-- coverage goals
-- regression checklist
+| Contract | Branch Coverage | Call Coverage | Notes |
+|----------|----------------|---------------|-------|
+| PharosERC20 | 95%+ | 100% | Cap, burn, snapshots |
+| PharosLendingPool | 90%+ | 100% | Liquidation math, interest |
+| DEXPool | 90%+ | 100% | Swap math, fee tiers |
+| StakingPool | 90%+ | 100% | Reward accrual, unstaking |
+| PharosSPNPaymaster | 95%+ | 100% | Whitelist, budget, replay |
+| PharosZkLogin | 90%+ | 100% | Proof verification, nonce |
+| PharosTimelockController | 90%+ | 100% | Queue, execute, cancel |
 
-## Examples
+## Pharos-Specific Edge Cases to Test
 
-- "Design the test strategy for a Pharos staking contract on testnet 688689"
-- "Plan coverage for PHRS stake → claim → unstake flow on Pharos"
-- "Plan test coverage for a Pharos upgradeable vault with reorg-depth and PHRS gas price edge cases"
-- "Plan a Pharos-specific test strategy covering reorg depth and PHRS gas volatility"
+- **Chain reorgs**: `vm.roll()` to simulate 1-2 block rollback; verify event log consistency
+- **Gas volatility**: Test `tx.gasprice` ranging from 1-100 gwei; ensure user operations still succeed
+- **SPN sponsorship expiry**: Ensure expired sponsorship signatures are rejected
+- **Cross-chain messages**: Test source chain deposit, Pharos claim, relay failure recovery
+- **ZkLogin ephemeral key expiry**: Ensure expired ephemeral keys cannot submit UserOperations
 
-## Verification
+## Related Subskills
 
-Review of the test matrix. No test files yet.
-
-## Related
-
-test-generation (execution), contract-testing-for-testnet-and-mainnet (network-aware tests)
-
-## Gate
-
-High risk — two-phase execution required:
-
-**Phase 1 — Plan (present freely):**
-- Draft the `PLAN.md` with the full implementation strategy, environment-aware safeguards, and verification steps.
-- Wait for explicit 'Approve' or 'Proceed' from the user.
-
-**Phase 2 — Execute (wait for approval):**
-- Execute the approved plan from `PLAN.md`.
-- Do NOT Generate tests, write test files, or modify test fixtures
-- Perform a final "Ready to Broadcast?" check for any high-risk on-chain actions.
-- Wait for explicit user confirmation ("I approve", "proceed", "looks good") before taking any of the Phase 2 actions.
-## Contract-Specific Test Coverage
-
-### PharosLendingPool
-- **Unit:** `test/PharosLendingPool.t.sol` — supply, borrow, liquidate, interest accrual
-- **Fuzz:** Random amounts within [1, 1000] ETH for supply/borrow
-- **Edge:** Zero-amount reverts, max capacity reached, liquidation at boundary
-
-### DEXPool
-- **Unit:** `test/DEXPool.t.sol` — addLiquidity, removeLiquidity, swap
-- **Invariant:** `k = reserveA * reserveB` must never decrease after swap
-- **Edge:** Swap with zero liquidity, excessive slippage
-
-### StakingPool
-- **Unit:** `test/StakingPool.t.sol` — stake, withdraw, claimRewards
-- **Fuzz:** Random stake durations [1 hour, 30 days]
-- **Edge:** Withdraw during lock period, reward calculation after rate change
-
-### PharosERC20
-- **Invariant:** `test/PharosERC20Invariants.t.sol` — total supply never exceeds cap
-- **Handler:** `test/PharosERC20Handler.sol` — fuzzed transfers, approvals, mints
-
-### PharosSPNPaymaster
-- **Unit:** `test/PharosSPNPaymaster.t.sol` — whitelist, budget checks, pause
-- **Edge:** Budget exhaustion, non-whitelisted sender, paused state
-
-### PharosZkLogin
-- **Unit:** `test/PharosZkLogin.t.sol` — identity registration, key lifecycle
-- **Edge:** Duplicate commitment, expired ephemeral key, key revocation
-
-## MCP Tool Testing
-
-Behavioral MCP tests in `mcp-server/test-behavioral.mjs` validate:
-- Tool registration (all 26+ tools present with valid schemas)
-- `network_config` returns chain IDs
-- `check_balance` handles valid and invalid addresses
-- `gas_estimate` returns reasonable estimates
-- Error handling for unknown tools
-
-Run: `node --test mcp-server/test-behavioral.mjs`
-
-## References
-
-- `test/` — All test files
-- `test/PharosERC20Invariants.t.sol` — Invariant testing pattern
-- `test/PharosERC20Handler.sol` — Handler-based fuzzing
-- `mcp-server/test-behavioral.mjs` — MCP behavioral tests
-- Forge docs: `forge test --gas-report`, `forge test --fuzz-seed`
+- `contract-testing-for-testnet-and-mainnet` — Testing against live networks
+- `test-generation` — Automated test generation patterns
+- `contract-review` — Reviewing test coverage before deployment
+- `bug-finding-and-debugging` — Debugging failing tests
