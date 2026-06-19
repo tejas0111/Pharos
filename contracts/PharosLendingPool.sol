@@ -4,8 +4,21 @@ pragma solidity ^0.8.26;
 /// @title PharosLendingPool
 /// @notice A collateralized lending protocol for Pharos (chain ID 688689/1672).
 /// @dev Kinked interest rate model, pull-over-push for native transfers.
+//      Interest accrual uses block.timestamp — standard DeFi pattern; validators have ~2s influence.
 ///      Pharos-specific: no 2300 gas stipend, EIP-1559 gas model.
 contract PharosLendingPool {
+    // ── Inline Reentrancy Guard ──
+    uint256 private _status;
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    modifier nonReentrant() {
+        if (_status == _ENTERED) revert PharosLendingPool__Reentrancy();
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
+
     // ── Errors ──
     error PharosLendingPool__CapacityExceeded();
     error PharosLendingPool__InsufficientBalance();
@@ -16,6 +29,7 @@ contract PharosLendingPool {
     error PharosLendingPool__ZeroAmount();
     error PharosLendingPool__Paused();
     error PharosLendingPool__NotOwner();
+    error PharosLendingPool__Reentrancy();
     error PharosLendingPool__ExceedsMaxLTV();
 
     // ── Events ──
@@ -29,7 +43,7 @@ contract PharosLendingPool {
     event ReserveFactorUpdated(uint256 newFactor);
 
     // ── Types ──
-    struct Position { uint128 supplied; uint128 borrowed; uint40 lastUpdated; }
+    struct Position { uint256 supplied; uint256 borrowed; uint40 lastUpdated; }
 
     // ── State ──
     address public immutable i_owner;
@@ -68,7 +82,7 @@ contract PharosLendingPool {
         s_liquidationBonus = _liquidationBonus;
         s_baseRatePerSec = _baseRatePerSec; s_slope1PerSec = _slope1PerSec;
         s_slope2PerSec = _slope2PerSec; s_optimalUtilization = _optimalUtilization;
-        s_borrowIndex = 1e12; s_lastAccruedTime = uint40(block.timestamp);
+        s_borrowIndex = 1e12; s_lastAccruedTime = uint40(block.timestamp); _status = _NOT_ENTERED;
     }
 
     // ── Internal ──
@@ -104,12 +118,12 @@ contract PharosLendingPool {
     }
 
     // ── Supply ──
-    function supply() external payable whenNotPaused {
+    function supply() external payable whenNotPaused nonReentrant {
         uint256 _amount = msg.value;
         if (_amount == 0) revert PharosLendingPool__ZeroAmount();
         accrueInterest();
         if (s_totalSupplied + _amount > s_maxCapacity) revert PharosLendingPool__CapacityExceeded();
-        s_positions[msg.sender].supplied += uint128(_amount);
+        s_positions[msg.sender].supplied += _amount;
         if (s_positions[msg.sender].lastUpdated == 0) {
             s_positions[msg.sender].lastUpdated = uint40(block.timestamp);
         }
@@ -118,7 +132,7 @@ contract PharosLendingPool {
     }
 
     // ── Withdraw ──
-    function withdraw(uint256 _amount) external whenNotPaused nonZero(_amount) {
+    function withdraw(uint256 _amount) external whenNotPaused nonZero(_amount) nonReentrant {
         accrueInterest();
         Position storage pos = s_positions[msg.sender];
         if (pos.supplied < _amount) revert PharosLendingPool__InsufficientBalance();
@@ -128,13 +142,13 @@ contract PharosLendingPool {
                 revert PharosLendingPool__InsufficientCollateral();
             }
         }
-        pos.supplied -= uint128(_amount);
+        pos.supplied -= _amount;
         s_totalSupplied -= _amount;
         emit Withdrawn(msg.sender, _amount, s_totalSupplied);
     }
 
     // ── Borrow ──
-    function borrow(uint256 _amount) external whenNotPaused nonZero(_amount) {
+    function borrow(uint256 _amount) external whenNotPaused nonZero(_amount) nonReentrant {
         accrueInterest();
         uint256 available = s_totalSupplied - s_totalBorrows - s_reserves;
         if (_amount > available) revert PharosLendingPool__InsufficientLiquidity();
@@ -142,24 +156,24 @@ contract PharosLendingPool {
         if (pos.supplied == 0) revert PharosLendingPool__InsufficientCollateral();
         uint256 maxBorrow = (pos.supplied * s_maxLTV) / 10000;
         if (pos.borrowed + _amount > maxBorrow) revert PharosLendingPool__ExceedsMaxLTV();
-        pos.borrowed += uint128(_amount);
+        pos.borrowed += _amount;
         s_totalBorrows += _amount;
         emit Borrowed(msg.sender, _amount, s_totalBorrows);
     }
 
     // ── Repay ──
-    function repay(uint256 _amount) external nonZero(_amount) {
+    function repay(uint256 _amount) external nonZero(_amount) nonReentrant {
         accrueInterest();
         Position storage pos = s_positions[msg.sender];
         if (pos.borrowed == 0) revert PharosLendingPool__InsufficientBalance();
         uint256 ra = _amount > pos.borrowed ? pos.borrowed : _amount;
-        pos.borrowed -= uint128(ra);
+        pos.borrowed -= ra;
         s_totalBorrows -= ra;
         emit Repaid(msg.sender, ra, s_totalBorrows);
     }
 
     // ── Liquidate ──
-    function liquidate(address _user, uint256 _debtToCover) external whenNotPaused nonZero(_debtToCover) {
+    function liquidate(address _user, uint256 _debtToCover) external whenNotPaused nonZero(_debtToCover) nonReentrant {
         if (_user == address(0)) revert PharosLendingPool__InvalidAddress();
         Position storage pos = s_positions[_user];
         if (pos.borrowed == 0) revert PharosLendingPool__HealthyPosition();
@@ -170,8 +184,8 @@ contract PharosLendingPool {
         uint256 dc = _debtToCover > pos.borrowed ? pos.borrowed : _debtToCover;
         uint256 seize = (dc * (10000 + s_liquidationBonus)) / 10000;
         if (seize > pos.supplied) seize = pos.supplied;
-        pos.borrowed -= uint128(dc);
-        pos.supplied -= uint128(seize);
+        pos.borrowed -= dc;
+        pos.supplied -= seize;
         s_totalBorrows -= dc;
         emit Liquidated(_user, msg.sender, dc, seize);
     }

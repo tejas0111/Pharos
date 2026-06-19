@@ -57,7 +57,7 @@ contract PharosLendingPoolTest is Test {
     function test_Borrow_Success() public {
         vm.prank(USER); pool.supply{value: 1000e18}();
         vm.prank(USER); pool.borrow(500e18);
-        (, uint128 borrowed,) = pool.s_positions(USER);
+        (, uint256 borrowed,) = pool.s_positions(USER);
         assertEq(borrowed, 500e18);
     }
 
@@ -65,7 +65,7 @@ contract PharosLendingPoolTest is Test {
         vm.prank(USER); pool.supply{value: 1000e18}();
         vm.prank(USER); pool.borrow(500e18);
         vm.prank(USER); pool.repay(500e18);
-        (, uint128 borrowed,) = pool.s_positions(USER);
+        (, uint256 borrowed,) = pool.s_positions(USER);
         assertEq(borrowed, 0);
     }
 

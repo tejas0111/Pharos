@@ -7,6 +7,7 @@
  *
  * Security: PRIVATE_KEY is read from env, NEVER exposed in output.
  */
+import { checkRateLimit } from "./rate-limit.js";
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -1935,6 +1936,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+
+  // Rate limit check per tool
+  const rl = checkRateLimit(name);
+  if (rl.limited) {
+    return {
+      isError: true,
+      content: [{ type: "text", text: "Rate limited: too many requests for tool " + name + ". Retry after " + rl.retryAfter + "s." }]
+    };
+  }
 
   try {
     switch (name) {

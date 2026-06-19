@@ -148,6 +148,7 @@ contract PharosZkLogin {
     }
 
     /// @notice Check if a signature from an ephemeral key is valid
+    /// @dev Uses block.timestamp — standard pattern; validators have ~2s influence.
     /// @dev Verifies the key is active, not expired, and belongs to the user
     function verifyEphemeralSignature(
         address _user,

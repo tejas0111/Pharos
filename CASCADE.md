@@ -9,7 +9,7 @@ flowchart TB
         REQ[("User Request")]
     end
 
-    subgraph L1["Layer 1: 42 Instruction Subskills"]
+    subgraph L1["Layer 1: 45 Instruction Subskills"]
         direction LR
         S1[[solidity-authoring]]
         S2[[deployment-and-verification]]
@@ -21,7 +21,7 @@ flowchart TB
         S8[[cross-chain-bridge]]
     end
 
-    subgraph L2["Layer 2: 21 Executable MCP Tools"]
+    subgraph L2["Layer 2: 26 Executable MCP Tools"]
         T1[pharos_network_config]
         T2[pharos_deploy_contract]
         T3[pharos_verify_contract]
@@ -74,8 +74,8 @@ title: Request-to-Result Sequence
 sequenceDiagram
     actor U as Developer
     participant A as AI Agent
-    participant S as 42 Subskills
-    participant T as 21 MCP Tools
+    participant S as 45 Subskills
+    participant T as 26 MCP Tools
     participant B as Pharos Atlantic Testnet (688689)
     participant E as PharosScan Explorer
 
@@ -114,10 +114,10 @@ sequenceDiagram
 
 ```mermaid
 ---
-title: 42 Subskills Grouped by Domain
+title: 45 Subskills Grouped by Domain
 ---
 mindmap
-  root((Pharos Agent Dev Suite<br/>42 Subskills))
+  root((Pharos Agent Dev Suite<br/>45 Subskills))
     Architecture
       contract-architecture
       interface-abi-design
@@ -181,7 +181,7 @@ mindmap
 title: MCP Tools → Corresponding Subskills
 ---
 flowchart LR
-    subgraph Tools["21 MCP Tools"]
+    subgraph Tools["26 MCP Tools"]
         T1[pharos_network_config]
         T2[pharos_deploy_contract]
         T3[pharos_verify_contract]
@@ -293,6 +293,6 @@ flowchart TB
 
 | Layer | Count | What It Does |
 |---|---|---|
-| **Layer 1** | 42 subskills | Teaches AI agents Pharos-specific patterns, conventions, and best practices |
-| **Layer 2** | 21 MCP tools | Executes real on-chain operations on Pharos Atlantic & Pacific networks |
+| **Layer 1** | 45 subskills | Teaches AI agents Pharos-specific patterns, conventions, and best practices |
+| **Layer 2** | 26 MCP tools | Executes real on-chain operations on Pharos Atlantic & Pacific networks |
 | **Cascade** | User → Subskills → Tools → Blockchain | Agent reads (learns) then calls (executes) — the dual-layer cascade |
