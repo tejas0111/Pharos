@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharos Agent Dev Suite — Judge Brief</title>
+<style>
+  :root {
+    --bg: #0a0a0f; --bg2: #12121a; --accent: #6c5ce7;
+    --accent2: #00cec9; --text: #e8e8f0; --text2: #9999b0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; min-height: 100vh;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  
+  /* Hero */
+  .hero {
+    text-align: center; padding: 4rem 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 3rem;
+  }
+  .hero h1 {
+    font-size: 3rem; font-weight: 800; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  .hero p { font-size: 1.2rem; color: var(--text2); max-width: 600px; margin: 0 auto 2rem; }
+  
+  /* Stats grid */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .stat {
+    background: var(--bg2); border-radius: 12px; padding: 1.5rem;
+    text-align: center; border: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat .num { font-size: 2rem; font-weight: 700; color: var(--accent2); }
+  .stat .label { font-size: 0.85rem; color: var(--text2); margin-top: 0.3rem; }
+  
+  /* Sections */
+  h2 {
+    font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem;
+    color: var(--accent);
+  }
+  .card {
+    background: var(--bg2); border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05);
+  }
+  .card h3 { margin-bottom: 0.5rem; }
+  .card p { color: var(--text2); font-size: 0.95rem; }
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  
+  .contract-list { list-style: none; }
+  .contract-list li {
+    padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  }
+  .contract-list li:last-child { border: none; }
+  
+  .arch-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .arch-card {
+    background: var(--bg2); border-radius: 12px; padding: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .arch-card .layer {
+    display: inline-block; padding: 0.25rem 0.75rem;
+    border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .layer-1 { background: rgba(108,92,231,0.2); color: #6c5ce7; }
+  .layer-2 { background: rgba(0,206,201,0.2); color: #00cec9; }
+  
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .arch-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <h1>Pharos Agent Dev Suite</h1>
+    <p>A dual-cascade framework that turns AI coding agents into Pharos blockchain specialists — with 45 subskills, 26 executable MCP tools, and 6 live contracts on Atlantic Testnet.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="https://github.com/tejas0111/Pharos" style="background:var(--accent);color:white;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600">GitHub</a>
+      <a href="https://testnet.pharosscan.com/address/0x20c27Cc36eD5a610dFe10AAcA0000C86d7A1DDd4" style="background:var(--bg2);color:var(--text);padding:0.75rem 1.5rem;border-radius:8px;border:1px solid rgba(255,255,255,0.1);font-weight:600">ERC20 on Explorer</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">45</div><div class="label">Subskills</div></div>
+    <div class="stat"><div class="num">26</div><div class="label">MCP Tools</div></div>
+    <div class="stat"><div class="num">167</div><div class="label">Tests Passing</div></div>
+    <div class="stat"><div class="num">6</div><div class="label">Contracts Live</div></div>
+  </div>
+
+  <h2>Architecture: Dual Cascade</h2>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="layer layer-1">Layer 1: 45 Subskills</div>
+      <p>Markdown knowledge base teaching agents Pharos-specific patterns, conventions, chain IDs, gas handling, and security practices across the full development lifecycle.</p>
+    </div>
+    <div class="arch-card">
+      <div class="layer layer-2">Layer 2: 26 MCP Tools</div>
+      <p>Executable stdio server performing real blockchain operations — deploy, verify, transfer, read, write, trace, diagnose — with built-in security gates and rate limiting.</p>
+    </div>
+  </div>
+
+  <h2>Live on Atlantic Testnet</h2>
+  <div class="card">
+    <ul class="contract-list">
+      <li>PharosERC20 — <a href="https://testnet.pharosscan.com/address/0x20c27Cc36eD5a610dFe10AAcA0000C86d7A1DDd4">0x20c27Cc36eD5a610dFe10AAcA0000C86d7A1DDd4</a></li>
+      <li>PharosZkLogin — <a href="https://testnet.pharosscan.com/address/0x004dc049a2457a07bc8f325e1379aef6e0282b16">0x004dc049a2457a07bc8f325e1379aef6e0282b16</a></li>
+      <li>PharosSPNPaymaster — <a href="https://testnet.pharosscan.com/address/0x21bf4bc635b277e630cb40db95b88a28a27d7ff9">0x21bf4bc635b277e630cb40db95b88a28a27d7ff9</a></li>
+      <li>PharosLendingPool — <a href="https://testnet.pharosscan.com/address/0xb3a85264cff0e1f7346fda8b73d924af4dd5b912">0xb3a85264cff0e1f7346fda8b73d924af4dd5b912</a></li>
+      <li>Counter — <a href="https://testnet.pharosscan.com/address/0x55ec4b1e32537b6f72aa20153735709837488e4e">0x55ec4b1e32537b6f72aa20153735709837488e4e</a></li>
+      <li>Storage — <a href="https://testnet.pharosscan.com/address/0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0">0x2527FDc8C6FdF7C5239f005D94Cc7dC6173d34f0</a></li>
+    </ul>
+  </div>
+
+  <h2>Security &amp; Hardening</h2>
+  <div class="card">
+    <p>✅ ReentrancyGuard on LendingPool (5 critical functions protected)</p>
+    <p>✅ In-memory rate limiting (30 req/min/tool) with periodic cleanup</p>
+    <p>✅ Pre-deploy security gate runs Slither, blocks High/Critical issues</p>
+    <p>✅ Gas spike detection (warns above 60 Gwei, blocks above 200 Gwei)</p>
+    <p>✅ Input sanitization — length checks, shell arg validation, address format verification</p>
+    <p>✅ Private key never exposed in output — safeChildEnv for child processes</p>
+  </div>
+
+  <h2>Test Suite</h2>
+  <div class="card">
+    <p>🧪 <strong>167 Solidity tests</strong> — all passing across 13 test suites including invariant tests</p>
+    <p>🤖 <strong>17 MCP behavioral tests</strong> — tool registration + execution validation</p>
+    <p>🔒 <strong>29 security tests</strong> — input sanitization, shell injection, length validation</p>
+  </div>
+
+  <h2>Quick Start</h2>
+  <div style="background:#1a1a2e;border-radius:12px;padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;margin-bottom:2rem">
+    <div style="color:#6c5ce7"># Install the skill</div>
+    <div style="color:#9999b0">npx skills add pharos-ads</div>
+    <div style="color:#6c5ce7;margin-top:0.75rem"># Set up environment</div>
+    <div style="color:#9999b0">cp .env.example .env && source .env</div>
+    <div style="color:#6c5ce7;margin-top:0.75rem"># Run tests</div>
+    <div style="color:#9999b0">forge test && cd mcp-server && node --test</div>
+  </div>
+</div>
+</body>
+</html>
