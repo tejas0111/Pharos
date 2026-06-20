@@ -102,6 +102,31 @@ contract PharosCounter {
 })();
 ```
 
+**Ethers.js equivalent (also available in Remix):**
+
+```javascript
+// Remix exposes ethers globally via the injected provider
+(async () => {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  
+  const counter = new ethers.Contract("YOUR_DEPLOYED_ADDRESS", [
+    "function count() view returns (uint256)",
+    "function increment()",
+    "function reset()"
+  ], signer);
+  
+  // Read
+  const count = await counter.count();
+  console.log("Current count:", count.toString());
+  
+  // Write
+  const tx = await counter.increment();
+  await tx.wait();
+  console.log("Incremented!");
+})();
+```
+
 ### Step 6: Verify on PharosScan
 
 ```bash

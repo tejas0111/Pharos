@@ -154,6 +154,7 @@ function testFork_LendingPoolDeposit() public {
     IPharosERC20 token = IPharosERC20(TOKEN_A_ADDRESS);
     
     // Fund test account via impersonation
+    // Verify WHALE_ADDRESS holds sufficient tokens at chosen block number
     vm.prank(WHALE_ADDRESS);
     token.transfer(address(this), 10_000e18);
     
