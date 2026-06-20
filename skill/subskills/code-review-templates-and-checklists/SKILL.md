@@ -2,82 +2,133 @@
 
 ## Overview
 
-Standardized code review checklists for Pharos smart contracts. Every review must cover: security, gas optimization, Pharos-specific features, testing coverage, and documentation.
+Standardized code review process for Pharos smart contracts. Every review must follow the universal checklist below and apply contract-specific templates where applicable.
+
+## Severity Ratings
+
+| Severity | Label | Definition | Action |
+|----------|-------|------------|--------|
+| 🔴 Critical | `C-` | Direct loss of funds or bricked contract | Must fix before any deployment |
+| 🟡 High | `H-` | Incorrect behavior under edge cases | Must fix before mainnet |
+| 🟢 Medium | `M-` | Gas inefficiency or poor DX | Should fix, document if deferred |
+| ⚪ Low | `L-` | Style / naming / warnings | Note for cleanup |
+
+## Sample Review Report Format
+
+```markdown
+## Review: PharosLendingPool.sol
+**Reviewer:** AI Agent | **Date:** 2026-06-20
+
+### Summary
+2 critical, 1 high, 3 medium findings
+
+### 🔴 C-1: Missing reentrancy guard on liquidate()
+**File:** contracts/PharosLendingPool.sol:120
+**Issue:** `liquidate()` calls `_seizeCollateral()` before updating state
+```solidity
+// BAD: State updated after external call
+function liquidate(address user, uint256 debt) external {
+    _seizeCollateral(user);  // External call before state update
+    s_positions[user].borrowed -= debt;
+}
+```
+```solidity
+// GOOD: Checks-Effects-Interactions pattern
+function liquidate(address user, uint256 debt) external {
+    uint256 penalty = debt * s_liquidationBonus / 10000;
+    s_positions[user].borrowed -= debt;  // State first
+    _seizeCollateral(user, penalty);     // Then external
+}
+```
+
+### 🟢 M-1: Unused variable in constructor
+**File:** contracts/PharosLendingPool.sol:25
+**Issue:** `_chainId` parameter is stored but never read
+**Fix:** Remove parameter or use it for `chainId()` view
+```
 
 ## Universal Review Checklist
 
-### Security
-- [ ] Custom errors used (not `require` strings) — see `contracts/DEXPool.sol` for pattern
-- [ ] ReentrancyGuard inherited on all external-facing functions — see `contracts/StakingPool.sol`
-- [ ] SafeERC20 used for all token transfers — see `contracts/SimpleLender.sol`
-- [ ] Pull-over-push pattern enforced — see `contracts/StakingPool.sol` repay pattern
-- [ ] No unprotected `selfdestruct` or `delegatecall`
-- [ ] Integer overflow/underflow checked (Solidity 0.8+ safe, but unchecked blocks audited)
-- [ ] Access control: `onlyOwner` or role-based, not `tx.origin`
+### 🔒 Security (check each)
+- [ ] Custom errors used instead of `require` strings (gas / DX)
+- [ ] Reentrancy guard on all state-changing `external` functions
+- [ ] `SafeERC20` used for all token transfers (returns checked)
+- [ ] Pull-over-push pattern for withdrawals (user pulls, not contract pushes)
+- [ ] Input validation: zero-address, zero-amount, bounds checks
+- [ ] Access control: `onlyOwner` / `onlyRole` on all admin functions
+- [ ] No `tx.origin` for authentication (use `msg.sender`)
 
-### Gas Optimization
-- [ ] Structs packed to fit in minimum slots — see `contracts/PharosLendingPool.sol Position`
-- [ ] `calldata` used instead of `memory` for read-only params — see `contracts/PharosSPNPaymaster.sol`
-- [ ] Unchecked arithmetic where safe — see `contracts/DEXPool.sol` `_sqrt` function
+### ⛽ Gas Optimization (check applicable)
+- [ ] Structs packed to fit in fewer slots (≤ 32 bytes per field where possible)
+- [ ] `calldata` instead of `memory` for read-only params
+- [ ] `unchecked` blocks used safely for increment operations
 - [ ] Events emitted for all state changes
-- [ ] No redundant storage reads within loops
+- [ ] Redundant `SLOAD`s cached in local variables
 
-### Pharos-Specific
-- [ ] Chain ID stored as immutable — see all contracts (`i_chainId`)
-- [ ] SPN Paymaster compatible (if sponsoring gas) — see `contracts/PharosSPNPaymaster.sol`
-- [ ] EntryPoint checks for account abstraction — `msg.sender == i_entryPoint`
-- [ ] Atlantic testnet (688689) vs Pacific mainnet (1672) handled — see deploy scripts
-- [ ] zkLogin identity commitment pattern (if using identity abstraction)
+### ⚓ Pharos-Specific (check each)
+- [ ] `i_chainId` declared as `uint256 public immutable` for replay protection
+- [ ] Storage layout compatible with SPN Paymaster (no delegatecall conflicts)
+- [ ] EntryPoint address verified for AA contracts (`0x0000...a032`)
+- [ ] Correct chain ID used: Atlantic (688689) vs Pacific (1672)
+- [ ] zkLogin ephemeral keys use 1-hour expiry
+- [ ] `vm.createSelectFork("pharos_testnet")` used in integration tests
 
-### Testing
-- [ ] Unit tests for all public functions
-- [ ] Fuzz tests for critical math — see `test/Counter.t.sol` for pattern
-- [ ] Invariant tests for supply caps — see `test/PharosERC20Invariants.t.sol`
-- [ ] Edge cases: zero amounts, max uint256, reentrancy
+### 🧪 Testing (check each)
+- [ ] Unit test for every public/external function
+- [ ] Fuzz tests for critical math (liquidation, swap, interest)
+- [ ] Invariant tests for DeFi contracts (DEXPool, LendingPool, StakingPool)
+- [ ] Revert paths tested (`vm.expectRevert`)
+- [ ] Fork tests for multi-contract interactions
 
-### Deployment
-- [ ] Constructor args validated against zero-address — see all constructors
-- [ ] Explorable via PharosScan
-- [ ] Broadcast simulation before real deploy — `forge script ... --slow`
+### 🚀 Deployment (check each)
+- [ ] Constructor arguments validated (no zero-addresses, bounds)
+- [ ] PharosScan verification configured (`--verifier-url`)
+- [ ] Broadcast simulation run before real deployment
+- [ ] Contract address saved to DEPLOYMENTS.md with explorer link
 
-## Pharos Contract Review Templates
+## Contract-Specific Templates
 
-### ERC-20 Token Review
-```
-1.  Total supply cap enforced? → PharosPharosRWAToken.sol
-2.  KYC/whitelist enforced? → PharosRWAToken.sol
-3.  Pausable for emergencies? → PharosPharosRWAToken.sol
-4.  Freeze individual accounts? → PharosPharosRWAToken.sol
-5.  EIP-2612 permits for gasless approvals?
-```
-
-### DeFi Protocol Review
-```
-1.  Interest rate model? (linear/kinked) → PharosLendingPool.sol
-2.  Liquidation penalty configurable? → SimpleLender.sol
-3.  Oracle dependency? (Pharos doesn't have native oracle)
-4.  minLTV / maxLTV enforced? → PharosLendingPool.sol
+### ERC-20 Token
+```solidity
+// Things to check in ERC-20 reviews:
+// 1. Supply cap enforced in mint() — cannot exceed MAX_SUPPLY
+// 2. KYC/whitelist checks on transfer() and transferFrom()
+// 3. Pause mechanism stops transfers and approvals
+// 4. Freeze function can lock individual accounts
+// 5. EIP-2612 permit() correctly handles signature verification
 ```
 
-### AMM/DEX Review
+### DeFi Protocol (Lending / Staking)
+```solidity
+// Things to check in DeFi reviews:
+// 1. Interest rate model uses correct precision (ray = 1e27)
+// 2. Liquidation bonus doesn't exceed collateral
+// 3. Health factor uses borrow-index-adjusted debt
+// 4. Max LTV enforced on borrow(), not just withdraw()
+// 5. Reserve factor prevents reserve rug
 ```
-1.  Constant product formula (x*y=k)? → DEXPool.sol
-2.  Slippage protection (`minAmountOut`)? → DEXPool.sol swap()
-3.  Fee accumulators? → DEXPool.sol (0.3% default)
-4.  LP token mint/burn ratio? → DEXPool.sol addLiquidity()/removeLiquidity()
+
+### AMM / DEX
+```solidity
+// Things to check in AMM reviews:
+// 1. Constant product k = reserveA * reserveB is never destroyed
+// 2. getAmountOut uses (amountIn * 997) / 1000 for 0.3% fee
+// 3. Slippage protection via minAmountOut parameter
+// 4. LP token mint/burn matches share of reserves
+// 5. Swap reentrancy protection on all entry points
 ```
 
 ## CI/CD Checklist
 
-- [ ] GitHub Actions passing — check `.github/workflows/`
-- [ ] `forge build` no errors
-- [ ] `forge test` — all tests pass
-- [ ] Slither analysis clean (if available)
-- [ ] Gas report reviewed — `forge test --gas-report`
-- [ ] Deployment broadcast simulated — `forge script --slow`
+- [ ] `forge build` passes with 0 errors
+- [ ] `forge test` passes with 0 failures
+- [ ] Gas report reviewed for regressions (`forge snapshot --diff`)
+- [ ] `forge script` with `--broadcast` simulated first
+- [ ] Slither or other static analysis clean (optional but recommended)
 
-## References
+## Related Subskills
 
-- All contracts in `contracts/` follow these patterns
-- `test/PharosERC20Invariants.t.sol` — invariant testing pattern
-- `test/Counter.t.sol` — fuzz testing pattern
+- `security-audit` — Deep security analysis patterns
+- `contract-review` — Technical review workflow
+- `testing-strategy` — How to write tests for review coverage
+- `gas-optimization` — Gas-focused review patterns
