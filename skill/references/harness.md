@@ -4,7 +4,7 @@ Operational reference for the Pharos dev skill suite. This document contains the
 
 ## Decision Tree (Detailed)
 
-The master skill routes to 42 developer subskills. Classification follows this process:
+The master skill routes to 45 developer subskills. Classification follows this process:
 
 ### Step 1: Broad Category
 

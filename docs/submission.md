@@ -23,8 +23,8 @@ The **Pharos Agent Dev Suite** is a comprehensive skill package that turns any A
 
 | Layer | What | Count | How It Works |
 |-------|------|-------|-------------|
-| **Layer 1** | Instruction subskills | 42 | Markdown guides that teach agents Pharos-specific patterns |
-| **Layer 2** | Executable MCP tools | 21 | Real on-chain operations via viem + MCP SDK |
+| **Layer 1** | Instruction subskills | 45 | Markdown guides that teach agents Pharos-specific patterns |
+| **Layer 2** | Executable MCP tools | 26 | Real on-chain operations via viem + MCP SDK |
 
 An agent reads a subskill to learn *how* to build on Pharos, then calls an MCP tool to *execute* on-chain. Two cascades, one flow — see the [architecture](#-architecture) section.
 
@@ -32,7 +32,7 @@ An agent reads a subskill to learn *how* to build on Pharos, then calls an MCP t
 
 ## 🏗️ Architecture
 
-### Layer 1 — 42 Instruction Subskills
+### Layer 1 — 45 Instruction Subskills
 
 Each subskill is a markdown file at `skill/subskills/*/SKILL.md` that teaches an AI agent a specific Pharos domain. They cover the full dev lifecycle:
 
@@ -74,9 +74,9 @@ Each subskill teaches agents **Pharos-specific conventions** that generic agents
 | **No API key on testnet** | Wastes time getting an API key | Blockscout verify — no key needed |
 | **Block time ~2s** | Uses 12s Ethereum poll intervals | Faster tx confirmation polling |
 
-### Layer 2 — 21 Executable MCP Tools
+### Layer 2 — 26 Executable MCP Tools
 
-The MCP server at `mcp-server/index.js` exposes **21 real executable tools** over stdio transport. Every tool wraps a genuine blockchain operation — no stubs, no mock data.
+The MCP server at `mcp-server/index.js` exposes **26 real executable tools** over stdio transport. Every tool wraps a genuine blockchain operation — no stubs, no mock data.
 
 | # | Tool | Category | What It Actually Does |
 |---|------|----------|----------------------|
@@ -101,6 +101,11 @@ The MCP server at `mcp-server/index.js` exposes **21 real executable tools** ove
 | 19 | `pharos_frontend_sync` | Safe | Syncs deployed contract address + ABI to a frontend project |
 | 20 | `pharos_create_safe_tx` | Safe | Builds a Safe (Gnosis) multi-sig transaction payload |
 | 21 | `pharos_propose_safe_tx` | Safe | Proposes a multi-sig tx via Safe Transaction Service API |
+| 22 | `pharos_spn_configure` | SPN | Configures SPN Paymaster: whitelist users, set budgets, pause/unpause |
+| 23 | `pharos_spn_fund` | SPN | Funds SPN Paymaster with native tokens for gas sponsorship |
+| 24 | `pharos_spn_status` | SPN | Checks SPN Paymaster whitelist, budget, and pause state |
+| 25 | `pharos_zklogin_register` | zkLogin | Registers a zkLogin identity commitment on-chain |
+| 26 | `pharos_zklogin_verify` | zkLogin | Verifies zkLogin proof and registers an ephemeral key |
 
 Every tool includes:
 - **Input validation** — required params, type checking, address checksumming
@@ -113,7 +118,7 @@ Every tool includes:
 
 ```mermaid
 flowchart LR
-    subgraph L1["Layer 1: 42 Subskills"]
+    subgraph L1["Layer 1: 45 Subskills"]
         direction LR
         S1[[solidity-authoring]]
         S2[[deployment-and-verification]]
@@ -182,14 +187,13 @@ $ node agent/token-workflow.mjs
 
 | Test Suite | Count | What It Covers |
 |------------|-------|----------------|
-| **Solidity (forge)** | 34 | ERC-20 standard functions, owner controls, edge cases, invariants, fuzzing |
-| **MCP Server** | 21 | All 26 tools registered, input validation, error handling, SUBLINK mapping |
+| **Solidity (forge)** | 145 | ERC-20 standard functions, owner controls, edge cases, invariants, fuzzing |
+| **MCP Server** | 17 | All 26 tools registered, input validation, error handling, SUBLINK mapping |
 
 ```bash
-$ npm test
-# 167 total tests pass (forge test)
-# 26 mcp tests pass (node test.js)
-# Total: 55/55
+$ forge test -vvv          # 145 Solidity tests pass
+$ node --test              # 17 MCP behavioral tests pass
+$ node test.js             # 1 structural test passes (26 tools checked)
 ```
 
 ---
@@ -242,7 +246,7 @@ $ npm test
 |---|---|---|
 | **Format** | **Dual-layer**: instruction subskills + executable MCP tools | Single format (skills only) or single tool |
 | **On-chain proof** | **3 verified contracts** live on Atlantic Testnet — source readable on explorer | No deployment, or deployment without verification |
-| **Scale** | **45 subskills + 26 MCP tools** = 63 total assets | Under 10 skills, no tools |
+| **Scale** | **45 subskills + 26 MCP tools** = 71 total assets | Under 10 skills, no tools |
 | **Pharos-specific** | SPN development, RWA compliance, `eth_getAccount`, safe/finalized tags, no-2300-gas | Generic EVM advice copy-pasted for Pharos |
 | **Live demo** | MCP server calls 6 tools through real blockchain, 55 passing tests | No demo, or single command with no output |
 | **CI/CD** | GitHub Actions: lint + test auto, deploy/verify via workflow dispatch | No automation |
@@ -288,10 +292,9 @@ git clone https://github.com/tejas0111/Pharos
 cd Pharos && cd mcp-server && npm install && cd ..
 
 # Verify everything works
-npm test
-# → 167 total tests pass
-# → 26 mcp tests pass
-# → 55/55 total
+forge test -vvv       # 145 Solidity tests pass
+node --test           # 17 MCP behavioral tests pass
+node test.js          # 1 structural test (26 tools registered)
 
 # Run the MCP demo (no private key needed)
 node agent/mcp-demo.mjs
@@ -314,7 +317,7 @@ bash skill/scripts/deploy-testnet.sh
 ```
 skill/                        # Layer 1: 45 instruction subskills
 ├── SKILL.md                  # Master routing & orchestration
-├── subskills/*/SKILL.md      # 42 focused subskills
+├── subskills/*/SKILL.md      # 45 focused subskills
 ├── references/*.md           # Network context, deployment patterns, harness
 └── scripts/*.sh              # Deploy & verify scripts
 
@@ -381,11 +384,11 @@ ANVITA_FLOW_INTEGRATION.md    # Phase 2 readiness
 | Criterion | How We Deliver | Evidence |
 |-----------|---------------|----------|
 | **Originality & Creativity** | Dual-layer design: 45 instruction subskills + 26 executable MCP tools — the only skill offering both layers for Pharos development. Cascading architecture where subskills teach agents and tools execute on-chain. | Architecture diagram, 45 subskill files, 26 tool handlers |
-| **Technical Quality** | 26 tools that actually execute (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither), not just print commands. Private key sanitization in every tool. Error handling with Pharos-specific error codes. 55/167 tests passing. | `mcp-server/index.js`, `test/`, `npm test` output |
+| **Technical Quality** | 26 tools that actually execute (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither), not just print commands. Private key sanitization in every tool. Error handling with Pharos-specific error codes. 145 tests passing. | `mcp-server/index.js`, `test/`, `npm test` output |
 | **Practical Use Case** | Full dev lifecycle: deploy, verify, transfer, trace, gas estimate, network status, account state, security audit, test generation, log fetching. Covers everything a Pharos developer needs. | 8-tool token workflow in `agent/token-workflow.mjs` |
 | **Reusability & Composability** | MCP tools chain together via stdio MCP protocol. `agent/token-workflow.mjs` demonstrates 8-tool composition. Tools callable from any MCP host (Claude Desktop, custom clients, Anvita Flow). | `agent/token-workflow.mjs`, `ANVITA_FLOW_INTEGRATION.md` |
 | **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All verified on Blockscout. Addresses and tx hashes documented in `DEPLOYMENTS.md`. | [Explorer links](#-on-chain-proof) |
-| **Documentation** | 45 subskill READMEs, comprehensive README, Anvita Flow integration guide, deployment proof, architecture walkthrough (`CASCADE.md`), agent composition demo. Deep audit addressing 65 issues. | `README.md`, `CASCADE.md`, `ANVITA_FLOW_INTEGRATION.md` |
+| **Documentation** | 45 subskill READMEs, comprehensive README, Anvita Flow integration guide, deployment proof, architecture walkthrough (`CASCADE.md`), agent composition demo. | `README.md`, `CASCADE.md`, `ANVITA_FLOW_INTEGRATION.md` |
 | **Pharos Vision Alignment** | Anvita Flow ready with x402 micropayments. Pharos-native RPC methods (`eth_getAccount`, `debug_traceTransaction`, safe/finalized tags). SPN and RWA compliance subskills. Pull-over-push patterns. | `ANVITA_FLOW_INTEGRATION.md`, `spn-development/SKILL.md`, `rwa-compliance/SKILL.md` |
 
 ---
@@ -397,7 +400,7 @@ ANVITA_FLOW_INTEGRATION.md    # Phase 2 readiness
 | Tells the agent "deploy a contract" | Shows the agent **exactly how**: `forge script`, correct RPC, chain ID verification, gas check, security gate |
 | Single monolithic skill file | **42 granular subskills** — one per domain, easier to maintain and reference |
 | No on-chain verification | **3 verified contracts** — judge can open explorer and read source immediately |
-| Static documentation | **21 executable tools** — agents don't just read, they *do* |
+| Static documentation | **26 executable tools** — agents don't just read, they *do* |
 | No testing infrastructure | **55 automated tests** — Solidity unit tests + MCP server tests |
 | No CI/CD | **GitHub Actions pipeline** — lint, test, deploy, verify |
 | No security awareness | **Pre-deploy slither scans, gas monitors, key sanitization, risk gates** |

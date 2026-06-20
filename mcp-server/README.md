@@ -1,7 +1,7 @@
 # Pharos MCP Server
 
-[![tests](https://img.shields.io/badge/tests-21%20passing-brightgreen)]()
-[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)]()
+[![tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![tools](https://img.shields.io/badge/MCP%20tools-26-blue)]()
 [![license](https://img.shields.io/badge/license-MIT-green)]()
 
 MCP server for AI agents to interact with the Pharos blockchain. Exposes **26 executable tools** for deployment, verification, transfers, security checks, gas estimation, transaction tracing, contract reads/writes, frontend sync, and multi-sig support.
@@ -31,6 +31,11 @@ MCP server for AI agents to interact with the Pharos blockchain. Exposes **26 ex
 | 19 | `pharos_frontend_sync` | Sync deployed contract address + ABI to frontend `.env.local` + `abis/` | ✅ Yes |
 | 20 | `pharos_create_safe_tx` | Build a Gnosis Safe transaction payload for multi-sig | ✅ Yes |
 | 21 | `pharos_propose_safe_tx` | Prepare Safe multi-sig tx for proposal via Safe Transaction Service | ✅ Yes |
+| 22 | `pharos_spn_configure` | Configure SPN Paymaster: whitelist users, set budgets, pause/unpause | ✅ Yes |
+| 23 | `pharos_spn_fund` | Fund SPN Paymaster with native tokens for gas sponsorship | ✅ Yes |
+| 24 | `pharos_spn_status` | Check SPN Paymaster status: whitelist, budget, pause state | ✅ Yes |
+| 25 | `pharos_zklogin_register` | Register a zkLogin identity commitment on-chain | ✅ Yes |
+| 26 | `pharos_zklogin_verify` | Verify zkLogin proof and register an ephemeral key | ✅ Yes |
 
 ## Security Gates
 

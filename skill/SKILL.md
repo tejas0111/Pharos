@@ -10,7 +10,7 @@ metadata:
 
 # Pharos Agent Dev Suite
 
-The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 42 developer subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
+The comprehensive developer and deployment suite for Pharos blockchain projects. Routes to 45 developer subskills with mandatory requirement gathering and plan-first execution via `PLAN.md`.
 
 ## Core Workflow: Requirement → Plan → Execute
 
@@ -63,7 +63,7 @@ You: "Design the architecture for a staking contract"
 
 ## MCP Server Setup
 
-The Pharos MCP server provides **21 on-chain tools** (balanceOf, deployContract, traceTx, frontendSync, Safe multi-sig, etc.). Set it up once before any on-chain workflow:
+The Pharos MCP server provides **26 on-chain tools** (balanceOf, deployContract, traceTx, frontendSync, Safe multi-sig, SPN, zkLogin, etc.). Set it up once before any on-chain workflow:
 
 1. **Install dependencies** (if not already done):
    ```bash
@@ -81,7 +81,7 @@ The Pharos MCP server provides **21 on-chain tools** (balanceOf, deployContract,
    ```bash
    node mcp-server/index.js
    ```
-   It should print "Pharos MCP Server running on stdio" and list 21 registered tools.
+   It should print "Pharos MCP Server running on stdio" and list 26 registered tools.
 
 4. **Integrate with your AI client** (one-time config):
 

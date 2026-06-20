@@ -2,8 +2,8 @@
 
 [![tests](https://img.shields.io/badge/tests-55%20passing-brightgreen)](https://github.com/tejas0111/Pharos/actions)
 [![contracts](https://img.shields.io/badge/contracts-3%20verified-blue)](https://atlantic.pharosscan.xyz)
-[![tools](https://img.shields.io/badge/MCP%20tools-21-purple)](#mcp-server)
-[![subskills](https://img.shields.io/badge/subskills-42-orange)](#skill-map)
+[![tools](https://img.shields.io/badge/MCP%20tools-26-blue)](#mcp-server)
+[![subskills](https://img.shields.io/badge/subskills-45-orange)](#skill-map)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Pharos](https://img.shields.io/badge/pharos-Atlantic%20688689%20%7C%20Pacific%201672-blue)](https://docs.pharos.xyz)
 
@@ -20,11 +20,11 @@
 | Criterion | How We Deliver |
 |---|---|
 | **Originality & Creativity** | **Dual-layer design**: 45 instruction subskills + 26 executable MCP tools. No other entry offers both. The subskills teach an AI agent *how* to build on Pharos; the MCP tools let it *execute* on-chain. Two cascades, one flow. |
-| **Technical Quality** | 21 real tools (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither) — not stubs. Private key sanitization in every tool. Error handling with Pharos-specific codes. 167 tests passing (167 total). |
+| **Technical Quality** | 26 real tools (forge, viem RPC, Pharos-specific `eth_getAccount`, explorer API, slither) — not stubs. Private key sanitization in every tool. Error handling with Pharos-specific codes. 145 tests passing. |
 | **Practical Use Case** | Full dev lifecycle: deploy → verify → transfer → trace → gas estimate → audit → test generation → log fetching. See the [8-tool token workflow](#demo-flow) below. |
 | **Reusability & Composability** | MCP tools chain together via stdio. `agent/token-workflow.mjs` demonstrates an 8-tool composition. Tools can be called from any MCP host (Claude Desktop, custom clients, Anvita Flow). |
 | **On-Chain Deployment** | 3 contracts live on Atlantic Testnet (688689): Counter, Storage, PharosERC20. All verified on Blockscout. All addresses and tx hashes documented below. |
-| **Documentation** | 45 subskill guides, 167-test suite, CI/CD pipelines, deployment proofs, architecture diagrams, Anvita Flow integration — everything a judge needs to verify. |
+| **Documentation** | 45 subskill guides, 145-test suite, CI/CD pipelines, deployment proofs, architecture diagrams, Anvita Flow integration — everything a judge needs to verify. |
 | **Pharos Vision Alignment** | Anvita Flow ready (x402 micropayments). Pharos-native RPC methods (`eth_getAccount`, `debug_traceTransaction`, safe/finalized tags). SPN and RWA compliance subskills. |
 
 ---
@@ -72,7 +72,7 @@ Shows the mermaid diagrams: 45 subskills → 26 MCP tools → Pharos blockchain.
 
 ```mermaid
 flowchart LR
-    subgraph L1["Layer 1: 42 Instruction Subskills"]
+    subgraph L1["Layer 1: 45 Instruction Subskills"]
         direction LR
         S1[[solidity-authoring]]
         S2[[deployment-and-verification]]
@@ -81,7 +81,7 @@ flowchart LR
         S5[[frontend-dapp-integration]]
         S6[[...37 more]]
     end
-    subgraph L2["Layer 2: 21 Executable MCP Tools"]
+    subgraph L2["Layer 2: 26 Executable MCP Tools"]
         T1[deploy_contract]
         T2[verify_contract]
         T3[check_balance]
@@ -100,7 +100,7 @@ flowchart LR
     L2 -->|agent executes| BC
 ```
 
-### Layer 1: 42 Subskills
+### Layer 1: 45 Subskills
 Markdown guides that teach AI agents Pharos-specific patterns:
 - **No 2300 gas stipend** — use pull-over-push for native transfers
 - **Chain IDs**: Atlantic 688689 (PHRS) vs Pacific 1672 (PROS)
@@ -135,7 +135,7 @@ Full details in [DEPLOYMENTS.md](./DEPLOYMENTS.md).
 
 ---
 
-## MCP Server — 21 Tools
+## MCP Server — 26 Tools
 
 All tools run over stdio. No HTTP server, no Docker — just `node mcp-server/index.js`.
 
@@ -162,6 +162,11 @@ All tools run over stdio. No HTTP server, no Docker — just `node mcp-server/in
 | 19 | `pharos_frontend_sync` | Safe | Sync address + ABI to frontend |
 | 20 | `pharos_create_safe_tx` | Safe | Build multi-sig payload |
 | 21 | `pharos_propose_safe_tx` | Safe | Propose via Safe API |
+| 22 | `pharos_spn_configure` | SPN | Configure SPN Paymaster (sponsors, budgets, pause) |
+| 23 | `pharos_spn_fund` | SPN | Fund SPN Paymaster with native tokens |
+| 24 | `pharos_spn_status` | SPN | Check SPN Paymaster status |
+| 25 | `pharos_zklogin_register` | zkLogin | Register zkLogin identity commitment on-chain |
+| 26 | `pharos_zklogin_verify` | zkLogin | Verify zkLogin proof and register ephemeral key |
 
 ### Quick Start
 ```bash
@@ -190,7 +195,7 @@ node index.js
 
 ---
 
-## Skill Map — 42 Subskills
+## Skill Map — 45 Subskills
 
 | Category | Subskills | Risk |
 |---|---|---|
@@ -230,7 +235,7 @@ All subskills at `skill/subskills/*/SKILL.md`.
 | On-chain proof | **contracts verified** on Atlantic testnet | No deployment or code only |
 | Tool count | **45 subskills + 26 MCP tools** | Under 10 skills |
 | Pharos-specific | SPN, safe/finalized tags, eth_getAccount, no-2300-gas | Generic EVM advice |
-| Live demo | 6 tools through real MCP server, 167 passing tests | No demo or single command |
+| Live demo | 6 tools through real MCP server, 145 passing tests | No demo or single command |
 | CI/CD | GitHub Actions: lint + test automated on push; deploy + verify via manual workflow dispatch | No automation |
 | Phase 2 ready | Anvita Flow integration documented | No forward planning |
 
@@ -265,11 +270,11 @@ forge script script/Deploy.s.sol:DeployCounter \
 ```
 skill/                    # 45 subskills + references + deploy scripts
   SKILL.md                # Master routing & orchestration
-  subskills/*/SKILL.md    # 42 focused subskills
+  subskills/*/SKILL.md    # 45 focused subskills
   references/*.md         # Network context, deployment patterns, harness
   scripts/*.sh            # Deploy & verify scripts
 contracts/                # Example Solidity (3 deployed on testnet)
-test/                     # Foundry tests (34) + MCP tests (21) = 55 total
+test/                     # Foundry + MCP behavioral tests
 script/                   # Forge deploy scripts
 mcp-server/               # 26 MCP tools (Node.js + viem)
 agent/                    # Demo scripts (MCP client, token workflow, cascade)

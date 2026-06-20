@@ -15,9 +15,9 @@ You should receive a response within 48 hours. If not, follow up via email.
 ## Scope
 
 This policy covers:
-- The MCP server (`mcp-server/index.js`) — all 21 tools
+- The MCP server (`mcp-server/index.js`) — all 26 tools
 - The Solidity contracts (`contracts/`) — Counter, PharosERC20, Storage
-- The skill subskills (`skill/subskills/`) — all 42 markdown files
+- The skill subskills (`skill/subskills/`) — all 45 markdown files
 - The agent scripts (`agent/`) — mcp-client, demos
 - The CI/CD pipeline (`.github/workflows/`)
 - The web frontend (`web/`) — docs and landing page
