@@ -2,81 +2,150 @@
 pragma solidity ^0.8.26;
 
 /// @title PharosRWAToken
-/// @notice Real-World Asset compliant token with transfer restrictions and KYC.
-/// @dev Implements ERC-20 with whitelist, KYC expiration, supply caps, and legal admin.
-///      Uses pull-over-push for native transfers (Pharos has no 2300 gas stipend).
+/// @notice ERC-20 compliant Real-World Asset token with KYC, freeze, pause, and transfer cooldown
+/// @dev Combines KYC compliance (from original PharosRWAToken) + transfer cooldown (from RWAToken)
 contract PharosRWAToken {
-    error PharosRWAToken__Unauthorized();
-    error PharosRWAToken__KYCExpired();
-    error PharosRWAToken__KYCMissing();
+    // ──────────────────────────────────────────────
+    // Custom Errors
+    // ──────────────────────────────────────────────
+    error PharosRWAToken__KYCExpired(address account);
+    error PharosRWAToken__FrozenAccount(address account);
     error PharosRWAToken__SupplyCapExceeded();
+    error PharosRWAToken__NotOwner();
+    error PharosRWAToken__NotLegalAdmin();
+    error PharosRWAToken__ContractPaused();
+    error PharosRWAToken__TransferCooldown(address account, uint256 remaining);
     error PharosRWAToken__ZeroAddress();
-    error PharosRWAToken__FrozenAccount();
-    error PharosRWAToken__InvalidAmount();
 
+    // ──────────────────────────────────────────────
+    // Events
+    // ──────────────────────────────────────────────
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Whitelisted(address indexed account, uint256 expiry);
-    event WhitelistRevoked(address indexed account);
-    event SupplyCapUpdated(uint256 newCap);
-    event AccountFrozen(address indexed account, bool frozen);
+    event KYCSet(address indexed account, uint256 expiry);
+    event KYCRevoked(address indexed account);
+    event AccountFrozen(address indexed account);
+    event AccountUnfrozen(address indexed account);
+    event Paused();
+    event Unpaused();
+    event LegalAdminSet(address indexed previousAdmin, address indexed newAdmin);
+    event SupplyCapUpdated(uint256 oldCap, uint256 newCap);
+    event TransferCooldownSet(uint256 cooldown);
 
-    string private s_name;
-    string private s_symbol;
-    uint8 private s_decimals;
-    uint256 private s_totalSupply;
-    uint256 public s_supplyCap;
+    // ──────────────────────────────────────────────
+    // Immutable State
+    // ──────────────────────────────────────────────
     address public immutable i_owner;
-    address public i_legalAdmin;
-    bool public s_paused;
-    modifier whenNotPaused() { if (s_paused) revert PharosRWAToken__Unauthorized(); _; }
+    address public immutable i_legalAdmin;
+    string public i_name;
+    string public i_symbol;
+    uint8 public immutable i_decimals;
 
-    mapping(address => uint256) private s_balances;
-    mapping(address => mapping(address => uint256)) private s_allowances;
-    mapping(address => uint256) public s_kycExpiry; // timestamp or 0 = no KYC
+    // ──────────────────────────────────────────────
+    // Mutable State
+    // ──────────────────────────────────────────────
+    uint256 public s_totalSupply;
+    uint256 public s_supplyCap;
+
+    mapping(address => uint256) public s_balances;
+    mapping(address => mapping(address => uint256)) public s_allowances;
+    mapping(address => uint256) public s_kycExpiry;
     mapping(address => bool) public s_frozen;
+    bool public s_paused;
 
-    modifier onlyOwner() { if (msg.sender != i_owner) revert PharosRWAToken__Unauthorized(); _; }
-    modifier onlyLegal() { if (msg.sender != i_legalAdmin && msg.sender != i_owner) revert PharosRWAToken__Unauthorized(); _; }
+    // Transfer cooldown (anti-flash-loan)
+    uint256 public s_transferCooldown;
+    mapping(address => uint256) public s_lastTransferTimestamp;
 
-    constructor(string memory _name, string memory _symbol, uint256 _initialSupply, uint256 _supplyCap) {
-        i_owner = msg.sender;
-        i_legalAdmin = msg.sender;
-        s_name = _name; s_symbol = _symbol; s_decimals = 18;
-        s_supplyCap = _supplyCap;
-        if (_initialSupply > 0) {
-            s_balances[msg.sender] = _initialSupply;
-            s_totalSupply = _initialSupply;
-            s_kycExpiry[msg.sender] = type(uint256).max; // Owner always KYC-approved
-            emit Transfer(address(0), msg.sender, _initialSupply);
-        }
+    // ──────────────────────────────────────────────
+    // Modifiers
+    // ──────────────────────────────────────────────
+    modifier onlyOwner() {
+        if (msg.sender != i_owner) revert PharosRWAToken__NotOwner();
+        _;
     }
 
-    function name() external view returns (string memory) { return s_name; }
-    function symbol() external view returns (string memory) { return s_symbol; }
-    function decimals() external view returns (uint8) { return s_decimals; }
+    modifier onlyLegal() {
+        if (msg.sender != i_legalAdmin && msg.sender != i_owner) revert PharosRWAToken__NotLegalAdmin();
+        _;
+    }
+
+    modifier whenNotPaused() {
+        if (s_paused) revert PharosRWAToken__ContractPaused();
+        _;
+    }
+
+    modifier respectCooldown(address from, address to) {
+        if (from != i_owner && to != i_owner && s_transferCooldown > 0) {
+            uint256 lastTx = s_lastTransferTimestamp[from];
+            if (lastTx > 0 && block.timestamp < lastTx + s_transferCooldown) {
+                revert PharosRWAToken__TransferCooldown(from, (lastTx + s_transferCooldown) - block.timestamp);
+            }
+        }
+        _;
+    }
+
+    // ──────────────────────────────────────────────
+    // Constructor
+    // ──────────────────────────────────────────────
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _initialSupply,
+        uint256 _supplyCap,
+        address _legalAdmin
+    ) {
+        if (_legalAdmin == address(0)) revert PharosRWAToken__ZeroAddress();
+        i_owner = msg.sender;
+        i_name = _name;
+        i_symbol = _symbol;
+        i_decimals = _decimals;
+        i_legalAdmin = _legalAdmin;
+        s_supplyCap = _supplyCap;
+
+        // Owner gets perpetual KYC
+        s_kycExpiry[msg.sender] = type(uint256).max;
+        s_kycExpiry[_legalAdmin] = type(uint256).max;
+
+        if (_initialSupply > 0) {
+            if (_initialSupply > _supplyCap) revert PharosRWAToken__SupplyCapExceeded();
+            s_balances[msg.sender] = _initialSupply;
+            s_totalSupply = _initialSupply;
+            emit Transfer(address(0), msg.sender, _initialSupply);
+        }
+
+        // Default 30-second transfer cooldown
+        s_transferCooldown = 30;
+    }
+
+    // ──────────────────────────────────────────────
+    // KYC & Compliance Checks
+    // ──────────────────────────────────────────────
+    function _checkKYC(address _account) internal view {
+        if (s_kycExpiry[_account] == 0 || s_kycExpiry[_account] < block.timestamp) {
+            revert PharosRWAToken__KYCExpired(_account);
+        }
+        if (s_frozen[_account]) revert PharosRWAToken__FrozenAccount(_account);
+    }
+
+    // ──────────────────────────────────────────────
+    // ERC-20 Core
+    // ──────────────────────────────────────────────
+    function name() external view returns (string memory) { return i_name; }
+    function symbol() external view returns (string memory) { return i_symbol; }
+    function decimals() external view returns (uint8) { return i_decimals; }
     function totalSupply() external view returns (uint256) { return s_totalSupply; }
     function balanceOf(address _account) external view returns (uint256) { return s_balances[_account]; }
     function allowance(address _owner, address _spender) external view returns (uint256) { return s_allowances[_owner][_spender]; }
 
-    function _checkKYC(address _account) private view {
-        if (s_kycExpiry[_account] == 0) revert PharosRWAToken__KYCMissing();
-        if (s_kycExpiry[_account] <= block.timestamp && s_kycExpiry[_account] != type(uint256).max) revert PharosRWAToken__KYCExpired();
-        if (s_frozen[_account]) revert PharosRWAToken__FrozenAccount();
-    }
-
-    function _transfer(address _from, address _to, uint256 _value) private {
-        if (_value == 0) revert PharosRWAToken__InvalidAmount();
-        if (_from != address(0)) _checkKYC(_from);
-        if (_to != address(0)) _checkKYC(_to);
-        if (_from != address(0) && s_balances[_from] < _value) revert PharosRWAToken__InvalidAmount();
-        if (_from != address(0)) { s_balances[_from] -= _value; }
+    function transfer(address _to, uint256 _value) external whenNotPaused respectCooldown(msg.sender, _to) returns (bool) {
+        _checkKYC(msg.sender);
+        _checkKYC(_to);
+        s_balances[msg.sender] -= _value;
         s_balances[_to] += _value;
-        emit Transfer(_from, _to, _value);
-    }
-
-    function transfer(address _to, uint256 _value) external whenNotPaused returns (bool) {
-        _transfer(msg.sender, _to, _value);
+        s_lastTransferTimestamp[msg.sender] = block.timestamp;
+        emit Transfer(msg.sender, _to, _value);
         return true;
     }
 
@@ -86,49 +155,89 @@ contract PharosRWAToken {
         return true;
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) external whenNotPaused returns (bool) {
-        if (s_allowances[_from][msg.sender] < _value) revert PharosRWAToken__InvalidAmount();
+    function transferFrom(address _from, address _to, uint256 _value) external whenNotPaused respectCooldown(_from, _to) returns (bool) {
+        _checkKYC(_from);
+        _checkKYC(_to);
         s_allowances[_from][msg.sender] -= _value;
-        _transfer(_from, _to, _value);
+        s_balances[_from] -= _value;
+        s_balances[_to] += _value;
+        s_lastTransferTimestamp[_from] = block.timestamp;
+        emit Transfer(_from, _to, _value);
         return true;
     }
 
-    function mint(address _to, uint256 _value) external onlyOwner {
+    // ──────────────────────────────────────────────
+    // Mint & Burn
+    // ──────────────────────────────────────────────
+    function mint(address _to, uint256 _amount) external onlyOwner {
         if (_to == address(0)) revert PharosRWAToken__ZeroAddress();
-        if (s_totalSupply + _value > s_supplyCap) revert PharosRWAToken__SupplyCapExceeded();
-        _transfer(address(0), _to, _value);
-        s_totalSupply += _value;
+        uint256 newSupply = s_totalSupply + _amount;
+        if (newSupply > s_supplyCap) revert PharosRWAToken__SupplyCapExceeded();
+        s_totalSupply = newSupply;
+        s_balances[_to] += _amount;
+        emit Transfer(address(0), _to, _amount);
     }
 
-    function burn(uint256 _value) external {
-        _transfer(msg.sender, address(0), _value);
-        s_totalSupply -= _value;
+    function burn(uint256 _amount) external {
+        if (_amount > s_balances[msg.sender]) revert PharosRWAToken__SupplyCapExceeded();
+        s_balances[msg.sender] -= _amount;
+        s_totalSupply -= _amount;
+        emit Transfer(msg.sender, address(0), _amount);
     }
 
+    // ──────────────────────────────────────────────
+    // Admin: KYC
+    // ──────────────────────────────────────────────
     function setKYC(address _account, uint256 _expiry) external onlyLegal {
-        if (_account == address(0)) revert PharosRWAToken__ZeroAddress();
         s_kycExpiry[_account] = _expiry;
-        emit Whitelisted(_account, _expiry);
+        emit KYCSet(_account, _expiry);
     }
 
     function revokeKYC(address _account) external onlyLegal {
-        s_kycExpiry[_account] = 0;
-        emit WhitelistRevoked(_account);
+        delete s_kycExpiry[_account];
+        emit KYCRevoked(_account);
     }
 
-    function freeze(address _account, bool _frozen) external onlyLegal {
-        s_frozen[_account] = _frozen;
-        emit AccountFrozen(_account, _frozen);
+    // ──────────────────────────────────────────────
+    // Admin: Freeze
+    // ──────────────────────────────────────────────
+    function freeze(address _account) external onlyLegal {
+        s_frozen[_account] = true;
+        emit AccountFrozen(_account);
     }
 
-    function setLegalAdmin(address _admin) external onlyOwner {
-        if (_admin == address(0)) revert PharosRWAToken__ZeroAddress();
-        i_legalAdmin = _admin;
+    function unfreeze(address _account) external onlyLegal {
+        s_frozen[_account] = false;
+        emit AccountUnfrozen(_account);
     }
 
+    // ──────────────────────────────────────────────
+    // Admin: Pause
+    // ──────────────────────────────────────────────
+    function pause() external onlyLegal {
+        s_paused = true;
+        emit Paused();
+    }
+
+    function unpause() external onlyLegal {
+        s_paused = false;
+        emit Unpaused();
+    }
+
+    // ──────────────────────────────────────────────
+    // Admin: Supply Cap
+    // ──────────────────────────────────────────────
     function setSupplyCap(uint256 _newCap) external onlyOwner {
-        if (_newCap < s_totalSupply) revert PharosRWAToken__InvalidAmount();
+        if (_newCap < s_totalSupply) revert PharosRWAToken__SupplyCapExceeded();
+        emit SupplyCapUpdated(s_supplyCap, _newCap);
         s_supplyCap = _newCap;
-        emit SupplyCapUpdated(_newCap);
+    }
+
+    // ──────────────────────────────────────────────
+    // Admin: Transfer Cooldown
+    // ──────────────────────────────────────────────
+    function setTransferCooldown(uint256 _cooldown) external onlyOwner {
+        s_transferCooldown = _cooldown;
+        emit TransferCooldownSet(_cooldown);
     }
 }

@@ -17,7 +17,7 @@ Pharos Main Chain (Pacific Mainnet, Chain 1672)
     │       └── TEE: SGX
     │
     └── SPN #2: RWA Compliance
-            └── contracts: PharosRWAToken.sol, RWAToken.sol
+            └── contracts: PharosPharosRWAToken.sol, PharosRWAToken.sol
             └── TEE: TDX
 ```
 

@@ -282,7 +282,7 @@ footer a{color:var(--accent2);text-decoration:none}
 
 <!-- ===== RWA TOKEN ===== -->
 <div class="card">
-<div class="card-header"><span class="card-name">PharosRWAToken</span><span class="card-type">Compliance</span></div>
+<div class="card-header"><span class="card-name">PharosPharosRWAToken</span><span class="card-type">Compliance</span></div>
 <div class="card-desc">Regulated ERC-20 with KYC whitelist, account freezing, transfer cooldowns, and supply cap. Built for real-world asset tokenization.</div>
 <div class="demo-area" id="rwa-demo">
   <div class="row"><span class="label">Supply</span><span class="value" id="rwa-supply">0 / 100M</span></div>
@@ -476,7 +476,7 @@ function unstakeTokens(){
   log('stake','Unstaked all tokens successfully','ok');
 }
 
-// ── RWA Token ──
+// ── Pharos RWA Token ──
 let rwaSupply = 1000000, rwaKyc = false, rwaLastTransfer = 0;
 function updateRwa(){
   update('rwa-supply',rwaSupply.toLocaleString()+' / 100M');
@@ -508,7 +508,7 @@ log('zk','zkLogin Verifier deployed — chain: 688689','ok');
 log('lend','LendingPool ready — kinked interest model active','ok');
 log('dex','DEXPool constant product AMM initialized (k = 1e10)','ok');
 log('stake','StakingPool ready — min lock: 1 hour','ok');
-log('rwa','RWAToken deployed — supply cap: 100M pRWA','ok');
+log('rwa','PharosRWAToken deployed — supply cap: 100M pRWA','ok');
 </script>
 </body>
 </html>

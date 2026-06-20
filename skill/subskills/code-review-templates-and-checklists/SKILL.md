@@ -44,10 +44,10 @@ Standardized code review checklists for Pharos smart contracts. Every review mus
 
 ### ERC-20 Token Review
 ```
-1.  Total supply cap enforced? → PharosRWAToken.sol
-2.  KYC/whitelist enforced? → RWAToken.sol
-3.  Pausable for emergencies? → PharosRWAToken.sol
-4.  Freeze individual accounts? → PharosRWAToken.sol
+1.  Total supply cap enforced? → PharosPharosRWAToken.sol
+2.  KYC/whitelist enforced? → PharosRWAToken.sol
+3.  Pausable for emergencies? → PharosPharosRWAToken.sol
+4.  Freeze individual accounts? → PharosPharosRWAToken.sol
 5.  EIP-2612 permits for gasless approvals?
 ```
 

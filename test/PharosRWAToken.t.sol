@@ -1,131 +1,282 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../contracts/PharosRWAToken.sol";
+import {Test} from "forge-std/Test.sol";
+import {PharosRWAToken} from "../contracts/PharosRWAToken.sol";
 
 contract PharosRWATokenTest is Test {
     PharosRWAToken public token;
-    address public OWNER = address(0x1234);
-    address public USER = address(0x5678);
-    address public USER2 = address(0x9ABC);
+
+    address public constant OWNER = address(0x1);
+    address public constant LEGAL_ADMIN = address(0x2);
+    address public constant USER = address(0x3);
+    address public constant USER2 = address(0x4);
+    address public constant UNWHITELISTED = address(0x5);
+
+    uint256 public constant INITIAL_SUPPLY = 1_000_000e18;
+    uint256 public constant SUPPLY_CAP = 100_000_000e18;
 
     function setUp() public {
-        vm.prank(OWNER);
-        token = new PharosRWAToken("Pharos RWA", "pRWA", 1000000e18, 100000000e18);
+        vm.startPrank(OWNER);
+        token = new PharosRWAToken(
+            "Pharos RealWorld Asset",
+            "pRWA",
+            18,
+            INITIAL_SUPPLY,
+            SUPPLY_CAP,
+            LEGAL_ADMIN
+        );
+        vm.stopPrank();
 
-        // Give USER and USER2 KYC
-        vm.prank(OWNER);
+        // Set KYC for test users
+        vm.prank(LEGAL_ADMIN);
         token.setKYC(USER, type(uint256).max);
-        vm.prank(OWNER);
+        vm.prank(LEGAL_ADMIN);
         token.setKYC(USER2, type(uint256).max);
 
-        // Transfer some tokens to USER
+        // Fund users
         vm.prank(OWNER);
-        require(token.transfer(USER, 10000e18), "transfer failed");
+        token.transfer(USER, 100_000e18);
+        vm.prank(OWNER);
+        token.transfer(USER2, 50_000e18);
     }
 
+    // ──────────────────────────────────────────────
+    // Constructor
+    // ──────────────────────────────────────────────
     function test_Constructor_SetsMetadata() public {
-        assertEq(token.name(), "Pharos RWA");
+        assertEq(token.name(), "Pharos RealWorld Asset");
         assertEq(token.symbol(), "pRWA");
         assertEq(token.decimals(), 18);
-        assertEq(token.totalSupply(), 1000000e18);
-        assertEq(token.s_supplyCap(), 100000000e18);
         assertEq(token.i_owner(), OWNER);
+        assertEq(token.i_legalAdmin(), LEGAL_ADMIN);
+        assertEq(token.s_supplyCap(), SUPPLY_CAP);
+        assertEq(token.s_totalSupply(), INITIAL_SUPPLY);
+        assertEq(token.s_transferCooldown(), 30);
     }
 
-    function test_Constructor_GivesOwnerBalance() public {
-        assertEq(token.balanceOf(OWNER), 990000e18); // 1M - 10K sent to USER
+    function test_Constructor_RevertsZeroLegalAdmin() public {
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__ZeroAddress.selector);
+        new PharosRWAToken("T", "T", 18, 0, SUPPLY_CAP, address(0));
     }
 
+    // ──────────────────────────────────────────────
+    // Transfer & KYC
+    // ──────────────────────────────────────────────
     function test_Transfer_WorksWithKYC() public {
         vm.prank(USER);
-        require(token.transfer(USER2, 1000e18), "transfer failed");
-        assertEq(token.balanceOf(USER), 9000e18);
-        assertEq(token.balanceOf(USER2), 1000e18);
+        token.transfer(USER2, 1000e18);
+
+        assertEq(token.balanceOf(USER), 99_000e18);
+        assertEq(token.balanceOf(USER2), 51_000e18);
     }
 
     function test_Transfer_RevertsWithoutKYC() public {
-        address noKYC = address(0xDEAD);
-        vm.prank(USER);
-        vm.expectRevert(abi.encodeWithSignature("PharosRWAToken__KYCMissing()"));
-        token.transfer(noKYC, 100e18);
+        vm.prank(OWNER);
+        vm.expectRevert(
+            abi.encodeWithSelector(PharosRWAToken.PharosRWAToken__KYCExpired.selector, UNWHITELISTED)
+        );
+        token.transfer(UNWHITELISTED, 1000e18);
     }
 
     function test_Transfer_RevertsFrozenAccount() public {
-        vm.prank(OWNER);
-        token.freeze(USER, true);
+        vm.prank(LEGAL_ADMIN);
+        token.freeze(USER);
 
         vm.prank(USER);
-        vm.expectRevert(abi.encodeWithSignature("PharosRWAToken__FrozenAccount()"));
-        token.transfer(USER2, 100e18);
+        vm.expectRevert(
+            abi.encodeWithSelector(PharosRWAToken.PharosRWAToken__FrozenAccount.selector, USER)
+        );
+        token.transfer(USER2, 1000e18);
     }
 
-    function test_ApproveAndTransferFrom() public {
+    // ──────────────────────────────────────────────
+    // Transfer Cooldown (merged from RWAToken)
+    // ──────────────────────────────────────────────
+    function test_TransferCooldown_RevertsWithinCooldown() public {
+        vm.prank(USER);
+        token.transfer(USER2, 1000e18);
+
+        // Second transfer from same sender should revert during cooldown
+        vm.prank(USER);
+        vm.expectRevert(
+            abi.encodeWithSelector(PharosRWAToken.PharosRWAToken__TransferCooldown.selector, USER, 30)
+        );
+        token.transfer(USER2, 500e18);
+    }
+
+    function test_TransferCooldown_AllowsAfterCooldown() public {
+        vm.prank(USER);
+        token.transfer(USER2, 1000e18);
+
+        // Warp past the 30-second cooldown
+        vm.warp(block.timestamp + 31);
+
+        vm.prank(USER);
+        token.transfer(USER2, 500e18);
+
+        assertEq(token.balanceOf(USER2), 51_500e18);
+    }
+
+    function test_TransferCooldown_NotAppliedToOwner() public {
+        // Owner should not have cooldown
+        vm.prank(OWNER);
+        token.transfer(USER, 1000e18);
+
+        vm.prank(OWNER);
+        token.transfer(USER2, 1000e18);  // Should not revert
+
+        assertEq(token.balanceOf(USER2), 51_000e18);
+    }
+
+    function test_TransferCooldown_CanBeChanged() public {
+        vm.prank(OWNER);
+        token.setTransferCooldown(60);
+
+        assertEq(token.s_transferCooldown(), 60);
+    }
+
+    function test_TransferCooldown_NotAppliedOnZeroCooldown() public {
+        vm.prank(OWNER);
+        token.setTransferCooldown(0);
+
+        vm.prank(USER);
+        token.transfer(USER2, 1000e18);
+
+        // Should work immediately with cooldown = 0
+        vm.prank(USER);
+        token.transfer(USER2, 500e18);
+
+        assertEq(token.balanceOf(USER2), 51_500e18);
+    }
+
+    // ──────────────────────────────────────────────
+    // TransferFrom
+    // ──────────────────────────────────────────────
+    function test_TransferFrom_Works() public {
         vm.prank(USER);
         token.approve(USER2, 5000e18);
 
         vm.prank(USER2);
-        require(token.transferFrom(USER, USER2, 3000e18), "transferFrom failed");
+        token.transferFrom(USER, USER2, 2000e18);
 
-        assertEq(token.balanceOf(USER), 7000e18);
-        assertEq(token.balanceOf(USER2), 3000e18);
+        assertEq(token.balanceOf(USER), 98_000e18);
+        assertEq(token.balanceOf(USER2), 52_000e18);
+        assertEq(token.allowance(USER, USER2), 3000e18);
     }
 
-    function test_Mint_OwnerOnly() public {
+    // ──────────────────────────────────────────────
+    // Mint & Burn
+    // ──────────────────────────────────────────────
+    function test_Mint_OnlyOwner() public {
         vm.prank(OWNER);
-        token.mint(USER, 5000e18);
-        assertEq(token.balanceOf(USER), 15000e18);
-        assertEq(token.totalSupply(), 1005000e18);
+        token.mint(USER, 10_000e18);
+        assertEq(token.balanceOf(USER), 110_000e18);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY + 10_000e18);
     }
 
-    function test_Mint_RevertsNotOwner() public {
+    function test_Mint_RevertsNonOwner() public {
         vm.prank(USER);
-        vm.expectRevert(abi.encodeWithSignature("PharosRWAToken__Unauthorized()"));
-        token.mint(USER, 100e18);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__NotOwner.selector);
+        token.mint(USER, 1000e18);
     }
 
-    function test_Mint_RevertsSupplyCap() public {
+    function test_Mint_RevertsExceedsCap() public {
+        uint256 hugeAmount = SUPPLY_CAP;
         vm.prank(OWNER);
-        vm.expectRevert(abi.encodeWithSignature("PharosRWAToken__SupplyCapExceeded()"));
-        token.mint(USER, 100000000e18); // Would exceed cap
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__SupplyCapExceeded.selector);
+        token.mint(USER, hugeAmount);
     }
 
-    function test_Burn() public {
+    function test_Burn_Works() public {
         vm.prank(USER);
-        token.burn(5000e18);
-        assertEq(token.balanceOf(USER), 5000e18);
-        assertEq(token.totalSupply(), 995000e18);
+        token.burn(10_000e18);
+        assertEq(token.balanceOf(USER), 90_000e18);
+        assertEq(token.totalSupply(), INITIAL_SUPPLY - 10_000e18);
     }
 
+    function test_Burn_RevertsExceedsBalance() public {
+        vm.prank(USER);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__SupplyCapExceeded.selector);
+        token.burn(200_000e18);
+    }
+
+    // ──────────────────────────────────────────────
+    // KYC Expiry
+    // ──────────────────────────────────────────────
     function test_KYC_Expiry() public {
-        address user3 = address(0xCAFE);
-        vm.prank(OWNER);
-        token.setKYC(user3, block.timestamp + 100); // Expires in 100 sec
+        vm.prank(LEGAL_ADMIN);
+        token.setKYC(USER, block.timestamp + 1 days);
 
-        vm.prank(OWNER);
-        require(token.transfer(user3, 100e18), "transfer failed"); // Works before expiry
-
-        vm.warp(block.timestamp + 200);
-
-        vm.prank(user3);
-        vm.expectRevert(abi.encodeWithSignature("PharosRWAToken__KYCExpired()"));
-        token.transfer(USER, 50e18);
-    }
-
-    function test_SetLegalAdmin() public {
-        vm.prank(OWNER);
-        token.setLegalAdmin(USER);
-        assertEq(token.i_legalAdmin(), USER);
-
-        // USER can now manage KYC
+        // Still valid today
         vm.prank(USER);
-        token.setKYC(USER2, block.timestamp + 1000);
+        token.transfer(USER2, 1000e18);
+
+        // After expiry
+        vm.warp(block.timestamp + 2 days);
+        vm.prank(USER);
+        vm.expectRevert(
+            abi.encodeWithSelector(PharosRWAToken.PharosRWAToken__KYCExpired.selector, USER)
+        );
+        token.transfer(USER2, 1000e18);
     }
 
-    function test_SetSupplyCap() public {
+    // ──────────────────────────────────────────────
+    // Admin: KYC & Freeze
+    // ──────────────────────────────────────────────
+    function test_SetKYC_OnlyLegalOrOwner() public {
+        vm.prank(USER);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__NotLegalAdmin.selector);
+        token.setKYC(USER2, type(uint256).max);
+    }
+
+    function test_Freeze_OnlyLegalOrOwner() public {
+        vm.prank(USER);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__NotLegalAdmin.selector);
+        token.freeze(USER2);
+    }
+
+    function test_Unfreeze_Works() public {
+        vm.prank(LEGAL_ADMIN);
+        token.freeze(USER);
+
+        vm.prank(LEGAL_ADMIN);
+        token.unfreeze(USER);
+
+        vm.prank(USER);
+        token.transfer(USER2, 1000e18);  // Should work after unfreeze
+    }
+
+    // ──────────────────────────────────────────────
+    // Pause
+    // ──────────────────────────────────────────────
+    function test_Pause_RevertsTransfers() public {
+        vm.prank(LEGAL_ADMIN);
+        token.pause();
+
+        vm.prank(USER);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__ContractPaused.selector);
+        token.transfer(USER2, 1000e18);
+
+        vm.prank(LEGAL_ADMIN);
+        token.unpause();
+
+        vm.prank(USER);
+        token.transfer(USER2, 1000e18);  // Should work after unpause
+    }
+
+    // ──────────────────────────────────────────────
+    // Supply Cap
+    // ──────────────────────────────────────────────
+    function test_SetSupplyCap_OnlyOwner() public {
         vm.prank(OWNER);
-        token.setSupplyCap(2000000e18);
-        assertEq(token.s_supplyCap(), 2000000e18);
+        token.setSupplyCap(200_000_000e18);
+        assertEq(token.s_supplyCap(), 200_000_000e18);
+    }
+
+    function test_SetSupplyCap_RevertsBelowTotalSupply() public {
+        vm.prank(OWNER);
+        vm.expectRevert(PharosRWAToken.PharosRWAToken__SupplyCapExceeded.selector);
+        token.setSupplyCap(10_000e18);
     }
 }

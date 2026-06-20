@@ -49,7 +49,7 @@ contract DeployPharosLendingPool is Script {
 | PharosLendingPool | `DeployLendingPool.s.sol` | — |
 | DEXPool | `DeployDEXPool.s.sol` | — |
 | StakingPool | `DeployStakingPool.s.sol` | — |
-| PharosRWAToken | `DeployRWAToken.s.sol` | — |
+| PharosPharosRWAToken | `DeployPharosRWAToken.s.sol` | — |
 | CrossChainMessage | `DeployCrossChain.s.sol` | — |
 | PharosSPNPaymaster | `DeploySPNPaymaster.s.sol` | — |
 | PharosZkLogin | `DeployZkLogin.s.sol` | — |

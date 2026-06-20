@@ -192,7 +192,7 @@ const hash = await bundlerClient.sendUserOperation({
 ## Interactive Demo
 
 The project includes an interactive web demo at `web/index.html` showcasing:
-- 6 contract cards: SPN Paymaster, zkLogin, LendingPool, DEXPool, StakingPool, RWAToken
+- 6 contract cards: SPN Paymaster, zkLogin, LendingPool, DEXPool, StakingPool, PharosRWAToken
 - Working button simulators for each contract
 - Real-time log viewers with colored tags
 - Utilization bars and budget tracking

@@ -17,7 +17,9 @@ contract DeployPharosRWAToken is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        PharosRWAToken token = new PharosRWAToken(tokenName, tokenSymbol, initialSupply, supplyCap);
+        uint8 decimals = 18;
+        address legalAdmin = deployer;
+        PharosRWAToken token = new PharosRWAToken(tokenName, tokenSymbol, decimals, initialSupply, supplyCap, legalAdmin);
 
         vm.stopBroadcast();
 

@@ -146,7 +146,7 @@ All 13 contracts in `contracts/` are mainnet-ready (167 tests passing):
 | PharosLendingPool | `DeployLendingPool.s.sol` | Collateralized lending |
 | DEXPool | `DeployDEXPool.s.sol` | Constant-product AMM |
 | StakingPool | `DeployStakingPool.s.sol` | Time-weighted staking |
-| PharosRWAToken | `DeployRWAToken.s.sol` | Regulated RWA token |
+| PharosPharosRWAToken | `DeployPharosRWAToken.s.sol` | Regulated RWA token |
 | CrossChainMessage | `DeployCrossChain.s.sol` | SPN Mailbox |
 | PharosTimelockController | — | Governance timelock |
 

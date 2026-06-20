@@ -147,8 +147,8 @@ The project's `contracts/` use OpenZeppelin-compatible patterns. Key changes:
 
 Affected contracts:
 - `contracts/PharosERC20.sol` — uses `_mint`/`_burn` (unchanged in 5.x)
-- `contracts/PharosRWAToken.sol` — custom `_update` logic for KYC
-- `contracts/RWAToken.sol` — whitelist enforcement in transfers
+- `contracts/PharosPharosRWAToken.sol` — custom `_update` logic for KYC
+- `contracts/PharosRWAToken.sol` — whitelist enforcement in transfers
 
 ### Forge-Std
 

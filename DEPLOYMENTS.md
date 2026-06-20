@@ -20,7 +20,7 @@
 | DEXPool | `TOKEN_A`, `TOKEN_B` | `DeployDEXPool.s.sol` |
 | StakingPool | `STAKING_TOKEN`, `REWARD_TOKEN` | `DeployStakingPool.s.sol` |
 | CrossChainMessage | `TRUSTED_PEER` | `DeployCrossChain.s.sol` |
-| RWAToken | — | `DeployRWAToken.s.sol` |
+| PharosRWAToken | — | `DeployPharosRWAToken.s.sol` |
 
 ## Pacific Mainnet (Chain ID: 1672)
 
