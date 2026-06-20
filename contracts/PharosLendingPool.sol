@@ -144,6 +144,8 @@ contract PharosLendingPool {
         }
         pos.supplied -= _amount;
         s_totalSupplied -= _amount;
+        (bool sent, ) = msg.sender.call{value: _amount}("");
+        if (!sent) revert PharosLendingPool__InsufficientLiquidity();
         emit Withdrawn(msg.sender, _amount, s_totalSupplied);
     }
 
@@ -158,11 +160,14 @@ contract PharosLendingPool {
         if (pos.borrowed + _amount > maxBorrow) revert PharosLendingPool__ExceedsMaxLTV();
         pos.borrowed += _amount;
         s_totalBorrows += _amount;
+        (bool sent, ) = msg.sender.call{value: _amount}("");
+        if (!sent) revert PharosLendingPool__InsufficientLiquidity();
         emit Borrowed(msg.sender, _amount, s_totalBorrows);
     }
 
     // ── Repay ──
-    function repay(uint256 _amount) external nonZero(_amount) nonReentrant {
+    function repay(uint256 _amount) external payable nonZero(_amount) nonReentrant {
+        if (msg.value < _amount) revert PharosLendingPool__InsufficientBalance();
         accrueInterest();
         Position storage pos = s_positions[msg.sender];
         if (pos.borrowed == 0) revert PharosLendingPool__InsufficientBalance();

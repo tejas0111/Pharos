@@ -59,3 +59,24 @@ jobs:
 
       - name: Run Solidity tests
         run: forge test -vvv
+
+  slither-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Install Slither
+        run: pip install slither-analyzer
+
+      - name: Run Slither analysis
+        run: slither . --config-file slither.config.json || true

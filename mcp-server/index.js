@@ -1937,6 +1937,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
+  if (!name || typeof name !== "string") {
+    return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: "Missing or invalid tool name" }) }] };
+  }
+
   // Rate limit check per tool
   const rl = checkRateLimit(name);
   if (rl.limited) {
@@ -1946,43 +1950,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     };
   }
 
+  const safeArgs = args || {};
+
   try {
     switch (name) {
-      case "pharos_network_config": return networkConfig(args);
-      case "pharos_deploy_contract": return await deployContract(args);
-      case "pharos_verify_contract": return await verifyContract(args);
-      case "pharos_run_security_check": return await runSecurityCheck(args);
-      case "pharos_generate_tests": return await generateTests(args);
-      case "pharos_check_balance": return await checkBalance(args);
-      case "pharos_contract_info": return await contractInfo(args);
-      case "pharos_transfer_token": return await transferToken(args);
-      case "pharos_deploy_erc20": return await deployErc20(args);
-      case "pharos_get_logs": return await getLogs(args);
-      case "pharos_diagnose": return await diagnose(args);
-      case "pharos_get_account": return await getPharosAccount(args);
-      case "pharos_gas_estimate": return await estimateGas(args);
-      case "pharos_trace_transaction": return await traceTransaction(args);
-      case "pharos_network_status": return await networkStatus(args);
-      case "pharos_read_contract": return await readContract(args);
-      case "pharos_write_contract": return await writeContract(args);
-      case "pharos_fetch_abi": return await fetchAbi(args);
-      case "pharos_frontend_sync": return await frontendSync(args);
-      case "pharos_create_safe_tx": return await createSafeTx(args);
-      case "pharos_propose_safe_tx": return await proposeSafeTx(args);
-          case "pharos_spn_configure":
-      result = await spnConfigure(args);
+      case "pharos_network_config": return networkConfig(safeArgs);
+      case "pharos_deploy_contract": return await deployContract(safeArgs);
+      case "pharos_verify_contract": return await verifyContract(safeArgs);
+      case "pharos_run_security_check": return await runSecurityCheck(safeArgs);
+      case "pharos_generate_tests": return await generateTests(safeArgs);
+      case "pharos_check_balance": return await checkBalance(safeArgs);
+      case "pharos_contract_info": return await contractInfo(safeArgs);
+      case "pharos_transfer_token": return await transferToken(safeArgs);
+      case "pharos_deploy_erc20": return await deployErc20(safeArgs);
+      case "pharos_get_logs": return await getLogs(safeArgs);
+      case "pharos_diagnose": return await diagnose(safeArgs);
+      case "pharos_get_account": return await getPharosAccount(safeArgs);
+      case "pharos_gas_estimate": return await estimateGas(safeArgs);
+      case "pharos_trace_transaction": return await traceTransaction(safeArgs);
+      case "pharos_network_status": return await networkStatus(safeArgs);
+      case "pharos_read_contract": return await readContract(safeArgs);
+      case "pharos_write_contract": return await writeContract(safeArgs);
+      case "pharos_fetch_abi": return await fetchAbi(safeArgs);
+      case "pharos_frontend_sync": return await frontendSync(safeArgs);
+      case "pharos_create_safe_tx": return await createSafeTx(safeArgs);
+      case "pharos_propose_safe_tx": return await proposeSafeTx(safeArgs);
+      case "pharos_spn_configure":
+      result = await spnConfigure(safeArgs);
       break;
     case "pharos_spn_fund":
-      result = await spnFund(args);
+      result = await spnFund(safeArgs);
       break;
     case "pharos_spn_status":
-      result = await spnStatus(args);
+      result = await spnStatus(safeArgs);
       break;
     case "pharos_zklogin_register":
-      result = await zkLoginRegister(args);
+      result = await zkLoginRegister(safeArgs);
       break;
     case "pharos_zklogin_verify":
-      result = await zkLoginVerify(args);
+      result = await zkLoginVerify(safeArgs);
       break;
 default: return { isError: true, content: [{ type: "text", text: JSON.stringify({ error: `Unknown tool: ${name}` }) }] };
     }

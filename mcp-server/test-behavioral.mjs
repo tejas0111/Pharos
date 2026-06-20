@@ -8,41 +8,7 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert";
 import { spawn } from "node:child_process";
-import { resolve } from "node:path";
-
-const SERVER_SCRIPT = resolve(import.meta.dirname, "index.js");
-const PROJECT_ROOT = resolve(import.meta.dirname, "..");
-
-/**
- * Helper: Send a JSON-RPC message to the MCP server via stdin
- * and read the response from stdout.
- */
-function sendRequest(server, request) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error("Response timeout")), 10000);
-    let buffer = "";
-
-    const onData = (chunk) => {
-      buffer += chunk.toString();
-      try {
-        // Try to parse complete JSON response (may be newline-delimited)
-        const lines = buffer.trim().split("\n");
-        for (const line of lines) {
-          try {
-            const parsed = JSON.parse(line);
-            clearTimeout(timeout);
-            server.stdout.removeListener("data", onData);
-            resolve(parsed);
-            return;
-          } catch {}
-        }
-      } catch {}
-    };
-
-    server.stdout.on("data", onData);
-    server.stdin.write(JSON.stringify(request) + "\n");
-  });
-}
+import { sendRequest, SERVER_SCRIPT, PROJECT_ROOT } from "./test-helpers.mjs";
 
 describe("MCP Server — Tool Registration", async () => {
   const server = spawn("node", [SERVER_SCRIPT], {

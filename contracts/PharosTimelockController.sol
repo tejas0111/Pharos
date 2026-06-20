@@ -5,6 +5,18 @@ pragma solidity ^0.8.26;
 /// @notice Timelock governance for Pharos with proposal queuing, execution, and cancellation.
 /// @dev Uses pull-over-push for native transfers. Minimal delay is 1 hour, max is 30 days.
 contract PharosTimelockController {
+    // ── Inline Reentrancy Guard ──
+    uint256 private _status;
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    modifier nonReentrant() {
+        if (_status == _ENTERED) revert PharosTimelockController__Reentrancy();
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
+
     error PharosTimelockController__InvalidDelay();
     error PharosTimelockController__CallFailed();
     error PharosTimelockController__NotProposer();
@@ -13,6 +25,7 @@ contract PharosTimelockController {
     error PharosTimelockController__ProposalExpired();
     error PharosTimelockController__ProposalDoesNotExist();
     error PharosTimelockController__InvalidTarget();
+    error PharosTimelockController__Reentrancy();
 
     event ProposalQueued(bytes32 indexed id, address indexed target, uint256 value, bytes data, uint256 executeTime);
     event ProposalExecuted(bytes32 indexed id, address indexed target, uint256 value, bytes data);
@@ -44,6 +57,7 @@ contract PharosTimelockController {
         s_delay = _delay;
         s_proposers[msg.sender] = true;
         s_executors[msg.sender] = true;
+        _status = _NOT_ENTERED;
     }
 
     function queue(address _target, uint256 _value, bytes calldata _data) external onlyProposer returns (bytes32 id) {
@@ -56,7 +70,7 @@ contract PharosTimelockController {
         emit ProposalQueued(id, _target, _value, _data, _executeTime);
     }
 
-    function execute(address _target, uint256 _value, bytes calldata _data) external onlyExecutor returns (bytes memory) {
+    function execute(address _target, uint256 _value, bytes calldata _data) external onlyExecutor nonReentrant returns (bytes memory) {
         bytes32 id = keccak256(abi.encode(_target, _value, _data));
         if (!s_queuedProposals[id]) revert PharosTimelockController__ProposalDoesNotExist();
 
@@ -72,7 +86,7 @@ contract PharosTimelockController {
         return result;
     }
 
-    function cancel(bytes32 _id) external onlyProposer {
+    function cancel(bytes32 _id) external onlyProposer nonReentrant {
         if (!s_queuedProposals[_id]) revert PharosTimelockController__ProposalDoesNotExist();
         s_queuedProposals[_id] = false;
         emit ProposalCancelled(_id);

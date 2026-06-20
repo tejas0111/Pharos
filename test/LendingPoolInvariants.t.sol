@@ -12,6 +12,8 @@ contract LendingPoolHandler {
 
     address public immutable UNDERWATER_USER;
 
+    receive() external payable {}
+
     uint256 public constant MAX_SUPPLY = 100_000e18;
     uint256 public constant MAX_BORROW_PCT = 95;
 
@@ -55,7 +57,7 @@ contract LendingPoolHandler {
         pool.borrow(toBorrow);
     }
 
-    // ── Repay (not payable — just reduces debt accounting) ──
+    // ── Repay ────────────────────────────────────────
     function repay(uint256 fraction) external {
         (uint256 supplied, uint256 borrowed, ) = pool.s_positions(address(this));
         if (borrowed == 0) return;
@@ -64,8 +66,10 @@ contract LendingPoolHandler {
         fraction = fraction % 100;
         uint256 toRepay = borrowed * fraction / 100;
         if (toRepay == 0) return;
+        if (toRepay > address(this).balance) toRepay = address(this).balance;
+        if (toRepay == 0) return;
 
-        pool.repay(toRepay);
+        pool.repay{value: toRepay}(toRepay);
     }
 
     // ── Liquidate underwater positions ────────────────

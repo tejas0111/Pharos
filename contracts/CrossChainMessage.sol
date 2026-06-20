@@ -6,6 +6,18 @@ pragma solidity ^0.8.26;
 /// @dev Uses pull-over-push for message delivery, chain-aware validation
 ///      Compatible with LayerZero / SPN Mailbox pattern
 contract CrossChainMessage {
+    // ── Inline Reentrancy Guard ──
+    uint256 private _status;
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    modifier nonReentrant() {
+        if (_status == _ENTERED) revert CrossChain__Reentrancy();
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
+
     // ── Types ───────────────────────────────────────
     struct Message {
         uint256 id;
@@ -33,6 +45,7 @@ contract CrossChainMessage {
     error CrossChain__MessageFailed();
     error CrossChain__EmptyPayload();
     error CrossChain__InvalidAddress();
+    error CrossChain__Reentrancy();
 
     // ── Events ──────────────────────────────────────
     event MessageSent(uint256 indexed id, address indexed sender, uint256 targetChain, bytes payload);
@@ -57,6 +70,7 @@ contract CrossChainMessage {
     constructor(uint256 _chainId) {
         i_owner = msg.sender;
         i_chainId = _chainId;
+        _status = _NOT_ENTERED;
     }
 
     modifier onlyOwner() {
@@ -132,7 +146,7 @@ contract CrossChainMessage {
         address _sender,
         bytes calldata _payload,
         uint256 _sourceChainId
-    ) external onlyTrustedPeer(_sourceChainId) {
+    ) external onlyTrustedPeer(_sourceChainId) nonReentrant {
         if (s_messages[_msgId].delivered) revert CrossChain__MessageAlreadyDelivered();
 
         s_messages[_msgId].delivered = true;
@@ -151,7 +165,7 @@ contract CrossChainMessage {
 
     // ── Retry Failed ────────────────────────────────
 
-    function retryMessage(uint256 _msgId) external onlyTrustedPeer(s_messages[_msgId].sourceChainId) {
+    function retryMessage(uint256 _msgId) external onlyTrustedPeer(s_messages[_msgId].sourceChainId) nonReentrant {
         Message storage msg_ = s_messages[_msgId];
         if (!msg_.failed) revert CrossChain__MessageFailed();
 
