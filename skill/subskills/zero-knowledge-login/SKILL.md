@@ -62,6 +62,7 @@ function registerIdentity(
 ) external {
     // _proofOfOwnership proves the user controls the private key
     // associated with the OIDC identity
+    // TODO: validate _proofOfOwnership — e.g., verify signature from commitment
     require(!s_identities[_commitment].exists, "already registered");
     s_identities[_commitment] = Identity({
         commitment: _commitment,
@@ -99,8 +100,8 @@ function verifyAndRegisterKey(
     bytes32 commitment = bytes32(_publicSignals[0]);
     require(s_identities[commitment].exists, "unknown identity");
 
-    // 3. Register ephemeral key (max 1-hour lifetime)
-    uint256 expiry = block.timestamp + 1 hours;
+    // 3. Register ephemeral key (respect caller-provided expiry, cap at 1 hour)
+    uint256 expiry = _expiry < block.timestamp + 1 hours ? _expiry : block.timestamp + 1 hours;
     bytes32 keyId = keccak256(abi.encodePacked(commitment, s_keyCounter[commitment]++));
     s_ephemeralKeys[keyId] = EphemeralKey({
         key: _ephemeralKey,
@@ -126,6 +127,9 @@ function verifyEphemeralSignature(
     require(!ek.revoked, "key revoked");
 
     // Recover signer from digest and signature
+    // NOTE: _digest must be eth_sign prefixed:
+    //   keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _digest))
+    // For EIP-712 typed data, use the EIP-712 domain separator instead.
     address signer = ecrecover(_digest, _signature);
     return signer == ek.key;
 }
@@ -162,7 +166,7 @@ function verifyGroth16Proof(
     // 2. JWT `sub` matches the identity commitment
     // 3. Ephemeral public key is committed in the JWT nonce field
     // 4. JWT has not expired (`exp` claim checked)
-    return true;  // Placeholder — real verifier does pairing check
+    revert("auto-generated: deploy circom Groth16 verifier contract");
 }
 ```
 
